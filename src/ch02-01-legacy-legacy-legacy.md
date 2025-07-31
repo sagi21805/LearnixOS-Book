@@ -8,18 +8,24 @@ When writing our bootloader and especially on the first stages we encounter a lo
 This legacy may come in multiple shapes, like bios interrupts, magic numbers and things that are needed to be initialized and most of this stuff will be covered in this chapter.  
 
 > **Note:** from now on, each of the code blocks will be structured as they are in the real project, 
-> so if there are files or folders that will seem irrelevant, they will be used in the future and our current project structure will change as stated bellow. 
+> and every time a code file will have a path in it, that will be the same path in the real project.
+> For example, our first stage will be located in the <u>kernel/stages/first_stage</u> directory.
 > 
-> Our first stage will be located in the `kernel/stages/first_stage` directory, our 16_bit target in the `build/targets` directory and the linker script in the `build/linker_scripts` directory. The `Cargo.toml` in the root of the project will include a [`workspace`](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) definition which will include all of the crates from our project.
+> Our project structure will include the following directories 
 >
-> We will also create a `shared/common` crate that will include common code for all of our crates, like constants and enums.
+> - kernel -> For the kernel code, and booting stages. 
+> - shared -> Shared crates that are relevant for multiple cases. 
+> - build  -> Will include build utilities, like targets, linker scripts and more.
+>
+> The <u>Cargo.toml</u> in the root of the project will include a [`workspace`](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) definition which will include all of the crates from our project.
+>
 
 ## Basic Initialization
 
 At the start of our code, we want to zero out all of the [`memory segments`](https://en.wikipedia.org/wiki/X86_memory_segmentation#Real_mode) in our machine, so all of the addresses that we will access will not be manipulated by the segments.
 This manipulation can happen if the segments are not 0, because the address translation process of the cpu for general is as follows 
 ```
-Physical address = Segment * 0x10 + Specified Address
+Physical address = (Segment * 0x10) + Specified Address
 
 // For example, if we want to fetch data, 
 // and the data segment is 0x1000 and we want data at address 0x2000.
@@ -225,9 +231,10 @@ This is where the `extended read` functions comes in, it expects a structure cal
 
 ```rust,fp=kernel/stages/first_stage/src/disk.rs
 
-// The `repr(C)` means that the order of the structure fields will be as specified
-// Because rust ABI doesn't state that this is promised.
-// The `repr(Packed) states that there will no padding due to alignment in this struct
+// The `repr(C)` means that the layout in memory will be as specified
+// because rust ABI doesn't state that this is promised.
+//
+// The `repr(Packed) states that there will no padding due to alignment
 #[repr(C, packed)]
 pub struct DiskAddressPacket {
     /// The size of the packet
@@ -357,7 +364,8 @@ Then, we can get the disk number from the stack, and load our packet.
 
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-; push disk number into the stack will be at 0x7bfe and call the first_stage function
+; push disk number into the stack 
+; which will be at 0x7bfe and call the first_stage function
 push dx    
 call first_stage
 ```
@@ -390,6 +398,7 @@ pub fn first_stage() -> ! {
     dap.load(disk_number);
 }
 ```
+- [x] Read kernel from disk
 
 Although everything seems correct now, at data from the disk should now be in memory, it will still not compile and boot properly.
 But I will leave it as a challenge for you!

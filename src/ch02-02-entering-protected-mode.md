@@ -389,8 +389,9 @@ Each table must have at least three entries, an initial `null` entry that is fil
 Together it will all look like this:
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
-// This structure will seem to rust as `dead code` because we only initialize
-// and not use it's fields directly, to remove the warning, we add this attribute.
+// This structure will seem to rust as `dead code`
+// this is because we only initialize it and use the fields directly
+// to remove the warning, we add the following attributes.
 #[allow(dead_code)]
 pub struct GlobalDescriptorTable {
     null: GlobalDescriptorTableEntry32,
@@ -462,20 +463,21 @@ pub struct GlobalDescriptorTableRegister32 {
 impl GlobalDescriptorTable {
     
     pub unsafe fn load(&'static self) {
-        let global_descriptor_table_register: GlobalDescriptorTableRegister32 = {
+        let global_descriptor_table_register = {
             GlobalDescriptorTableRegister32 {
                 // Set the limit to the size - 1 
                 limit: (size_of::<GlobalDescriptorTable>() - 1) as u16,
                 // Set the base to the address of the table 
-                // (This is the same as the address of the var, because it is static)
+                // (This is the global address of the var because it is static)
                 base: self as *const GlobalDescriptorTable,
             }
         };
         unsafe {
             asm!(
-                // Clear Interrupt Flag, This is done because we can't let random 
-                // hardware interrupts to interfere with the lgdt instruction
-                // This will also be useful in the future until we set up interrupts 
+                // Clear Interrupt Flag.
+                // This is done because we can't let random hardware interrupts 
+                // to interfere with the lgdt instruction.
+                // This will be useful in the future until we set up interrupts 
                 "cli",
                 // Then, load the table using our now created register.
                 "lgdt [{}]",
@@ -500,7 +502,7 @@ pub fn first_stage() -> ! {
     // Load Global Descriptor Table
     GLOBAL_DESCRIPTOR_TABLE.load();
 
-    // Set the Protected Mode bit in control register 0
+    // Set the Protected Mode bit in control register 0 
     asm!(
         "mov eax, cr0",
         "or eax, 1",
@@ -515,9 +517,11 @@ pub fn first_stage() -> ! {
     // The segment is the offset in the global descriptor table  
     // which for the code segment is 0x10 (For readability, added an enum)
     //
-    // The `next_stage` is the address of the next stage.
-    // This is a variable in our constants that I want you to think what is should be
-    // as always, the answer, or the var that I chose, will be in the Walkthrough
+    // The `next_stage` is the address of the next stage 
+    // which is a variable in the constants.
+    //
+    // I want to think for yourselves what it value should be.
+    // As always, the answer, i.e var that I chose, will be in the Walkthrough
     asm!(
         "jmp ${section}, ${next_stage}",
         section = const Sections::KernelCode as u8,

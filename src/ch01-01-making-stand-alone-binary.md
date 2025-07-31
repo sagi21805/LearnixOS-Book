@@ -10,12 +10,12 @@ This library is some of the time provided by the operating system itself, for ex
 It name may vary per language, but here are some popular names:
 
 ```
-- Rust   -> std::*
-- C++    -> std::*
-- C      -> stdlib.h, libc.so
-- Python -> Modules like os, sys, math
-- Java   -> java.*, javax.*
-- Go     -> fmt, os
+Rust   -> std::*
+C++    -> std::*
+C      -> stdlib.h, libc.so
+Python -> Modules like os, sys, math
+Java   -> java.*, javax.*
+Go     -> fmt, os
 ```
 
 This library is linked[^1] to our code by default, and provides us with the ability to access our operating system.
@@ -72,8 +72,12 @@ error: `#[panic_handler]` function required, but not found
 
 error: unwinding panics are not supported without std
   |
-  = help: using nightly cargo, use -Zbuild-std with panic="abort" to avoid unwinding
-  = note: since the core library is usually precompiled with panic="unwind", rebuilding your crate with panic="abort" may not be enough to fix the problem
+  = help: using nightly cargo, 
+          use -Zbuild-std with panic="abort" to avoid unwinding
+
+  = note: since the core library is usually precompiled with panic="unwind", 
+          rebuilding your crate with panic="abort" 
+          may not be enough to fix the problem
 ```
 
 When breaking this error down we see there are 3 main errors
@@ -87,14 +91,14 @@ The first error is more obvious, because we don't have our standard library, the
 ## Defining a Panic Handler
 
 Rust doesn't offer a standard exception like other languages, for example, in python an exception could be raised like this
-```python,fp=error.py
+```python
 def failing_function(x: str):
     if not isinstance(x, str):
         raise TypeError("The type of x is not string!")
 ```
 
 Instead, Rust provides us with the `panic!` macro, which will call the `Panic Handler Function`. This function is very important and it will be called every time the `panic!` macro will be invoked, for example:
-```rust,fp=main.rs
+```rust
 fn main() {
     panic!("This is a custom message");
 }
@@ -169,7 +173,9 @@ But, by running `cargo run` we get the following error
 ```rust,banner=no
 error: using `fn main` requires the standard library
   |
-  = help: use `#![no_main]` to bypass the Rust generated entrypoint and declare a platform specific entrypoint yourself, usually with `#[no_mangle]`
+  = help: use `#![no_main]` to bypass the Rust generated entrypoint 
+          and declare a platform specific entrypoint yourself, 
+          usually with `#[no_mangle]`
 ```
 As per usual, the rust compiler errors are pretty clear, and they tell us exactly what we need to do to fix the problem. In this case, we need to add the `#![no_main]` attribute to our crate, and declare a platform specific entrypoint ourselves.
 
@@ -191,20 +197,22 @@ Then, to make our linker to use this script, we have mainly two options, one is 
 use std::path::Path;
 
 fn main() {
+    // Environment variable that stores the current working directory
     let local_path = Path::new(env!("CARGO_MANIFEST_DIR"));
 
+    // This tells cargo to add the `-C link-arg=--script=./linker.ld` argument.
+    // Which will result in linking with our code with our linker script 
     println!(
         "cargo:rustc-link-arg-bins=--script={}",
         local_path.join("linker.ld").display()
     )
 }
 ```
-This script tells cargo, to add the -C link-arg=--script=./linker.ld to our compiling command.
 
 But, after we do all this and again, run `cargo build`, we get the same error, at first, this doesn't seem logical, because we defined a main function. But, although it is true that we defined one, we didn't consider Rust's default [mangling](https://doc.rust-lang.org/rustc/symbol-mangling/index.html).
 This is a very clever idea done by Rust, and without it, things like this wouldn't be possible
 
-```rust,fp=impl.rs
+```rust
 struct A(u32);
 
 impl A {

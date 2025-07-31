@@ -31,14 +31,14 @@ When our computer (or virtual machine) powers on, the first software that the CP
 
 The last thing BIOS does before handing to us the control over the computer, is to load one sector (512 bytes) form the boot device (can be hard-disk, cd-rom, floppy-disk etc) to memory address `0x7c00` if the sector is considered `valid`, which means that it has the `BIOS Boot Signature` at the end of it, which is the byte sequence `0x55` followed by `0xAA` in offset bytes 510 and 511 respectively.
 
-At this time for backward compatibility reasons, the computer starts at a reduced instruction set, at a 16bit mode called [_real mode_](https://en.wikipedia.org/wiki/Real_mode) which provides direct access to the BIOS interface, and access to all I/O or peripheral device. This mode lacks support for memory protection, multitasking, or code privileges, and has only 1Mib of address space. Because of these limitation we want to escape it as soon as possible, but that is a problem that we will solve later (Maybe add link to when this is done).
+At this time for backward compatibility reasons, the computer starts at a reduced instruction set, at a 16bit mode called [_real mode_](https://en.wikipedia.org/wiki/Real_mode) which provides direct access to the BIOS interface, and access to all of the I/O or peripheral devices. This mode lacks support for memory protection, multitasking, or code privileges, and has only 1Mib of address space. Because of these limitation we want to escape it as soon as possible, but that is a problem that we will solve later (Maybe add link to when this is done).
 
 ## Building Our Target
 
 With this information, we understand that we will need to build a target that will support 16bit real mode.
 Unfortunately, if we look at all of the available targets, we would see that there is no target that support this unique need, but, luckily, Rust allows us to create custom targets!
 
-As a clue, we can try and peak on the builtin targets, and check if there is something similar that we can borrow. For example, my target, which is the x86_64-unknown-linux-gnu looks like this:
+As a clue, we can try and peak on the builtin targets, and check if there is something similar that we can borrow. For example, my target, which is the `x86_64-unknown-linux-gnu` looks like this:
 ```json,icon=@https://www.svgrepo.com/show/373712/json.svg
 {
   "arch": "x86_64",
@@ -64,41 +64,7 @@ As a clue, we can try and peak on the builtin targets, and check if there is som
     "tier": 1
   },
   "os": "linux",
-  "plt-by-default": false,
-  "position-independent-executables": true,
-  "pre-link-args": {
-    "gnu-cc": [
-      "-m64"
-    ],
-    "gnu-lld-cc": [
-      "-m64"
-    ]
-  },
-  "relro-level": "full",
-  "stack-probes": {
-    "kind": "inline"
-  },
-  "static-position-independent-executables": true,
-  "supported-sanitizers": [
-    "address",
-    "leak",
-    "memory",
-    "thread",
-    "cfi",
-    "kcfi",
-    "safestack",
-    "dataflow"
-  ],
-  "supported-split-debuginfo": [
-    "packed",
-    "unpacked",
-    "off"
-  ],
-  "supports-xray": true,
-  "target-family": [
-    "unix"
-  ],
-  "target-pointer-width": "64"
+  ...
 }
 ```
 This target has some useful info that we can use, like useful keys, such as `arch`, `linker-flavor`, `cpu` and more, that we will use in our target, and even the `data-layout` that we will copy almost entirely. Our final, 16bit target, will look like this:
@@ -120,7 +86,7 @@ This target has some useful info that we can use, like useful keys, such as `arc
 // p271:32:32 -> Special pointer type ID-271 with 32-bit size and alignment
 // p271:64:64 -> Special pointer type ID-272 with 64-bit size and alignment
 // i128:128   -> 128-bit integers are 128-bit aligned
-// f64:32:64  -> 64-bit floats are 32-bit aligned, and can also be 64-bit aligned
+// f64:32:64  -> 64-bit floats are 32-bit or 64-bit aligned
 // n:8:16:32  -> Native integers are 8-bit, 16-bit, 32-bit
 // S128       -> Stack is 128-bit aligned
 "data-layout": "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-i128:128-f64:32:64-f80:32-n8:16:32-S128",
@@ -249,8 +215,9 @@ To provide our code, we need to add the `-drive format=raw,file=<path-to-bin-fil
 
 If you are following the [walkthrough](https://github.com/learnix-os/LearnixOS-Book-Walkthrough), this is the command you need to run.
 
-```
-qemu-system-x86_64 -drive format=raw,file=target/16bit_target/release/LearnixOS-Book-Walkthrough
+```txt
+qemu-system-x86_64 -drive \
+        format=raw,file=target/16bit_target/release/LearnixOS-Book-Walkthrough
 ```
 
 At a first glance, we might think our code still doesn't work, because all we see is a black screen, but, if you notice closely, we don't get more messages of the BIOS trying other boot devices, and we don't get the message of `"No bootable device."`. 
