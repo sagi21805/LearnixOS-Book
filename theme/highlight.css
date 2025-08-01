@@ -17,6 +17,10 @@
     color: #e5c07b;
 }
 
+.hljs-type {
+    color: #e5c07b;
+}
+
 /* Strings */
 .hljs-string {
     color: #98c379;
@@ -37,12 +41,6 @@
 .hljs-title,
 .hljs-function {
     color: #61afef;
-}
-
-/* Attribute macros #[derive(...)] */
-.hljs-attribute,
-.hljs-meta .hljs-keyword {
-    color: #56b6c2;
 }
 
 /* Structs (CapitalCase names tagged by JS) */
@@ -75,6 +73,10 @@
 }
 
 .hljs-macro {
+    color: #d19a66;
+}
+
+.hljs-meta {
     color: #d19a66;
 }
 
