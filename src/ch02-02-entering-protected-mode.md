@@ -8,87 +8,64 @@ After we read from disk, it will enable us to write much more code, because we a
 But just before we do that, we don't want to limit ourselves only to 16bit instructions. 
 For that we need to enter [`protected mode`](https://en.wikipedia.org/wiki/Protected_mode) which will allow us to unlock some cpu features such as 32bit instructions.
 
-Entering protected mode is not a difficult task, which only requires initializing the [`global descriptor table`](https://wiki.osdev.org/Global_Descriptor_Table) which is a CPU structure that will be discussed in depth bellow, and setting the protected mode bit in [`control register 0`](https://en.wikipedia.org/wiki/Control_register)
+Entering protected mode requires us to initialize the [`global descriptor table`](https://wiki.osdev.org/Global_Descriptor_Table) which is a CPU structure that will be discussed in depth bellow, and toggling the protected mode bit in [`cr0`](https://en.wikipedia.org/wiki/Control_register)
 
 ## The Global Descriptor Table
 
-This is a structure that is specific to the x86 cpu family, and it contains information about the different segments, which is valuable in the CPU.
+This is a structure that is specific to the x86 cpu family, and it contains information about the different segments.
+In general, segments are used to divide memory into logical parts and as we seen in real mode, to also translate addresses.
 
-In this book, we will not talk about memory management using segments, because it is mostly not used in modern operating systems. Instead we will only create a minimal and temporary table, that will let us continue to protected mode and will serve us until we toggle [`memory paging`](https://en.wikipedia.org/wiki/Memory_paging)
+In protected mode, the common way to organize memory is using these segments. Because segments registers can only hold one number, 
+they can't hold enough information for us, and that is where the global descriptor table comes in place.
+The global descriptor table is an array of structures that include information about a segment, 
+when we want to use our custom segment, we load it's offset to the segment register.
+For example, we created a segment for user data at index one of our table, 
+if we want to load it into the `ds` we will set it to the offset of the structure in the table.
 
-The global descriptor table, is not a difficult structure to understand, it is just an array, and each entry of the array has a `global descriptor table entry` structure.
-This entry is more complex and it looks like this: 
+> Instead of just revealing you the structure that is used for each segment, I want you to pause and ponder about what each segment should include.
+>
+> _Remember that some instructions assume segments, like mov, jmp etc. and we want segments for the kernel, users, date and code_
 
-<!-- Top bitfields: 5 adjacent 64–32 sections -->
-<div style="display: flex; justify-content: space-between; flex-wrap: nowrap; margin-top: 1em;">
-  <table style="width: 21.5%;">
-    <thead><tr><th>63 – 56</th></tr></thead>
-    <tbody><tr><td><b>Base</b><br>31 – 24</td></tr></tbody>
-  </table>
+When I asked myself this question, I came up with the following ideas:
+- What is the initial address of the segment. i.e the start address in memory where the segment starts.
+- What is the end address of the segment. i.e the end address in memory where the segment ends.
+- What the segment includes. i.e data segment, code segment etc.
+- What is the privilege level of the segment. i.e can anyone access it or only the kernel
+- For a data segment, Is the data read only, or may I modify it?
+- For a code segment, Can I execute it, or not yet. 
 
-  <div style="width: 1%; visibility: hidden;"></div>
-  <table style="width: 13%;">
-    <thead><tr><th>55 – 52</th></tr></thead>
-    <tbody><tr><td><b>Flags</b><br>3 – 0</td></tr></tbody>
-  </table>
+Although this first guess of what the global descriptor table includes don't include everything, It is mostly accurate!
 
-  <div style="width: 1%; visibility: hidden;"></div>
-  <table style="width: 13%;">
-    <thead><tr><th>51 – 48</th></tr></thead>
-    <tbody><tr><td><b>Limit</b><br>19 - 16</td></tr></tbody>
-  </table>
+Our entry will look like this:
+<figure style="margin: 0;">
+  <img src="assets/gdt_struct.svg"></img> 
+</figure>
 
-  <div style="width: 1%; visibility: hidden;"></div>
-  <table style="width: 24.25%;">
-    <thead><tr><th>47 – 40</th></tr></thead>
-    <tbody><tr><td><b>Access Byte</b><br>7 – 0</td></tr></tbody>
-  </table>
-
-  <div style="width: 1%; visibility: hidden;"></div>
-  <table style="width: 24.25%;">
-    <thead><tr><th>39 – 32</th></tr></thead>
-    <tbody><tr><td><b>Base</b><br>23 - 16</td></tr></tbody>
-  </table>
-</div>
-
-<!-- Bottom: aligned 16-bit sections -->
-<div style="display: flex; justify-content: space-between; flex-wrap: nowrap; margin-top: 1em;">
-  <!-- Spacer columns to align 31–16 under 63–48 -->
-  <table style="width: 49.5%;">
-    <thead><tr><th>31 – 16</th></tr></thead>
-    <tbody><tr><td><b>Base</b><br>15 – 0</td></tr></tbody>
-  </table>
-
-  <!-- Spacer to skip middle 2% (not critical) -->
-  <div style="width: 1%; visibility: hidden;"></div>
-
-  <!-- Align 15–0 under 47–32 -->
-  <table style="width: 49.5%;">
-    <thead><tr><th>15 – 0</th></tr></thead>
-    <tbody><tr><td><b>Limit</b><br>15 – 0</td></tr></tbody>
-  </table>
-</div>
 
 But what are these fields?
 - **Base:** this is a 32-bit value, which is split on the entire entry and it represents the address of where the segment begins.
 - **Limit:** this is a 20-bit value, which is split on the entire entry, and it represents the size of the segment.
-- **Access Byte:** this is sections includes flags that provide the access privileges of this segment.
-- **Flags:** general flags for the entry.
+- **Access Byte:** flags that are relevant to the memory range of the segment, 
+like the access privileges of this segment.
+- **Flags:** general flags that are relevant for the entry fields.
 
-Fortunately, all of these fields can become structs and together they will represent a single global descriptor table entry.
+All of these fields can become a struct and together they will represent a single entry.
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
 struct AccessByte(u8);
 
 struct LimitFlags(u8);
 
+// The 32 flags that it for a 32bit table
+// A 64bit table have a different structure 
 #[repr(C)]
 struct GlobalDescriptorTableEntry32 {
     limit_low: u16,
     base_low: u16,
     base_mid: u8,
     access_byte: AccessByte,
-    /// Low 4 bits limit high 4 bits flags
+    // Low 4 bits limit_high 
+    // high 4 bits flags
     limit_flags: LimitFlags,
     base_high: u8,
 }
@@ -158,10 +135,9 @@ macro_rules! flag {
 }
 ```
 
-While this macro seems complex, it will just create four functions.
-The `${concat(word1, word2)}`, combines both of the ident's to a single one, and uses the `macro_metavar_expr_concat` feature.
+While this macro seems complex, it will just create four functions that will help up set, unset and read the flag.
 
-To see what this macro can do, we can you the amazing [`cargo-expand`](https://crates.io/crates/cargo-expand) tool created by [`David Tolnay`](https://github.com/dtolnay)
+To see what this macro generated, we can you the amazing [`cargo-expand`](https://crates.io/crates/cargo-expand) tool created by [`David Tolnay`](https://github.com/dtolnay)
 
 <details>
 <summary>To see an example</summary>
@@ -389,9 +365,10 @@ Each table must have at least three entries, an initial `null` entry that is fil
 Together it will all look like this:
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
-// This structure will seem to rust as `dead code`
-// this is because we only initialize it and use the fields directly
-// to remove the warning, we add the following attributes.
+// This structure will seem as `dead code`
+// this is because we only initialize it 
+// and don't use the fields directly
+// to remove the warning, we add the following attribute.
 #[allow(dead_code)]
 pub struct GlobalDescriptorTable {
     null: GlobalDescriptorTableEntry32,
@@ -423,8 +400,9 @@ impl GlobalDescriptorTable {
                     .executable()
                     .readable(),
                 // Set the units of the limit to 4kib and set 32bit mode.
-                LimitFlags::new().granularity().protected(),
-            
+                LimitFlags::new()
+                    .granularity()
+                    .protected(),
             ),
             data: GlobalDescriptorTableEntry32::new(
                 // The base is zero, because our data is aligned to 0x0 address
@@ -432,9 +410,15 @@ impl GlobalDescriptorTable {
                 // The size is max, so we won't have any limit
                 0xfffff,
                 // We mark this as code segment, with the highest privileges
-                AccessByte::new().present().dpl(0).code_or_data().writable(),
+                AccessByte::new()
+                    .present()
+                    .dpl(0)
+                    .code_or_data()
+                    .writable(),
                 // Set the units of the limit to 4kib and set 32bit mode.
-                LimitFlags::new().granularity().protected(),
+                LimitFlags::new()
+                    .granularity()
+                    .protected(),
             ),
         }
     }

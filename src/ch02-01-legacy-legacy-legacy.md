@@ -23,7 +23,9 @@ This legacy may come in multiple shapes, like bios interrupts, magic numbers and
 ## Basic Initialization
 
 At the start of our code, we want to zero out all of the [`memory segments`](https://en.wikipedia.org/wiki/X86_memory_segmentation#Real_mode) in our machine, so all of the addresses that we will access will not be manipulated by the segments.
-This manipulation can happen if the segments are not 0, because the address translation process of the cpu for general is as follows 
+This manipulation can happen if the segments are not zeroed out, because certain instructions of the CPU will assume segments.
+For example, the instruction `mov, eax [0x1000]` will assume address 0x1000 is prefixed by the `ds` register.
+In 16bit real mode, the translation is as follows:   
 ```
 Physical address = (Segment * 0x10) + Specified Address
 
@@ -152,7 +154,7 @@ Finally the `sector` is the arc on the track that actually holds our data, secto
 
 With that information, we can understand that the disk uses a 3D coordinate system, and in order to specify which sector we want to read, we need to specify a `cylinder` number that the sector is in, then, provide the `head` number, in order to specify the `track` the sector is in, and then we provide the sector number in the track to get the actual `sector` that holds our data. This can be demonstrated with this picture:
 
-<figure style="width: 40%;">
+<figure style="width: 60%;">
   <img src="assets/Cylinder_Head_Sector.svg" 
        style="background-color: aliceblue; width: 80%; height: auto;" 
        alt="Cylinder Head Sector Diagram">
