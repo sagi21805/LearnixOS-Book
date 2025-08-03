@@ -19,7 +19,8 @@ In protected mode, the common way to organize memory is using these segments. Be
 they can't hold enough information for us, and that is where the global descriptor table comes in place.
 The global descriptor table is an array of structures that include information about a segment, 
 when we want to use our custom segment, we load it's offset to the segment register.
-For example, we created a segment for user data at index one of our table, 
+For example, we can create a segment for user data at index one of our table.
+this segment will not hold important data for the system, and will not contain code that can be executed, 
 if we want to load it into the `ds` we will set it to the offset of the structure in the table.
 
 > Instead of just revealing you the structure that is used for each segment, I want you to pause and ponder about what each segment should include.
