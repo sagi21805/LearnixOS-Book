@@ -154,10 +154,12 @@ Finally the `sector` is the arc on the track that actually holds our data, secto
 
 With that information, we can understand that the disk uses a 3D coordinate system, and in order to specify which sector we want to read, we need to specify a `cylinder` number that the sector is in, then, provide the `head` number, in order to specify the `track` the sector is in, and then we provide the sector number in the track to get the actual `sector` that holds our data. This can be demonstrated with this picture:
 
-<figure style="width: 60%;">
-  <img src="assets/Cylinder_Head_Sector.svg" 
-       style="background-color: aliceblue; width: 80%; height: auto;" 
-       alt="Cylinder Head Sector Diagram">
+<figure style="width: 60%; text-align: center;">
+    <img src="assets/Cylinder_Head_Sector.svg" 
+       style="background-color: aliceblue; width: 80%; height: auto;">
+    </img>
+  <figcaption><strong>Figure 2-0:</strong> Cylinder Head Sector Diagram</figcaption>
+    
 </figure>
 
 > **Note:** To obtain how many cylinders, heads and sectors are on a disk we can use the BIOS `int 0x13 ah=0x8` function or the `int 0x13 ah=0x48` function  

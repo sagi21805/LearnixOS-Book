@@ -38,8 +38,9 @@ When I asked myself this question, I came up with the following ideas:
 Although this first guess of what the global descriptor table includes don't include everything, It is mostly accurate!
 
 Our entry will look like this:
-<figure style="margin: 0;">
+<figure style="margin: 0; text-align: center">
   <img src="assets/gdt_struct.svg"></img> 
+  <figcaption><strong>Figure 2-1:</strong> global descriptor table entry structure</figcaption>
 </figure>
 
 
