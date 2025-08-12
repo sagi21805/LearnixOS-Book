@@ -71,6 +71,9 @@ In paging the address translation process is a bit more complicated, and it is d
 The official names for those tables are `Page-Map Level 4 (PML4)`, `Page Directory Pointer Table (PDT)`, `Page Directory Table (PDT)` and `Page Table (PT)`.
 In this book I will not use these names because they are complicated, and I am just going to number each level, PML4 being the 4th level, and PT being the 1st level.
 
+> In 32bit paging extension, there are only two tables but the principles are the same. and because of that only 64bit paging will be covered in this book. 
+> 
+
 ###  Page Table Entry
 
 Just before we will translate and address, we need to understand the structure of the page table, and especially the Page Table Entry.
@@ -95,6 +98,14 @@ macro_rules! table_entry_flags {
 
         // Disable cache for this page
         common::flag!(disable_cache, 4);
+
+        // Bits 5-6 are used only by the CPU
+        //
+        // Bit 5 is the accessed bit, and is set by the cpu
+        // when this entry is accessed.
+        // 
+        // Bit 6 is the dirty bit, and is set by the cpu
+        // when a write on this page occurs
 
         // Marks big pages blocks
         common::flag!(huge_page, 7);
@@ -143,7 +154,8 @@ impl PageTableEntry {
 ```
 Because of how addresses are translated, addresses are actually capped by 48bits, which is 256Tib of addressable memory, and if this is somehow not enough,
 new processors support a 5th table hierarchy, which support 57bit address space, or 128Pib of addressable memory. 
-The address the entry points to, is between bits 12 and 48. Because the pointed address is always aligned to 0x1000, only the upper 36 bits of the pointed address are saved. 
+The address the entry points to, is between bits 12 and 48. Because the pointed address is always aligned to 0x1000, only the upper 36 bits of the pointed address are saved.
+In addition, when we use the top half of the address space, where the 47th bit is on, we must also set bits 63-48 to 1 because of the sign extension. 
 
 Then, to translate an address, a special hardware on the CPU, which is called the MMU (Memory Management Unit) translates the addresses with the following logic:
 
@@ -182,5 +194,135 @@ As a diagram, this process should look like this:
 
 
 ## Implementing Paging 
+
+Just before we will implement the core functionality of paging, we will need to create some utility structs of `VirtualAddress` and `PhysicalAddress`.
+These will just be a wrapper struct of a usize.
+
+To implement all the simple and basic functionality, we will use a macro, we don't have much boilerplate. We will also use the great [`derive_more`](https://crates.io/crites/derive_more) crate, which will provide us basic derives for operator like deref, mathematical operations.
+
+These will be some simple functionality that we can't derive from derive more.
+```rust,fp=shared/common/src/macros.rs
+macro_rules! impl_common_address_functions {
+    ($struct_name:ident) => {
+        #[allow(non_snake_case)]
+        mod ${concat(__impl_for_, $struct_name)} {
+            use super::*;
+            use core::ptr::Alignment;
+            impl $struct_name {
+                /// Create from just the usize without checking sign extension
+                pub const unsafe fn new_unchecked(address: usize) -> Self {
+                    Self(address)
+                }
+                /// Create new while preserving sign extension
+                #[cfg(target_arch = "x86_64")]
+                pub const fn new(address: usize) -> Self {
+                    Self((address << 16) as isize >> 16)
+                }
+                pub const fn as_usize(&self) -> usize {
+                    self.0
+                }
+                pub const unsafe fn as_mut_ptr<T>(&self) -> *mut T {
+                    self.0 as *mut T
+                }
+                pub const fn as_ptr<T>(&self) -> *const T {
+                    self.0 as *const T
+                }
+                /// Check if aligned to some alignment
+                pub const fn is_aligned(&self, alignment: Alignment) -> bool {
+                    self.0 & (alignment.as_usize() - 1) == 0
+                }
+                /// Align the address to the alignment while rounding up
+                pub const fn align_up(mut self, alignment: Alignment) {
+                    self.0 = {
+                        (self.0 + (alignment.as_usize() - 1)) & !(alignment.as_usize() - 1);
+                    }
+                }
+                /// Align the address to the alignment while rounding down
+                pub const fn align_down(mut self, alignment: Alignment) {
+                    self.0 &= !(alignment.as_usize() - 1);
+                }
+                /// Get the alignment of the address
+                pub const fn alignment(&self) -> Alignment {
+                    unsafe { Alignment::new_unchecked(1 << self.0.trailing_zeros()) }
+                }
+            }
+        }
+    };
+}
+```
+Then, we can create our address structs and implement some more function with derive_more.
+
+```rust,fp=shared/common/src/address_types.rs
+use derive_more::{
+    Add, AddAssign, AsMut, AsRef, Div, DivAssign, From, Mul, MulAssign, Sub, SubAssign,
+};
+
+#[derive(
+    Clone,
+    Debug,
+    Add,
+    AddAssign,
+    Sub,
+    SubAssign,
+    Mul,
+    MulAssign,
+    Div,
+    DivAssign,
+    Default,
+    AsMut,
+    AsRef,
+    From,
+)]
+pub struct PhysicalAddress(pub usize);
+
+impl_common_address_functions!(PhysicalAddress);
+
+#[derive(
+    Clone,
+    Debug,
+    Add,
+    AddAssign,
+    Sub,
+    SubAssign,
+    Mul,
+    MulAssign,
+    Div,
+    DivAssign,
+    Default,
+    AsMut,
+    AsRef,
+    From,
+)]
+pub struct VirtualAddress(pub usize);
+
+impl_common_address_functions!(VirtualAddress);
+```
+
+<!-- # TODO CHANGE CODE BLOCKS -->
+
+With these utility structs, we can now start implementing our paging logic. The first function that we need is a function that could map a physical page into an entry, this function should get the `physical address` to a memory block, and the flags that we want to put on this mapping. To avoid repetition, we will create a flags structure, which will help us define some default flags, and also to apply custom flags onto our entry. For now, a default flags for an entry, will contain the present flags, which is must for the entry to be counted mapped, and also the writable flags, which will make our memory also writable so we could store data in it.
+
+```rust,fp=shared/cpu_utils/src/structures/paging/entry_flags.rs
+#[derive(Debug, Clone)]
+pub struct PageEntryFlags(u64);
+
+impl PageEntryFlags {
+
+    // Same macro used on PageTableEntry for flags.
+    table_entry_flags!();
+
+    pub const fn new() -> Self {
+        Self(0)
+    }
+
+    pub const fn regular_page_flags() -> Self {
+        PageEntryFlags::new().present().writable()
+    }
+
+    pub const fn as_u64(&self) -> u64 {
+        self.0
+    }
+}
+```
 
 ## TLB and Caching
