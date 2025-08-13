@@ -205,6 +205,7 @@ These will be some simple functionality that we can't derive from derive more.
 macro_rules! impl_common_address_functions {
     ($struct_name:ident) => {
         #[allow(non_snake_case)]
+        // create wrapper module so imports are not clashed
         mod ${concat(__impl_for_, $struct_name)} {
             use super::*;
             use core::ptr::Alignment;
@@ -322,6 +323,83 @@ impl PageEntryFlags {
     pub const fn as_u64(&self) -> u64 {
         self.0
     }
+}
+```
+
+After creating the utilities of physical addresses and virtual addresses, and also defining some default flags, we can create a function to map an address to an entry, this function should obtain the physical address that should be mapped, and also set the flags for the entry.
+```rust,fp=shared/cpu_utils/src/structures/paging/page_table_entry.rs
+
+impl PageTableEntry {
+    /// Set all of the flags to zero.
+    pub const fn reset_flags(&mut self) {
+        self.0 &= ENTRY_ADDRESS_MASK;
+    }
+
+    /// Set the flags without a reset to previous flags.
+    pub const unsafe fn set_flags_unchecked(&mut self, flags: PageEntryFlags) {
+        self.0 |= flags.as_u64()
+    }
+
+    /// Set the flags of the entry
+    pub const fn set_flags(&mut self, flags: PageEntryFlags) {
+        self.reset_flags();
+        unsafe { self.set_flags_unchecked(flags) };
+    }
+
+    /// Map the frame address into the entry and also set the flags.
+    pub const unsafe fn map_unchecked(&mut self, frame: PhysicalAddress, flags: PageEntryFlags) {
+        *self = Self::empty();
+        unsafe { self.set_flags_unchecked(flags) };
+        self.set_present();
+        self.0 |= frame.as_usize() as u64 & ENTRY_ADDRESS_MASK; // Set the new address
+    }
+
+    /// Same as map unchecked, but checking that the entry is not used
+    /// and also that the address is aligned
+    /// 
+    /// This is still not a safe function,
+    /// See walkthrough documentation for more details
+    pub const unsafe fn map(&mut self, frame: PhysicalAddress, flags: PageEntryFlags) {
+        if !self.is_present() && frame.is_aligned(REGULAR_PAGE_ALIGNMENT) {
+            unsafe { self.map_unchecked(frame, flags) };
+        }
+    }
+}
+```
+
+After mapping an address into an entry, we should also implement the other side of the coin, which is to read the address from the entry. We will implement two core logics, one will be to read the address as is, and return the physical address, the other is based on observation that tables only map memory blocks, or other pages, so we might want instead of the address to get it as a static reference of a table.
+
+```rust,fp=shared/cpu_utils/src/structures/paging/page_table_entry.rs
+impl PageTableEntry {
+
+    /// Extract the address from the entry and return it without checking flags
+    pub const unsafe fn mapped_unchecked(&self) -> PhysicalAddress {
+        unsafe { 
+            PhysicalAddress::new_unchecked((self.0 & ENTRY_ADDRESS_MASK) as usize) 
+        }
+    }
+    /// Return the physical address that is mapped by this entry while checking flags
+    pub fn mapped(&self) -> Result<PhysicalAddress, EntryError> {
+        if self.is_present() {
+            unsafe { Ok(self.mapped_unchecked()) }
+        } else {
+            Err(EntryError::NoMapping)
+        }
+    }
+    /// Return the physical address mapped by this table as a reference into a page table.
+    pub fn mapped_table(&self) -> Result<&PageTable, EntryError> {
+        // first check if the entry is mapped.
+        let table = unsafe { &*self.mapped()?.translate().as_ptr::<PageTable>() };
+        // then check if it is a table.
+        if self.is_huge_page() && self.is_table() {
+            Ok(table)
+        } else {
+            Err(EntryError::NotATable)
+        }
+    }
+
+    // Another `mapped_table_mut` is implemented
+    // This is the same functions, just with a mut reference on return
 }
 ```
 
