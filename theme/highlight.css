@@ -39,9 +39,12 @@
 
 /* Function titles */
 .hljs-title,
+.hljs-turbofish,
 .hljs-function {
-    color: #61afef;
+    color: #8aadf4;
 }
+
+
 
 /* Structs (CapitalCase names tagged by JS) */
 .hljs-struct {
@@ -72,11 +75,9 @@
     color: #abb2bf;
 }
 
+.hljs-meta,
+.hljs-global,
 .hljs-macro {
-    color: #d19a66;
-}
-
-.hljs-meta {
     color: #d19a66;
 }
 

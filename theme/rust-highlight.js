@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "f32", "f64", "bool", "char", "str"
     ];
 
-    const keywordRegex = new RegExp(`\\b(${rustKeywords.join("|")})\\b`, "g");
     const builtinTypeRegex = new RegExp(`\\b(${builtinTypes.join("|")})\\b`, "g");
     const fnDeclRegex = /\bfn\s+([a-zA-Z0-9_]+)/g;
     const fnParamRegex = /\(\s*([a-z_][a-zA-Z0-9_]*)\s*:/g;
@@ -25,9 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const traitAsRegex = /<[^>]+as\s+([A-Z][a-zA-Z0-9_]*)>/g;
     const macroCallRegex = /\b([a-z_][a-zA-Z0-9_]*)!\s*\(/g;
     const fnCallRegex = /\b([a-z_][a-zA-Z0-9_]*)\b(?!\s*!)(\s*)\(/g;
-
-    // Matches multi-part module paths like core::ptr, std::collections::HashMap
-    const modulePathRegex = /\b([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)+)\b/g;
+    const globalConstRegex = /\b([A-Z][A-Z0-9_]+)\b/g;
+    const turbofishFnCallRegex = /\.([a-z_][a-zA-Z0-9_]*)::&lt;([A-Z][a-zA-Z0-9_]*(?:<[^>]+>)?)&gt;\s*\(/g;
 
     function escapeRegex(s) {
         return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -85,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!rustKeywords.includes(match[1])) declaredVars.add(match[1]);
             }
 
-            const colonFieldRegex = /\b([a-z_][a-zA-Z0-9_]*)\s*:/g;
+            const colonFieldRegex = /\b([a-z_][a-zA-Z0-9_]*)\s*:(?!:)/g;
             while ((match = colonFieldRegex.exec(text)) !== null) {
                 if (!rustKeywords.includes(match[1])) declaredVars.add(match[1]);
             }
@@ -105,7 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 let modified = part.text;
 
-                modified = modified.replace(keywordRegex, '<span class="hljs-keyword">$1</span>');
+                modified = modified.replace(turbofishFnCallRegex, (_, fnName, typeName) =>
+                    `.<span class="hljs-turbofish">${fnName}</span>::&lt;<span class="hljs-type">${typeName}</span>&gt;(`
+                );
                 modified = modified.replace(fnDeclRegex, (_, name) =>
                     `fn <span class="hljs-function">${name}</span>`
                 );
@@ -134,10 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 // Highlight module paths with each segment wrapped separately as types
-                modified = modified.replace(modulePathRegex, (match) => {
-                    const parts = match.split("::");
-                    return parts.map(p => `<span class="hljs-type">${p}</span>`).join("::");
-                });
 
                 modified = modified.replace(traitAsRegex, m =>
                     m.replace(/([A-Z][a-zA-Z0-9_]*)/, '<span class="hljs-trait">$1</span>')
@@ -148,6 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 modified = modified.replace(fnCallRegex, (_, name, space) =>
                     `<span class="hljs-title">${name}</span>${space}(`
                 );
+                modified = modified.replace(globalConstRegex, '<span class="hljs-global">$1</span>');
+
 
                 return modified;
             });
