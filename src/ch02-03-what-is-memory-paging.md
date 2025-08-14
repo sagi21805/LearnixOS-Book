@@ -403,7 +403,7 @@ impl PageTableEntry {
 }
 ```
 
-The sharp eyed people may notice that we used a function that we didn't define before, the `translate` function. For now, don't worry about it's details, they will all be discussed on the next chapter. For now just understand that when we toggle paging, the processor assumes all addresses are virtual, so if we will return the physical address the processor will assume it is virtual and wil try to translate it, if we will not have a one-to-one mapping, the translation will fail and we will have some undefined behavior. The purpose of the translate function it to turn this physical address into a virtual one. How does it do that? You will have to read the next chapter to find out :)
+The sharp eyed people may notice that we used a function that we didn't define before, the `translate` function. For now, don't worry about it's details, they will all be discussed on the next chapter. For now just understand that when we toggle paging, the processor assumes all addresses are virtual, so if we will return the physical address the processor will assume it is virtual and will try to translate it, if we will not have a one-to-one mapping, the translation will fail and we will have some undefined behavior. The purpose of the translate function it to turn this physical address into a virtual one. How does it do that? You will have to read the next chapter to find out :)
 
 > You may also notice that I used results, if you are unfamiliar with the topic, I would **really** recommend [A Simpler Way to See Results](https://www.youtube.com/watch?v=s5S2Ed5T-dc) which is an amazing video done by _Logan Smith_.
 >
