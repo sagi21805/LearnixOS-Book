@@ -74,7 +74,7 @@ In this book I will not use these names because they are complicated, and I am j
 > In 32bit paging extension, there are only two tables but the principles are the same. and because of that only 64bit paging will be covered in this book. 
 > 
 
-###  Page Table Entry
+###  Page Table & Page Table Entry
 
 Just before we will translate and address, we need to understand the structure of the page table, and especially the Page Table Entry.
 The page table, just like the global descriptor table, is an array of 512 page table entries.
@@ -299,8 +299,6 @@ pub struct VirtualAddress(pub usize);
 impl_common_address_functions!(VirtualAddress);
 ```
 
-<!-- # TODO CHANGE CODE BLOCKS -->
-
 With these utility structs, we can now start implementing our paging logic. The first function that we need is a function that could map a physical page into an entry, this function should get the `physical address` to a memory block, and the flags that we want to put on this mapping. To avoid repetition, we will create a flags structure, which will help us define some default flags, and also to apply custom flags onto our entry. For now, a default flags for an entry, will contain the present flags, which is must for the entry to be counted mapped, and also the writable flags, which will make our memory also writable so we could store data in it.
 
 ```rust,fp=shared/cpu_utils/src/structures/paging/entry_flags.rs
@@ -351,7 +349,8 @@ impl PageTableEntry {
         *self = Self::empty();
         unsafe { self.set_flags_unchecked(flags) };
         self.set_present();
-        self.0 |= frame.as_usize() as u64 & ENTRY_ADDRESS_MASK; // Set the new address
+        // Set the new address
+        self.0 |= frame.as_usize() as u64 & ENTRY_ADDRESS_MASK; 
     }
 
     /// Same as map unchecked, but checking that the entry is not used
@@ -367,7 +366,7 @@ impl PageTableEntry {
 }
 ```
 
-After mapping an address into an entry, we should also implement the other side of the coin, which is to read the address from the entry. We will implement two core logics, one will be to read the address as is, and return the physical address, the other is based on observation that tables only map memory blocks, or other pages, so we might want instead of the address to get it as a static reference of a table.
+After mapping an address into an entry, we should also implement the other side of the coin, which is to read the address from the entry. We will implement two core logics, one will be to read the address as is, and return the physical address, the other is based on observation that tables only map memory blocks, or other pages, so we might want instead of the address to get it as a reference of a table.
 
 ```rust,fp=shared/cpu_utils/src/structures/paging/page_table_entry.rs
 impl PageTableEntry {
@@ -375,7 +374,9 @@ impl PageTableEntry {
     /// Extract the address from the entry and return it without checking flags
     pub const unsafe fn mapped_unchecked(&self) -> PhysicalAddress {
         unsafe { 
-            PhysicalAddress::new_unchecked((self.0 & ENTRY_ADDRESS_MASK) as usize) 
+            PhysicalAddress::new_unchecked(
+                (self.0 & ENTRY_ADDRESS_MASK) as usize
+            ) 
         }
     }
     /// Return the physical address that is mapped by this entry while checking flags
@@ -397,10 +398,43 @@ impl PageTableEntry {
             Err(EntryError::NotATable)
         }
     }
-
     // Another `mapped_table_mut` is implemented
     // This is the same functions, just with a mut reference on return
 }
 ```
 
-## TLB and Caching
+The sharp eyed people may notice that we used a function that we didn't define before, the `translate` function. For now, don't worry about it's details, they will all be discussed on the next chapter. For now just understand that when we toggle paging, the processor assumes all addresses are virtual, so if we will return the physical address the processor will assume it is virtual and wil try to translate it, if we will not have a one-to-one mapping, the translation will fail and we will have some undefined behavior. The purpose of the translate function it to turn this physical address into a virtual one. How does it do that? You will have to read the next chapter to find out :)
+
+> You may also notice that I used results, if you are unfamiliar with the topic, I would **really** recommend [A Simpler Way to See Results](https://www.youtube.com/watch?v=s5S2Ed5T-dc) which is an amazing video done by _Logan Smith_.
+>
+> I created this result type using the amazing [thiserror](https://docs.rs/thiserror/latest/thiserror/) crate by david tolnay to avoid a bunch of boiler plate. The create is somewhat explained in the video. The full implementation of the error enum will be in the [walkthrough](https://github.com/learnix-os/LearnixOS-Book-Walkthrough)
+
+The last functions that we need to implement, are functions that can create our PageTable from a pointer. So far we create a function that could create an empty on a variable or a static value, but when we would create a lot of tables, or will need to dynamically create tables this function will not help us. For this reason, we will create a function that will receive a virtual address, and construct on it our page table.
+
+```rust,fp=shared/cpu_utils/src/structures/paging/page_table.rs
+
+impl PageTable {
+    pub unsafe fn empty_from_ptr(page_table_ptr: VirtualAddress) -> Option<&'static mut PageTable> {
+        // Check if the address is in the correct alignment
+        if !page_table_ptr.is_aligned(REGULAR_PAGE_ALIGNMENT) {
+            return None;
+        }
+        unsafe {
+            // Zero out all the entries and return as mut ptr
+            ptr::write_volatile(
+                page_table_ptr.as_mut_ptr::<PageTable>(), 
+                PageTable::empty()
+            );
+            return Some(&mut *page_table_ptr.as_mut_ptr::<PageTable>());
+        }
+    }
+}
+```
+
+## Translation Lookaside Buffer
+
+As a last note we will touch on a topic that is sometimes forgiven, which is the Translation Lookaside Buffer.
+
+The TLB is a cache that stores our most recent translations of virtual addresses into physical ones and it is part of the MMU. This is useful because walking the page tables is a task that could take tens or even hundreds of cpu cycles, but instead obtaining the same entry from the cache, which is also called `TLB hit`, could take a few as 1 cycle because it is just a cache read.
+This make the TLB _really_ useful, but it is not that simple, this is because we should know how to work with it. For example, switching page tables becomes a very expensive task, because the buffer refreshes. 
+Also, when we free up a page, we must call the `invlpg` instruction, which removes every page with the given address from the buffer. If we don't flush the entry it will become stale, and the cpu will still be able to translate the address even if it is not mapped anymore. This could be a cause to **a lot** of bugs and some serious security vulnerabilities.
