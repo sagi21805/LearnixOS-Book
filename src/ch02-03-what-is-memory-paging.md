@@ -85,19 +85,19 @@ The flags look like this
 macro_rules! table_entry_flags {
     () => {
         // Is this entry present?
-        common::flag!(present, 0);
+        flag!(present, 0);
 
         // Is this page writable?
-        common::flag!(writable, 1);
+        flag!(writable, 1);
 
         // Can this page be accessed from user mode
-        common::flag!(usr_access, 2);
+        flag!(usr_access, 2);
 
         // Writes go directly to memory
-        common::flag!(write_through_cache, 3);
+        flag!(write_through_cache, 3);
 
         // Disable cache for this page
-        common::flag!(disable_cache, 4);
+        flag!(disable_cache, 4);
 
         // Bits 5-6 are used only by the CPU
         //
@@ -108,17 +108,17 @@ macro_rules! table_entry_flags {
         // when a write on this page occurs
 
         // Marks big pages blocks
-        common::flag!(huge_page, 7);
+        flag!(huge_page, 7);
 
         // Page isn’t flushed from caches on address space switch 
         // (PGE bit of CR4 register must be set)
-        common::flag!(global, 8);
+        flag!(global, 8);
 
         // Bit 9-11 and also 52-62 
         // are available and can be used by the OS to any purpose.
 
         // This page is holding data and is not executable
-        common::flag!(not_executable, 63);
+        flag!(not_executable, 63);
     };
 }
 ```
@@ -204,50 +204,39 @@ These will be some simple functionality that we can't derive from derive more.
 ```rust,fp=shared/common/src/macros.rs
 macro_rules! impl_common_address_functions {
     ($struct_name:ident) => {
-        #[allow(non_snake_case)]
-        // create wrapper module so imports are not clashed
-        mod ${concat(__impl_for_, $struct_name)} {
-            use super::*;
-            use core::ptr::Alignment;
-            impl $struct_name {
-                /// Create from just the usize without checking sign extension
-                pub const unsafe fn new_unchecked(address: usize) -> Self {
-                    Self(address)
-                }
-                /// Create new while preserving sign extension
-                #[cfg(target_arch = "x86_64")]
-                pub const fn new(address: usize) -> Self {
-                    Self((address << 16) as isize >> 16)
-                }
-                pub const fn as_usize(&self) -> usize {
-                    self.0
-                }
-                pub const unsafe fn as_mut_ptr<T>(&self) -> *mut T {
-                    self.0 as *mut T
-                }
-                pub const fn as_ptr<T>(&self) -> *const T {
-                    self.0 as *const T
-                }
-                /// Check if aligned to some alignment
-                pub const fn is_aligned(&self, alignment: Alignment) -> bool {
-                    self.0 & (alignment.as_usize() - 1) == 0
-                }
-                /// Align the address to the alignment while rounding up
-                pub const fn align_up(mut self, alignment: Alignment) {
-                    self.0 = {
-                        (self.0 + (alignment.as_usize() - 1)) & !(alignment.as_usize() - 1);
-                    }
-                }
-                /// Align the address to the alignment while rounding down
-                pub const fn align_down(mut self, alignment: Alignment) {
-                    self.0 &= !(alignment.as_usize() - 1);
-                }
-                /// Get the alignment of the address
-                pub const fn alignment(&self) -> Alignment {
-                    unsafe { Alignment::new_unchecked(1 << self.0.trailing_zeros()) }
-                }
-            }
+#[allow(non_snake_case)]
+mod ${concat(__impl_for_, $struct_name)} {
+    use super::*;
+    use core::ptr::Alignment;
+    impl $struct_name {
+        pub const unsafe fn new_unchecked(address: usize) -> Self {
+            Self(address)
         }
+        pub const fn as_usize(&self) -> usize {
+            self.0
+        }
+        pub const unsafe fn as_mut_ptr<T>(&self) -> *mut T {
+            self.0 as *mut T
+        }
+        pub const fn as_ptr<T>(&self) -> *const T {
+            self.0 as *const T
+        }
+        pub const fn is_aligned(&self, alignment: Alignment) -> bool {
+            self.0 & (alignment.as_usize() - 1) == 0
+        }
+        pub const fn align_up(mut self, alignment: Alignment) -> Self {
+            self.0 = (self.0 + (alignment.as_usize() - 1)) & !(alignment.as_usize() - 1);
+            self
+        }
+        pub const fn align_down(mut self, alignment: Alignment) -> Self {
+            self.0 &= !(alignment.as_usize() - 1);
+            self
+        }
+        pub const fn alignment(&self) -> Alignment {
+            unsafe { Alignment::new_unchecked(1 << self.0.trailing_zeros()) }
+        }
+    }
+}
     };
 }
 ```

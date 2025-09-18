@@ -52,6 +52,11 @@
     font-style: italic;
 }
 
+.hljs-option {
+    color: #56b6c2;
+    font-style: normal;
+}
+
 /* Traits (typically CapitalCase too) */
 .hljs-trait {
     color: #e5c07b;

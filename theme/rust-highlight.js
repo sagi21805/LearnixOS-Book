@@ -26,6 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const fnCallRegex = /\b([a-z_][a-zA-Z0-9_]*)\b(?!\s*!)(\s*)\(/g;
     const globalConstRegex = /\b([A-Z][A-Z0-9_]+)\b/g;
     const turbofishFnCallRegex = /\.([a-z_][a-zA-Z0-9_]*)::&lt;([A-Z][a-zA-Z0-9_]*(?:<[^>]+>)?)&gt;\s*\(/g;
+    const moduleRegex = /use(<\/span>)?\s+([A-Za-z0-9_*]+(?:::[A-Za-z0-9_*\s\n]+)*)/g;
+    const optionRegex = /(None)|(Some)|(Ok)/g;
 
     function escapeRegex(s) {
         return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -102,7 +104,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!part.safe) return part.text;
 
                 let modified = part.text;
-
+                modified = modified.replace(
+                    moduleRegex,
+                    (_, span, capture) => {
+                        return `use${span} ` + capture
+                            .split("::")
+                            .map(seg => `<span class="hljs-type">${seg}</span>`)
+                            .join("::");
+                    }
+                );
                 modified = modified.replace(turbofishFnCallRegex, (_, fnName, typeName) =>
                     `.<span class="hljs-turbofish">${fnName}</span>::&lt;<span class="hljs-type">${typeName}</span>&gt;(`
                 );
@@ -126,6 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 modified = modified.replace(typeRegex, (_, name) =>
                     `<span class="hljs-type">${name}</span>`
                 );
+                modified = modified.replace(
+                    optionRegex,
+                    (_, none, some, ok) => {
+                        return `<span class="hljs-option">${none ?? ''}${some ?? ''}${ok ?? ''}</span>`;
+                    });
                 modified = modified.replace(builtinTypeRegex, '<span class="hljs-type">$1</span>');
 
                 // Highlight variable usage BEFORE module paths
@@ -145,8 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     `<span class="hljs-title">${name}</span>${space}(`
                 );
                 modified = modified.replace(globalConstRegex, '<span class="hljs-global">$1</span>');
-
-
                 return modified;
             });
 
