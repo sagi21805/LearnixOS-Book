@@ -17,11 +17,14 @@
 
 - [Printing To Screen](./ch03-00-printing-to-screen.md)
 - [Memory Management](./ch04-00-memory-management.md)
-    - [Implementing Our Own Malloc](./ch04-01-implementing-our-own-malloc.md)
+    - [Memory Allocator Types](./ch04-01-memory-allocator-types.md)
+    - [Implementing a Bitmap](./ch04-02-implementing-a-bitmap.md)
+    - [Writing a Physical Page Allocator](./ch04-03-writing-a-physical-page-allocator.md)
 
 - [Interrupts and Exceptions](./ch05-00-interrupts-and-exceptions.md)
     - [Utilizing the Interrupt Descriptor Table](./ch05-01-utilizing-the-idt.md)
-    - [Handling Exceptions](./ch05-02-handling-exceptions.md)
+    - [The Programmable Interrupt Controller](./ch05-02-programmable-interrupt-controller.md)
+    - [Writing a Keyboard driver](./ch05-03-writing-a-keyboard-driver.md)
 
 - [File Systems and Disk Drivers](./ch06-00-file-systems-and-disk-drivers.md)
     - [Disk Drivers](./ch06-01-disk-drivers.md)

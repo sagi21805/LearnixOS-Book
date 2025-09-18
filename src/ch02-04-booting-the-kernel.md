@@ -4,6 +4,12 @@ _"A small thing. Yet it holds everything together." — J.R.R. Tolkien, paraphra
 
 ---
 
+## Initializing Paging
+
+## What is Long Mode?
+
+## Hello Kernel!
+
 To Be Continued...
 
 Latest Development is at [LearnixOS](https://github.com/learnix-os/LearnixOS/)
