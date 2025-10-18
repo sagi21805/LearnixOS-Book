@@ -1,20 +1,20 @@
 # Legacy Legacy Legacy
 
-_“Compatibility means deliberately repeating other people's mistakes.” — David Wheeler_
+_"Compatibility means deliberately repeating other people's mistakes." - David Wheeler_
 
 ---
 
 When writing our bootloader and especially on the first stages we encounter a lot of legacy that needs to be handled.
-This legacy may come in multiple shapes, like bios interrupts, magic numbers and things that are needed to be initialized and most of this stuff will be covered in this chapter.  
+This legacy may come in multiple shapes, like bios interrupts, magic numbers and things that are needed to be initialized and most of this stuff will be covered in this chapter.
 
-> **Note:** from now on, each of the code blocks will be structured as they are in the real project, 
+> **Note:** from now on, each of the code blocks will be structured as they are in the real project,
 > and every time a code file will have a path in it, that will be the same path in the real project.
 > For example, our first stage will be located in the <u>kernel/stages/first_stage</u> directory.
-> 
-> Our project structure will include the following directories 
 >
-> - kernel -> For the kernel code, and booting stages. 
-> - shared -> Shared crates that are relevant for multiple cases. 
+> Our project structure will include the following directories
+>
+> - kernel -> For the kernel code, and booting stages.
+> - shared -> Shared crates that are relevant for multiple cases.
 > - build  -> Will include build utilities, like targets, linker scripts and more.
 >
 > The <u>Cargo.toml</u> in the root of the project will include a [`workspace`](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) definition which will include all of the crates from our project.
@@ -25,11 +25,11 @@ This legacy may come in multiple shapes, like bios interrupts, magic numbers and
 At the start of our code, we want to zero out all of the [`memory segments`](https://en.wikipedia.org/wiki/X86_memory_segmentation#Real_mode) in our machine, so all of the addresses that we will access will not be manipulated by the segments.
 This manipulation can happen if the segments are not zeroed out, because certain instructions of the CPU will assume segments.
 For example, the instruction `mov, eax [0x1000]` will assume address 0x1000 is prefixed by the `ds` register.
-In 16bit real mode, the translation is as follows:   
+In 16bit real mode, the translation is as follows:
 ```
 Physical address = (Segment * 0x10) + Specified Address
 
-// For example, if we want to fetch data, 
+// For example, if we want to fetch data,
 // and the data segment is 0x1000 and we want data at address 0x2000.
 
 Final = 0x1000 * 0x10 + 0x2000
@@ -77,7 +77,7 @@ It is important to state the stack at a position that will not overwrite our cod
 
 The next step in our initialization is to enable the A20 line which is a legacy [pain](https://aeb.win.tue.nl/linux/kbd/A20.html) that we need to handle.
 This is the 21st address line in our [bus](https://simple.wikipedia.org/wiki/Address_bus) which is disabled by default due to compatibility reasons.
-Right now it is not a problem, because we can only access 1Mib of address space, but later in our operating system, we will want to be able to access all of the memory space we have, so we will need to enable this address line. 
+Right now it is not a problem, because we can only access 1Mib of address space, but later in our operating system, we will want to be able to access all of the memory space we have, so we will need to enable this address line.
 
 There are a lot of ways to enable the A20 line, the code we will use is a fast A20 that is implemented mostly on new [chipsets](https://en.wikipedia.org/wiki/Chipset), this method is **DANGEROUS** and on some chipsets it may do something else, or even **DAMAGE** the computer, and because of that, at least for now, we run this operating system **ONLY** on a virtual machine because we are not handling all of the cases.
 
@@ -139,66 +139,66 @@ jnz disk_has_a_problem
 > the specification for the above function can be found [here](https://en.wikipedia.org/wiki/INT_13H#INT_13h_AH=01h:_Get_Status_of_Last_Drive_Operation)
 ## Reading From Disk
 
-To read our kernel from the disk, we can utilize two functions that are provided by the BIOS, the first one is `int 0x13 ah=0x2` which is the `read sector` function, this is an older function that reads sectors from the disk into memory by providing the `cylinder`, `head` and `sector`. The other function is the `int 0x13 ah=0x42` which is the `extended read` function, this is a newer function that reads from disk using the `disk packet` structure. 
-Both of these functions will be explained, and at the end, we will use the newer one.  
+To read our kernel from the disk, we can utilize two functions that are provided by the BIOS, the first one is `int 0x13 ah=0x2` which is the `read sector` function, this is an older function that reads sectors from the disk into memory by providing the `cylinder`, `head` and `sector`. The other function is the `int 0x13 ah=0x42` which is the `extended read` function, this is a newer function that reads from disk using the `disk packet` structure.
+Both of these functions will be explained, and at the end, we will use the newer one.
 
-### Cylinder, Head and Sector 
+### Cylinder, Head and Sector
 
 In today's works, there are multiple ways to store persistent information,
 [SSD](https://en.wikipedia.org/wiki/Solid-state_drive) and [NVMe](https://en.wikipedia.org/wiki/NVM_Express) which are newer storage hardware that provides fast access speeds to data and lower latency comparing to [HDD](https://en.wikipedia.org/wiki/Hard_disk_drive) which is an older technology that the BIOS works with.
 
-To read from hdd, we first need to understand it's geometry. 
-Each disk contains multiple `platters` which are a magnetic disk that can store data, each platter can store information on both sides, so the number of `heads` is `2 * platters`. 
+To read from hdd, we first need to understand it's geometry.
+Each disk contains multiple `platters` which are a magnetic disk that can store data, each platter can store information on both sides, so the number of `heads` is `2 * platters`.
 Each head of the disk is divided into inner circles which are called `tracks`, the set of aligned tracks on all of the heads is called a `cylinder`.
 Finally the `sector` is the arc on the track that actually holds our data, sectors have common a commons size of 512 bytes, but sometimes have [larger size](https://en.wikipedia.org/wiki/Advanced_Format).
 
 With that information, we can understand that the disk uses a 3D coordinate system, and in order to specify which sector we want to read, we need to specify a `cylinder` number that the sector is in, then, provide the `head` number, in order to specify the `track` the sector is in, and then we provide the sector number in the track to get the actual `sector` that holds our data. This can be demonstrated with this picture:
 
 <figure style="width: 60%; text-align: center;">
-    <img src="assets/Cylinder_Head_Sector.svg" 
+    <img src="assets/Cylinder_Head_Sector.svg"
        style="background-color: aliceblue; width: 80%; height: auto;">
     </img>
   <figcaption><strong>Figure 2-0:</strong> Cylinder Head Sector Diagram</figcaption>
-    
+
 </figure>
 
-> **Note:** To obtain how many cylinders, heads and sectors are on a disk we can use the BIOS `int 0x13 ah=0x8` function or the `int 0x13 ah=0x48` function  
+> **Note:** To obtain how many cylinders, heads and sectors are on a disk we can use the BIOS `int 0x13 ah=0x8` function or the `int 0x13 ah=0x48` function
 
 With that said, this is not a surprise that the simple, `read sector` BIOS function needs exactly this information.
 
 ```x86asm,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
 ; Set data segment to 0
-xor ax, ax    
+xor ax, ax
 mov ds, ax
 
 ; Number of sectors to read in `al`
-mov al, 63   
+mov al, 63
 
 ; Cylinder number in `ch`
-mov ch, 0    
+mov ch, 0
 
 ; Sector number in cl
 ; The first sector is already loaded to memory by the BIOS
 ; And the sector count starts at 1 and not 0
-mov cl, 2   
+mov cl, 2
 
 ; Head number in 'dh' 0
-mov dh, 0    
+mov dh, 0
 
 ; `dl` should already contains the drive number from BIOS if not overrode.
 
 ; The buffer to read to is es:bx.
 ; Since BIOS loads 512 bytes at the start, the next empty address is 0x7e00
 ; This address can be represented in multiple ways because of segmentation
-; For example es=0x7e0, bx=0 or es=0, bx=0x7e00 
+; For example es=0x7e0, bx=0 or es=0, bx=0x7e00
 xor bx, bx
-mov es, bx   
-mov bx, 7e00h 
+mov es, bx
+mov bx, 7e00h
 
 ; Put function code in `ah`
 mov ah, 2
 
-; Call the function   
+; Call the function
 int 13h
 ```
 
@@ -213,7 +213,7 @@ This, unlike the sector count scheme is a zero-based address, which means the fi
 
 This address scheme is compatible to CHS addressing, and a CHS address can be translated to an LBA with the following formula:
 
-$$ LBA = (C × N_{Heads Per Cylinder} + H) × K_{Sectors Per Track} + (S − 1) $$
+$$ LBA = (C x N_{Heads Per Cylinder} + H) x K_{Sectors Per Track} + (S - 1) $$
 
 This address can translate backwards, so an LBA address can become a CHS tuple with these formulas:
 
@@ -231,7 +231,7 @@ $$
 ### Disk Address Packet
 
 After learning about LBA, the only logical thing to think, is how to read data from the disk using LBA instead of CHS.
-This is where the `extended read` functions comes in, it expects a structure called the `disk address packet` which looks like this: 
+This is where the `extended read` functions comes in, it expects a structure called the `disk address packet` which looks like this:
 
 ```rust,fp=kernel/stages/first_stage/src/disk.rs
 
@@ -262,7 +262,7 @@ pub struct DiskAddressPacket {
 ```
 
 But, just before we use it, we need to check if this extension is available on our disk. This can be done with `int 0x13 ah=0x41` which checks if all extended functions are available on our disk.
-The check can be done with the following code: 
+The check can be done with the following code:
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
 check_int13h_extensions:
@@ -299,9 +299,9 @@ Then, we can create an initializer function for our `disk packet`
 ```rust,fp=kernel\stages\first_stage\src\disk.rs
 impl DiskAddressPacket {
     pub fn new(
-        num_of_sectors: u16, 
-        memory_address: u16, 
-        segment: u16, 
+        num_of_sectors: u16,
+        memory_address: u16,
+        segment: u16,
         abs_block_num: u64
     ) -> Self {
         Self {
@@ -335,11 +335,11 @@ impl DiskAddressPacket {
             asm!(
                 // si register is required for llvm it's content needs to be saved
                 "push si",
-                // Set the packet address in `si` and format it for a 16bit register 
+                // Set the packet address in `si` and format it for a 16bit register
                 "mov si, {0:x}",
                 // Put function code in `ah`
                 "mov ah, {1}",
-                // Put disk number in `dl` 
+                // Put disk number in `dl`
                 "mov dl, {2}",
                 // Call the `disk interrupt`
                 "int {3}",
@@ -368,20 +368,20 @@ Then, we can get the disk number from the stack, and load our packet.
 
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-; push disk number into the stack 
+; push disk number into the stack
 ; which will be at 0x7bfe and call the first_stage function
-push dx    
+push dx
 call first_stage
 ```
 
 And create a constant for the disk number memory address
 
-```rust,fp=shared\common\src\constants\addresses.rs 
+```rust,fp=shared\common\src\constants\addresses.rs
 #[cfg(feature = "first_stage")]
 pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
 ```
 
-Then, in the first stage function 
+Then, in the first stage function
 
 ```rust,fp=kernel\stages\first_stage\src\main.rs
 #[unsafe(no_mangle)]
@@ -389,7 +389,7 @@ pub fn first_stage() -> ! {
     // Read the disk number the os was booted from
     let disk_number = unsafe { core::ptr::read(DISK_NUMBER_OFFSET as *const u8) };
 
-    // Create a disk packet which will load 128 sectors (512 bytes each) 
+    // Create a disk packet which will load 128 sectors (512 bytes each)
     // from the disk to memory address 0x7e00
     // The address 0x7e00 was chosen because it is exactly one sector
     //  after the initial address 0x7c00.
