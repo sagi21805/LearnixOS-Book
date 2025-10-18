@@ -1,6 +1,6 @@
 # Booting Our Binary
 
-_"There is no elevator to success — you have to take the stairs." — Zig Ziglar_ 
+_"There is no elevator to success - you have to take the stairs." - Zig Ziglar_
 
 ---
 
@@ -145,23 +145,23 @@ This target has some useful info that we can use, like useful keys, such as `arc
 "relocation-model": "static"
 }
 ```
-Now, the only thing left to do before we can run our code, is to include the boot signature at our binary. This can be done in the linker script by adding the following lines: 
+Now, the only thing left to do before we can run our code, is to include the boot signature at our binary. This can be done in the linker script by adding the following lines:
 
 ```linker,fp=linker_script.ld
 SECTIONS {
 
-    /* 
-      Make the start offset of the file 0x7c00 This is useful, 
-      because if make jump to a function that it's offset in the binary is 0x100, 
-      it will actually be loaded at address 0x7d00 by the BIOS, and not 0x100, 
-      so we need to consider this offset, and that's how we do it. 
+    /*
+      Make the start offset of the file 0x7c00 This is useful,
+      because if make jump to a function that it's offset in the binary is 0x100,
+      it will actually be loaded at address 0x7d00 by the BIOS, and not 0x100,
+      so we need to consider this offset, and that's how we do it.
     */
     . = 0x7c00;
 
-    /* 
+    /*
       Currently, we have nothing on the binary,
-      if we write the signature now, it will be at the start of the binary. 
-      Because we want the signature to start at the offset of 510 in our binary, 
+      if we write the signature now, it will be at the start of the binary.
+      Because we want the signature to start at the offset of 510 in our binary,
       we pad it with zeros.
     */
     .fill : {
@@ -181,24 +181,24 @@ cargo +nightly build --release --target .\16bit_target.json -Z build-std=core
 ```
 
 The `+nightly` tells rust to use the nightly toolchain, which includes a lot of feature that we will use, including the -Z flag to rustc.
- 
+
 The `build-std` flag tells cargo to also compile the core library with the specified target, and not use the precompiled default in our system.
 
 To see that indeed, the boot signature is in the correct place, we can use the `Format-Hex` command in windows or the `hexdump` command in Linux or MacOS to see the hex of our file.
 
 This should result in a lot of zeros, and at the end, this line, where we can see the boot signature in the right offset
-`000001F0   00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 AA` 
+`000001F0   00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 AA`
 
 
 > **Note:**
 > If you are like me, and you don't like to specify a lot of configuration in the command of compiling, these arguments can be specified in the following configuration files.
-> 
+>
 > ```toml,fp=rust-toolchain.toml
 > [toolchain]
 > channel = "nightly"
 > ```
 > To define that the default toolchain is the nightly toolchain
-> 
+>
 > ```toml,fp=.cargo/config.toml
 > [unstable]
 > build-std = ["core"]
@@ -209,7 +209,7 @@ This should result in a lot of zeros, and at the end, this line, where we can se
 
 Because our code is experimental, we will not want to run it on our machine, because it can make **PERMANENT DAMAGE** to it. This is because we don't monitor cpu temperature, and other hardware sensors that can help us protect our pc. Instead, we will run our code in [QEMU](https://www.qemu.org/), which is a free and open-source full machine emulator and virtualizer. To download QEMU for your platform, follow the instructions [here](https://www.qemu.org/download/)
 
-To make a sanity check that QEMU indeed works on your machine with our wanted architecture after you downloaded it, run `qemu-system-x86_64` on a terminal. This should open a window and in it write some messages it tries to boot from certain devices, and after it fails, it should write it cannot find any bootable device. If that's what you are seeing, it all works as it should!  
+To make a sanity check that QEMU indeed works on your machine with our wanted architecture after you downloaded it, run `qemu-system-x86_64` on a terminal. This should open a window and in it write some messages it tries to boot from certain devices, and after it fails, it should write it cannot find any bootable device. If that's what you are seeing, it all works as it should!
 
 To provide our code, we need to add the `-drive format=raw,file=<path-to-bin-file>` flag to qemu, which will add to our virtual machine a disk drive with our code.
 
@@ -220,7 +220,7 @@ qemu-system-x86_64 -drive \
         format=raw,file=target/16bit_target/release/LearnixOS-Book-Walkthrough
 ```
 
-At a first glance, we might think our code still doesn't work, because all we see is a black screen, but, if you notice closely, we don't get more messages of the BIOS trying other boot devices, and we don't get the message of `"No bootable device."`. 
+At a first glance, we might think our code still doesn't work, because all we see is a black screen, but, if you notice closely, we don't get more messages of the BIOS trying other boot devices, and we don't get the message of `"No bootable device."`.
 
 So why we see black screen? This is because we didn't provide the computer any code to run and our main function is empty, but now we have the platform to write any code that we like!
 
@@ -259,37 +259,37 @@ If you believe me that the code above is correct, and indeed works, we can try a
 
 When we do that, we can notice that it seems that more code was added, but at the end of the file, and not at the start of it, and more over, it is located after the first sector which means it doesn't even loaded by the BIOS. To resolve this, we need to learn about the default segment `rustc` generates.
 
-> ### Default Segments In Rust 
+> ### Default Segments In Rust
 > - **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
->   ```rust,banner=no
+>   ```banner=no
 >   fn some_function(x: u32, y: u32) -> u32 {
 >     return x + y;
 >   }
 >   ```
 > - **.data** - Includes the initialized data of our program, like static variables.
->   ```rust,banner=no
+>   ```banner=no
 >   static VAR: u32 = 42;
 >   ```
 > - **.bss** - Includes the uninitialized data of our program
->   ```rust,banner=no
+>   ```banner=no
 >   static mut MESSAGE: String = MaybeUninit::uninit();
 >   ```
 > - **.rodata** - Includes the read-only data of our program
->   ```rust,banner=no
+>   ``banner=no
 >   static mut MESSAGE: &'static str = "Hello World!";
 >   ```
 > - **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
 
-So, to make our linker put the segments in the right position, we need to change the `SECTION` segment of our linker script to this. 
+So, to make our linker put the segments in the right position, we need to change the `SECTION` segment of our linker script to this.
 
 ```linker,fp=linker_script.ld
 SECTIONS {
 
     . = 0x7c00;
 
-    /* 
-      Rust also mangles segment names. 
-      The "<segment_name>.*" syntax is used to also include all the mangles   
+    /*
+      Rust also mangles segment names.
+      The "<segment_name>.*" syntax is used to also include all the mangles
     */
 
     .text : { *(.text .text.*) }
@@ -298,7 +298,7 @@ SECTIONS {
     .data : { *(.data .data.*) }
     /DISCARD/ : {
         *(.eh_frame .eh_frame.*)
-        *(.eh_frame_hdr .eh_frame_hdr.*) 
+        *(.eh_frame_hdr .eh_frame_hdr.*)
     }
 
     . = 0x7c00 + 510;

@@ -1,6 +1,6 @@
 # Booting the Kernel
 
-_"A small thing. Yet it holds everything together." — J.R.R. Tolkien, paraphrased_
+_"A small thing. Yet it holds everything together." - J.R.R. Tolkien, paraphrased_
 
 ---
 

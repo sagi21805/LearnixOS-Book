@@ -94,14 +94,14 @@ enable_a20:
 
     ; If so, skip the enabling code
     jnz enable_a20_after
-    
+
     ; Else, enable the a20 line
     or al, 2
     and al, 0xFE
     out 0x92, al
 enable_a20_after:
 ```
-- [x] Enable the A20 line
+[x] Enable the A20 line
 
 <br><br>
 Now, after enabling the a20 line, we want to load from the disk into memory the rest of the bootloader and of course, our kernel.
@@ -109,12 +109,12 @@ This is not a trivial task, especially when we have less then 512 bytes of code 
 
 ## BIOS Interrupts
 
-[BIOS Interrupts](https://en.wikipedia.org/wiki/BIOS_interrupt_call) are an interface that is provided by the BIOS, that will allow us to perform numerous operations to our system with just a few assembly instructions. 
+[BIOS Interrupts](https://en.wikipedia.org/wiki/BIOS_interrupt_call) are an interface that is provided by the BIOS, that will allow us to perform numerous operations to our system with just a few assembly instructions.
 For now, you don't have to understand how interrupts work, and this topic will be explained deeply [later](./ch05-00-interrupts-and-exceptions.md).
-What you do need to understand, is that each set of functions that the BIOS provides has a number 
-these sets are divided by topics, and the specific function in each set that we will want to use will also have a number that we will put in the `a register`. 
+What you do need to understand, is that each set of functions that the BIOS provides has a number
+these sets are divided by topics, and the specific function in each set that we will want to use will also have a number that we will put in the `a register`.
 
-For example, if we want to check our drive status, we will need interrupt number 0x13, which is the set of function that correspond for disk operations, 
+For example, if we want to check our drive status, we will need interrupt number 0x13, which is the set of function that correspond for disk operations,
 and we will need function that corresponds to the number 0x1. (This information could be looked up [here](https://en.wikipedia.org/wiki/BIOS_interrupt_call#Interrupt_table))
 then, calling the function will look like this:
 

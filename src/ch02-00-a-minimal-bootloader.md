@@ -1,6 +1,6 @@
 # A Minimal Bootloader
 
-_"From a small spark may burst a mighty flame." — Dante Alighieri_
+_"From a small spark may burst a mighty flame." - Dante Alighieri_
 
 ---
 
@@ -12,7 +12,7 @@ In this chapter we will implement the following features:
 -  Setup registers and stack
 -  Enable the A20 line
 -  Read kernel from disk
--  Load the global descriptor table 
+-  Load the global descriptor table
 -  Enable Paging
 
 These features are enough, at least for the start of our kernel, and later in the book you will see we will implement more features like obtaining a memory map, enabling text mode, locate the kernel in the file system and more!

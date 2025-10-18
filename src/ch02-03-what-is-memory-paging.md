@@ -1,6 +1,6 @@
 # What is Memory Paging?
 
-_"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise." — Edsger W. Dijkstra_
+_"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise." - Edsger W. Dijkstra_
 
 ---
 
@@ -9,8 +9,8 @@ Although this system worked in older 32bit operating systems, it will not be goo
 
 ## The Problem in Memory Segmentation
 
-Before we define paging, let's understand what we want for our operating system memory management. 
-For starters, I can think about the following things: 
+Before we define paging, let's understand what we want for our operating system memory management.
+For starters, I can think about the following things:
 
 - Basic permissions, i.e Read, Write and Execute
 - Kernel mode and User mode.
@@ -22,26 +22,26 @@ So why would we want another system for managing memory?
 Let's draw a scenario, we will have three processes, A and B, and we will look at our memory, for convenience, we will manage memory at multiplications of 0x100.
 
 <figure style="margin: 0; text-align: center">
-  <img src="assets/fragmentation_example.svg"></img> 
+  <img src="assets/fragmentation_example.svg"></img>
   <figcaption><strong>Figure 2-2: </strong>simple memory layout with segmentation</figcaption>
 </figure>
 
 As we can see, every program has it's own memory, additionally, we can define segments likes coda_a, data_a, stack_a etc, so we have organization and permission control.
-But this picture demonstrates a major problem that there is with segmentation, can you spot it? if not that's fine. 
+But this picture demonstrates a major problem that there is with segmentation, can you spot it? if not that's fine.
 
 Let's now assume that process B wants more memory, it asks the operating system for another 0x100 bytes. Because the bytes that are `contiguous` to this process are free, this can be done without any problem and it can just be extended. But, process A is in a problem, and it now needs another buffer of 0x400 bytes, although we do have this amount of free memory, we can't give it to him because it is not contiguous to it. This problem is called [`fragmentation`](https://en.wikipedia.org/wiki/Fragmentation_(computing)).
 
-> So now you might ask, how can we solve this problem? 
+> So now you might ask, how can we solve this problem?
 >
 > I suggest you to think how would you solve this fragmentation problem!
 >
-> As always, the explanation of the solution that is used today will be bellow 
+> As always, the explanation of the solution that is used today will be bellow
 
 ## Introduction to Paging
 
 Just before explaining how paging works, let's define some core terms.
 
-  - **Physical Memory** - This is the actual memory that is used, and it has `absolute` addresses, and it is the address space that our hardware talks.  
+  - **Physical Memory** - This is the actual memory that is used, and it has `absolute` addresses, and it is the address space that our hardware talks.
 
   - **Virtual Memory**  - This is the address space of our processes, because we want to make an illusion that each process has it's own address space, addresses are absolute only `inside the process`, For example, process A address 0x100 represents other region of memory then process B address 0x100.
   Both of these addresses `will` translate into a different `physical address` so we can read and write data to it.
@@ -52,7 +52,7 @@ Just before explaining how paging works, let's define some core terms.
 
 So what do we do in memory paging?
 
-In memory paging we divide our physical memory into `pages`, and each page is exactly 4096 bytes. Then we create a `mapping` between the virtual address space, and the physical one. Each process holds a different mapping, hence a different virtual address space. 
+In memory paging we divide our physical memory into `pages`, and each page is exactly 4096 bytes. Then we create a `mapping` between the virtual address space, and the physical one. Each process holds a different mapping, hence a different virtual address space.
 
 In the figure bellow we can see this mapping, for simplification, I changed the block size to 0x100 instead of 0x1000 (4096 bytes) but the principles are still the same.
 
@@ -71,8 +71,8 @@ In paging the address translation process is a bit more complicated, and it is d
 The official names for those tables are `Page-Map Level 4 (PML4)`, `Page Directory Pointer Table (PDT)`, `Page Directory Table (PDT)` and `Page Table (PT)`.
 In this book I will not use these names because they are complicated, and I am just going to number each level, PML4 being the 4th level, and PT being the 1st level.
 
-> In 32bit paging extension, there are only two tables but the principles are the same. and because of that only 64bit paging will be covered in this book. 
-> 
+> In 32bit paging extension, there are only two tables but the principles are the same. and because of that only 64bit paging will be covered in this book.
+>
 
 ###  Page Table & Page Table Entry
 
@@ -103,18 +103,18 @@ macro_rules! table_entry_flags {
         //
         // Bit 5 is the accessed bit, and is set by the cpu
         // when this entry is accessed.
-        // 
+        //
         // Bit 6 is the dirty bit, and is set by the cpu
         // when a write on this page occurs
 
         // Marks big pages blocks
         flag!(huge_page, 7);
 
-        // Page isn’t flushed from caches on address space switch 
+        // Page isn’t flushed from caches on address space switch
         // (PGE bit of CR4 register must be set)
         flag!(global, 8);
 
-        // Bit 9-11 and also 52-62 
+        // Bit 9-11 and also 52-62
         // are available and can be used by the OS to any purpose.
 
         // This page is holding data and is not executable
@@ -153,36 +153,36 @@ impl PageTableEntry {
 }
 ```
 Because of how addresses are translated, addresses are actually capped by 48bits, which is 256Tib of addressable memory, and if this is somehow not enough,
-new processors support a 5th table hierarchy, which support 57bit address space, or 128Pib of addressable memory. 
+new processors support a 5th table hierarchy, which support 57bit address space, or 128Pib of addressable memory.
 The address the entry points to, is between bits 12 and 48. Because the pointed address is always aligned to 0x1000, only the upper 36 bits of the pointed address are saved.
-In addition, when we use the top half of the address space, where the 47th bit is on, we must also set bits 63-48 to 1 because of the sign extension. 
+In addition, when we use the top half of the address space, where the 47th bit is on, we must also set bits 63-48 to 1 because of the sign extension.
 
 Then, to translate an address, a special hardware on the CPU, which is called the MMU (Memory Management Unit) translates the addresses with the following logic:
 
 > **1.** If the translation value is cached, obtain it from cache and return it.
-> 
+>
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓
-> 
+>
 > **2.** Look on the CR3 register, for the physical address of the 4th page table.
-> 
+>
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓
-> 
+>
 > **3.** Look at the first nine bits on the address, and use them as an index for the 4th table to obtain the location of the 3rd table.
-> 
+>
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓
-> 
+>
 > **4.** Look at the next nine bits on the address, and use them as an index for the 3rd table to obtain the location of the 2nd table.
-> 
+>
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓
-> 
+>
 > **5.** Look at the next nine bits on the address, and use them as an index for the 2rd table to obtain the location of the 1nd table.
-> 
+>
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓
-> 
+>
 > **6.** Look at the next nine bits on the address, and use them as an index for the 1rd table to obtain the location of the page.
-> 
+>
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓
-> 
+>
 > **7.** Look at the remaining twelve bits, and use them as an offset inside the page.
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓
 
@@ -193,7 +193,7 @@ As a diagram, this process should look like this:
 </figure>
 
 
-## Implementing Paging 
+## Implementing Paging
 
 Just before we will implement the core functionality of paging, we will need to create some utility structs of `VirtualAddress` and `PhysicalAddress`.
 These will just be a wrapper struct of a usize.
@@ -339,12 +339,12 @@ impl PageTableEntry {
         unsafe { self.set_flags_unchecked(flags) };
         self.set_present();
         // Set the new address
-        self.0 |= frame.as_usize() as u64 & ENTRY_ADDRESS_MASK; 
+        self.0 |= frame.as_usize() as u64 & ENTRY_ADDRESS_MASK;
     }
 
     /// Same as map unchecked, but checking that the entry is not used
     /// and also that the address is aligned
-    /// 
+    ///
     /// This is still not a safe function,
     /// See walkthrough documentation for more details
     pub const unsafe fn map(&mut self, frame: PhysicalAddress, flags: PageEntryFlags) {
@@ -362,10 +362,10 @@ impl PageTableEntry {
 
     /// Extract the address from the entry and return it without checking flags
     pub const unsafe fn mapped_unchecked(&self) -> PhysicalAddress {
-        unsafe { 
+        unsafe {
             PhysicalAddress::new_unchecked(
                 (self.0 & ENTRY_ADDRESS_MASK) as usize
-            ) 
+            )
         }
     }
     /// Return the physical address that is mapped by this entry while checking flags
@@ -411,7 +411,7 @@ impl PageTable {
         unsafe {
             // Zero out all the entries and return as mut ptr
             ptr::write_volatile(
-                page_table_ptr.as_mut_ptr::<PageTable>(), 
+                page_table_ptr.as_mut_ptr::<PageTable>(),
                 PageTable::empty()
             );
             return Some(&mut *page_table_ptr.as_mut_ptr::<PageTable>());
@@ -425,5 +425,5 @@ impl PageTable {
 As a last note we will touch on a topic that is sometimes forgiven, which is the Translation Lookaside Buffer.
 
 The TLB is a cache that stores our most recent translations of virtual addresses into physical ones and it is part of the MMU. This is useful because walking the page tables is a task that could take tens or even hundreds of cpu cycles, but instead obtaining the same entry from the cache, which is also called `TLB hit`, could take a few as 1 cycle because it is just a cache read.
-This make the TLB _really_ useful, but it is not that simple, this is because we should know how to work with it. For example, switching page tables becomes a very expensive task, because the buffer refreshes. 
+This make the TLB _really_ useful, but it is not that simple, this is because we should know how to work with it. For example, switching page tables becomes a very expensive task, because the buffer refreshes.
 Also, when we free up a page, we must call the `invlpg` instruction, which removes every page with the given address from the buffer. If we don't flush the entry it will become stale, and the cpu will still be able to translate the address even if it is not mapped anymore. This could be a cause to **a lot** of bugs and some serious security vulnerabilities.

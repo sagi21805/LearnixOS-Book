@@ -1,6 +1,6 @@
 # Making a Standalone Binary
 
-_"Machines take me by surprise with great frequency." — Alan Turing_
+_"Machines take me by surprise with great frequency." - Alan Turing_
 
 ---
 
@@ -42,16 +42,19 @@ $ cd <project_name>
 If you have done everything correct, you project should look like this
 ```
 <project_name>/
-├── Cargo.toml
-├── src/
-│   └── main.rs
+|-- Cargo.toml
+|-- src
+   |- main.rs
 ```
+
 and the main file, should look something like this:
-```rust,fp=main.rs
+
+```rust,main.rs
 fn main() {
-    println!("Hello World!");
+    println!("Hello, world!");
 }
 ```
+
 
 This can easily be run on you computer with `cargo run` but, because you are running it on a regular computer, with a functioning operating system it uses the standard library.
 
@@ -61,7 +64,7 @@ As mentioned before we don't want to depend on the standard library because it i
 
 Now, if we then try to compile our crate, we get this error massage:
 
-```rust,banner=no
+```banner=no
 error: cannot find macro `println` in this scope
  --> src/main.rs:4:5
   |
@@ -72,11 +75,11 @@ error: `#[panic_handler]` function required, but not found
 
 error: unwinding panics are not supported without std
   |
-  = help: using nightly cargo, 
+  = help: using nightly cargo,
           use -Zbuild-std with panic="abort" to avoid unwinding
 
-  = note: since the core library is usually precompiled with panic="unwind", 
-          rebuilding your crate with panic="abort" 
+  = note: since the core library is usually precompiled with panic="unwind",
+          rebuilding your crate with panic="abort"
           may not be enough to fix the problem
 ```
 
@@ -107,7 +110,7 @@ Normally, the Standard Library provides us with an implementation of the Panic H
 This function can be any function, it just have to include the attribute `#[panic_handler]`, this attribute is added, so the compiler will know which function to use when invoking the `panic!` macro, to enforce that only one function of this type exists, and to also enforce the input argument and the output type.
 
 If we create an empty function for the panic handler, we will get this error:
-```rust,banner=no
+```banner=no
 error[E0308]: `#[panic_handler]` function has wrong type
   --> src\main.rs:10:1
    |
@@ -170,11 +173,11 @@ panic = "abort"
 After we disabled unwinding, we can now, hopefully try to compile our code!
 
 But, by running `cargo run` we get the following error
-```rust,banner=no
+```banner=no
 error: using `fn main` requires the standard library
   |
-  = help: use `#![no_main]` to bypass the Rust generated entrypoint 
-          and declare a platform specific entrypoint yourself, 
+  = help: use `#![no_main]` to bypass the Rust generated entrypoint
+          and declare a platform specific entrypoint yourself,
           usually with `#[no_mangle]`
 ```
 As per usual, the rust compiler errors are pretty clear, and they tell us exactly what we need to do to fix the problem. In this case, we need to add the `#![no_main]` attribute to our crate, and declare a platform specific entrypoint ourselves.
@@ -201,7 +204,7 @@ fn main() {
     let local_path = Path::new(env!("CARGO_MANIFEST_DIR"));
 
     // This tells cargo to add the `-C link-arg=--script=./linker.ld` argument.
-    // Which will result in linking with our code with our linker script 
+    // Which will result in linking with our code with our linker script
     println!(
         "cargo:rustc-link-arg-bins=--script={}",
         local_path.join("linker.ld").display()
