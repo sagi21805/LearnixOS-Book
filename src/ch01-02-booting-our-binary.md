@@ -275,7 +275,7 @@ When we do that, we can notice that it seems that more code was added, but at th
 >   static mut MESSAGE: String = MaybeUninit::uninit();
 >   ```
 > - **.rodata** - Includes the read-only data of our program
->   ``banner=no
+>   ```banner=no
 >   static mut MESSAGE: &'static str = "Hello World!";
 >   ```
 > - **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
