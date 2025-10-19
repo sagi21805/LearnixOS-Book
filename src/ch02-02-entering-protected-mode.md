@@ -1,6 +1,6 @@
 # Entering Protected Mode
 
-_"With great power comes great responsibility." — Voltaire / Spider-Man_
+_"With great power comes great responsibility." - Voltaire / Spider-Man_
 
 ---
 
