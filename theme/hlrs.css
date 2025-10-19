@@ -1,0 +1,47 @@
+.hlrs-Function {
+    color: #61afef;
+}
+
+.hlrs-LitStr,
+.hlrs-String {
+    color: #98c379;
+}
+
+.hlrs-SelfToken,
+.hlrs-Keyword {
+    color: #c678dd;
+}
+
+.hlrs-Const,
+.hlrs-Macro,
+.hlrs-LitNum {
+    color: #d19a66;
+}
+
+.hlrs-Segment,
+.hlrs-ReturnType,
+.hlrs-FnType,
+.hlrs-Type {
+    color: #e5c07b;
+}
+
+.hlrs-Ident {
+    color: #e06c75;
+}
+
+.hlrs-Comment {
+    color: #5c6370;
+    font-style: italic;
+}
+
+.hlrs-LifeTime {
+    color: #a9cee7;
+}
+
+.hlrs-Enum {
+    color: #56b6c2;
+}
+
+.hlrs-Attribute {
+    color: lightgrey;
+}

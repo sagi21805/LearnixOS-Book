@@ -2,26 +2,25 @@
 authors = ["Sagi"]
 title = "The LearnixOS Book"
 language = "en"
+src = "src"
+
+[preprocessor.rust-highlight]
+whichlang = true
+command = "cargo run --release --manifest-path mdbook-rust-highlight/Cargo.toml"
 
 [output.html]
 git-repository-url = "https://github.com/sagi21805/LearnixOS-Book"
 default-theme = "rust"
 preferred-dark-theme = "mocha"
 additional-css = [
-    "theme/catppuccin.css",
     "theme/whichlang.css",
-    "theme/highlight.css",
+    "theme/hlrs.css",
+    "theme/catppuccin.css"
 ]
 additional-js = [
-    "theme/whichlang.js",
-    "theme/filepath-links.js",
-    "theme/giscuss.js",
-    "theme/rust-highlight.js",
+    "theme/whichlang.js"
 ]
 mathjax-support = true
 
 [output.html.render]
 task-list = true
-
-[output.linkcheck]
-traverse-parent-directories = false
