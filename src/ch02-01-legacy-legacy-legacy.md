@@ -247,38 +247,15 @@ Then, we can get the disk number from the stack, and load our packet.
 
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-; push disk number into the stack
-; which will be at 0x7bfe and call the first_stage function
-push dx
-call first_stage
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/asm/boot.s disk}}
 ```
 
 And create a constant for the disk number memory address
-
-```rust,fp=shared\common\src\constants\addresses.rs
-#[cfg(feature = "first_stage")]
-pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
-```
-
 Then, in the first stage function
 
 ```rust,fp=kernel\stages\first_stage\src\main.rs
-#[unsafe(no_mangle)]
-pub fn first_stage() -> ! {
-    // Read the disk number the os was booted from
-    let disk_number = unsafe { core::ptr::read(DISK_NUMBER_OFFSET as *const u8) };
-
-    // Create a disk packet which will load 128 sectors (512 bytes each)
-    // from the disk to memory address 0x7e00
-    // The address 0x7e00 was chosen because it is exactly one sector
-    //  after the initial address 0x7c00.
-    let dap = DiskAddressPacket::new(
-        128,    // Number of sectors
-        0,      // Memory address
-        0x7e0,  // Memory segment
-        1,      // Starting LBA address (LBA 0 was already loaded by the BIOS)
-    );
-    dap.load(disk_number);
+# pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/main.rs first_stage}}
 }
 ```
 - [x] Read kernel from disk
