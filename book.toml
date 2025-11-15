@@ -18,11 +18,9 @@ preferred-dark-theme = "mocha"
 additional-css = [
     "theme/whichlang.css",
     "theme/hlrs.css",
-    "theme/catppuccin.css"
+    "theme/catppuccin.css",
 ]
-additional-js = [
-    "theme/whichlang.js"
-]
+additional-js = ["theme/whichlang.js"]
 mathjax-support = true
 
 [output.html.render]
