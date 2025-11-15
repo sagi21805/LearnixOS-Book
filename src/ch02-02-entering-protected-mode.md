@@ -250,6 +250,7 @@ This will complicate it a bit, but will provide much more friendly interface.
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_protected}}
+
 impl GlobalDescriptorTableEntry32 {
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_entry32_new}}
 }
@@ -277,7 +278,6 @@ So, the only thing left to do is to load the global descriptor table. This can b
 We will create a `load` function that will create this register structure, and will load it to the cpu.
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
-
 impl GlobalDescriptorTableProtected {
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_load}}
 }
@@ -287,7 +287,6 @@ Now, to apply all of the created functionality, enable protected mode, and to ju
 
 ```rust,fp=kernel/stages/first_stage/src/main.rs
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/main.rs gdt_static}}
-
 
 pub fn first_stage() -> ! {
 
