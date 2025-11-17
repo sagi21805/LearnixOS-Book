@@ -11,6 +11,21 @@ After that we can also toggle [`long mode`](https://en.wikipedia.org/wiki/Long_m
 
 ## Initializing Paging
 
+<details><summary><span style="font-style: italic; font-size: 1.15em;">The code below assumes the following target and linker script</span></summary>
+
+```linker,fp=build/linker_scripts/32bit.ld
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/build/linker_scripts/32bit.ld}}
+```
+
+_I leave the starting address of the next stage as an exercise for the reader (There is a really good reason for that)._
+
+> **_Note:_** The code for using the linker script in the build script is the same as in stage one.
+
+```json,fp=build/targets/32bit_target.json
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/build/targets/32bit_target.json}}
+```
+</details>
+
 Like every feature of the CPU, to toggle it we just need to flip some bits on some control registers. But, in this case if we were to just toggle paging, our computer will crash instantly because of the following reasons: 
 
 >1. Our cr3 register doesn't hold a meaningful address of a valid page table.
@@ -59,7 +74,24 @@ pub fn enable() -> Option<()> {
 }
 ```
 
+After that, we can finally turn on paging!
+
+Like the previous features, this also it toggled by a control register, and done via inline assembly
+```rust,fp=shared/cpu_utils/src/structures/paging/init.rs
+#[cfg(target_arch = "x86")]
+pub fn enable() -> Option<()> {
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/init.rs enable_paging}}
+
+}   
+```
+
+Now, to go into long mode, we need to `far jump` just like in protected mode, with a special global descriptor table. This table will look almost the same as our previous table, the key differences are that the `long mode` flag replaces the `protected mode` flag, 
+
+
 ## Hello Kernel!
+
+TODO CHECK COOL TRICK WITH PAGING AND IF TRUE EXPLAIN IT
 
 To Be Continued...
 
