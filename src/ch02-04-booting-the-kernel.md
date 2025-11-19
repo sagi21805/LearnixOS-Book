@@ -86,11 +86,33 @@ pub fn enable() -> Option<()> {
 }   
 ```
 
-Now, to go into long mode, we need to `far jump` just like in protected mode, with a special global descriptor table. This table will look almost the same as our previous table, the key differences are that the `long mode` flag replaces the `protected mode` flag, 
+Now, to go into long mode, we need to `far jump` just like in protected mode, with a special global descriptor table.
+This table will look almost the same as our previous table, the key differences are that the `long mode` flag replaces the `protected mode` flag, and that most of the flags are not used because in this mode they are irrelevant.
 
+So after the changes the table will look like this:
+
+```rust,fp=shared/common/cpu_utils/structures/global_descriptor_table.rs
+impl GlobalDescriptorTableLong {
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_long_default}}
+
+}
+```
 
 ## Hello Kernel!
 
+After all that initialization we can jump to our kernel main!
+
+All that is left to do is to call the `enable` function we created to enable paging, load the new long mode GDT, and jump to our kernel.
+
+This can be done with the following code: 
+
+```rust,fp=kernel/stages/second_stage/src/main.rs
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/second_stage/src/main.rs gdt_long}}
+
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/second_stage/src/main.rs _start}}
+```
 TODO CHECK COOL TRICK WITH PAGING AND IF TRUE EXPLAIN IT
 
 To Be Continued...
