@@ -3,7 +3,6 @@
 _"A small thing. Yet it holds everything together." - J.R.R. Tolkien, paraphrased_
 
 ---
-TODO ADD NOTE THAT THIS ASSUMES LINKER SCRIPT AND TARGET OF 32BIT AND ALSO THAT LONG MODE REQUIRES 64BIT
 
 In the previous section we talked about memory paging, what it is, and how to initialize page tables. So, logically the only thing that is left to do, is to toggle on paging.
 
@@ -89,6 +88,8 @@ pub fn enable() -> Option<()> {
 Now, to go into long mode, we need to `far jump` just like in protected mode, with a special global descriptor table.
 This table will look almost the same as our previous table, the key differences are that the `long mode` flag replaces the `protected mode` flag, and that most of the flags are not used because in this mode they are irrelevant.
 
+_For now ignore the tss entry, it will be relevant on later chapters_
+
 So after the changes the table will look like this:
 
 ```rust,fp=shared/common/cpu_utils/structures/global_descriptor_table.rs
@@ -113,8 +114,3 @@ This can be done with the following code:
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/second_stage/src/main.rs _start}}
 ```
-TODO CHECK COOL TRICK WITH PAGING AND IF TRUE EXPLAIN IT
-
-To Be Continued...
-
-Latest Development is at [LearnixOS](https://github.com/learnix-os/LearnixOS/)

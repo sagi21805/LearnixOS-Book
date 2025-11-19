@@ -36,7 +36,7 @@ Let's now assume that process B wants more memory, it asks the operating system 
 >
 > As always, the explanation of the solution that is used today will be bellow
 
-## Introduction to Paging
+## Core Terms
 
 Just before explaining how paging works, let's define some core terms.
 
@@ -49,11 +49,17 @@ Just before explaining how paging works, let's define some core terms.
 > we created a virtual memory space for each process in terms of accessing data or executing code.
 > These addresses would then `translate` to a physical address as we defined in the global descriptor table
 
-So what do we do in memory paging?
+## Introduction to Paging
 
-In memory paging we divide our physical memory into `pages`, and each page is exactly 4096 bytes. Then we create a `mapping` between the virtual address space, and the physical one. Each process holds a different mapping, hence a different virtual address space.
+>Just before explaining paging, I want you to know that there are _`four paging modes`_[^1] and they all cover the same concepts, and the key difference is the tables layout. We are going to talk about the third type, which is called '`4-level paging`' and is mostly used on modern computers. 
 
-In the figure bellow we can see this mapping, for simplification, I changed the block size to 0x100 instead of 0x1000 (4096 bytes) but the principles are still the same.
+[^1]: Once you know how one works, you know that for all the others as well. For more information about the four available paging modes you may look on [Intel Manual Volume 3](https://cdrdv2.intel.com/v1/dl/getContent/671200) section 5.1.1 
+
+In memory paging we divide our physical memory into units that are called `pages`, which are blocks of contiguous memory of fixed size (4Kib, 2Mib or 1Gib). Then we create a `mapping` between the virtual address space, and the physical one. Each process holds a different mapping, hence a different virtual address space.
+
+In the figure bellow we can see this mapping.
+
+_for simplification, I changed the block size to 0x100 instead of 0x1000 (4096 bytes) but the principles are still the same._
 
 <figure style="margin: 0; text-align: center">
   <img src="assets/paging_example.svg"></img>
@@ -70,12 +76,8 @@ In paging the address translation process is a bit more complicated, and it is d
 The official names for those tables are `Page-Map Level 4 (PML4)`, `Page Directory Pointer Table (PDT)`, `Page Directory Table (PDT)` and `Page Table (PT)`.
 In this book I will not use these names because they are complicated, and I am just going to number each level, PML4 being the 4th level, and PT being the 1st level.
 
-> In 32bit paging extension, there are only two tables but the principles are the same. and because of that only 64bit paging will be covered in this book.
->
-
 ###  Page Table & Page Table Entry
 
-Just before we will translate and address, we need to understand the structure of the page table, and especially the Page Table Entry.
 The page table, just like the global descriptor table, is an array of 512 page table entries.
 Each entry contains a `physical address` aligned to 0x1000, that is pointing to a memory regions, and also flags represents configuration and permissions for the memory page mapped by the entry.
 
@@ -83,8 +85,9 @@ On a typical entry, there are 8 flags that are used with an optional 12 flags in
 ```rust,fp=shared/cpu_utils/src/structures/paging/entry_flags.rs
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/entry_flags.rs table_entry_flags}}
 ```
+<div></div>
 
-and the page table entry will just be a u64, and the page table, an array of page entries of size 512
+The page table entry is just be a u64, and the page table is an array of page entries with 512 entries.
 ```rust,fp=shared/cpu_utils/src/structures/paging/page_table.rs
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/page_table_entry.rs page_table_entry}}
 
