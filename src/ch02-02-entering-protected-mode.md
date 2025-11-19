@@ -72,7 +72,7 @@ The goal of this macro is to use the flag name, and it's bit number to generate 
 Our macro will look like this:
 
 ```rust, fp=shared\common\src\macros.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/macros.rs flag_macro}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/learnix-macros/src/lib.rs flag}}
 ```
 
 While this macro seems complex, it will just create four functions that will help up set, unset and read the flag.
