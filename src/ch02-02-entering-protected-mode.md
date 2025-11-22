@@ -213,6 +213,8 @@ impl Example {
 
 So now, without a lot of boiler plate, we can define our `AccessByte` and `LimitFlags`.
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/enums/general.rs dpl}}
+
 impl AccessByte {
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_new}}
 
@@ -286,6 +288,10 @@ impl GlobalDescriptorTableProtected {
 Now, to apply all of the created functionality, enable protected mode, and to jump to the next stage, we add the following code to our entry function.
 
 ```rust,fp=kernel/stages/first_stage/src/main.rs
+// Notice that this also contains segments of other GDT 
+// that we will use in the future
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/enums/global_descriptor_table.rs sections}}
+
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/main.rs gdt_static}}
 
 pub fn first_stage() -> ! {

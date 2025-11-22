@@ -8,6 +8,29 @@ src = "src"
 whichlang = true
 command = "cargo run --release --manifest-path mdbook-rust-highlight/Cargo.toml"
 
+[preprocessor.rust-highlight.mapping]
+present = "Function"
+code_or_data = "Function"
+executable = "Function"
+direction = "Function"
+conforming = "Function"
+readable = "Function"
+writable = "Function"
+granularity = "Function"
+protected = "Function"
+long = "Function"
+LimitFlags = "Type"
+usr_access = "Function"
+write_through_cache = "Function"
+disable_cache = "Function"
+huge_page = "Function"
+global = "Function"
+full = "Function"
+table = "Function"
+root_entry = "Function"
+not_executable = "Function"
+
+
 [preprocessor.webinclude]
 before = ["rust-highlight"]
 

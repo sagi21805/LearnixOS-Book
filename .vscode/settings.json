@@ -4,6 +4,7 @@
         "catppuccin",
         "chipsets",
         "debuginfo",
+        "Edsger",
         "elems",
         "embedify",
         "Exper",
@@ -14,6 +15,7 @@
         "javax",
         "kcfi",
         "Learnix",
+        "lgdt",
         "libc",
         "linkcheck",
         "litbool",
@@ -23,6 +25,7 @@
         "malloc",
         "movs",
         "println",
+        "Punct",
         "qself",
         "redzone",
         "relro",
@@ -33,7 +36,11 @@
         "safestack",
         "Sagi",
         "stdlib",
+        "Tolnay",
+        "turbofish",
         "uninit",
+        "usize",
+        "webinclude",
         "winapi"
     ]
 }
