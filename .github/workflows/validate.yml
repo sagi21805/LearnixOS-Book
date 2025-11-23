@@ -9,26 +9,17 @@ on:
 
 jobs:
   linkcheck:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout The Repository
+        uses: actions/checkout@v4
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: mdbook,mdbook-linkcheck,mdbook-webinclude
+          tool: mdbook@0.4.52,mdbook-linkcheck,mdbook-webinclude
 
-      - name: Show versions & locations
-        run: |
-          mdbook --version
-          mdbook-linkcheck --version || true
-          mdbook-webinclude --version || true
-          which mdbook || whereis mdbook
-          which mdbook-webinclude || whereis mdbook-webinclude
-
-      - name: Run mdbook (verbose + backtrace)
-        env:
-          RUST_BACKTRACE: 1
-        run: mdbook build -v
+      - name: Run link checker
+        run: mdbook build
 
   spellcheck:
     name: Check Spelling

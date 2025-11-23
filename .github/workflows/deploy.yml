@@ -27,7 +27,7 @@ jobs:
       - name: Install mdBook and mdbook-linkcheck (cached by action)
         uses: taiki-e/install-action@v2
         with:
-          tool: mdbook,mdbook-linkcheck,mdbook-utils,mdbook-webinclude
+          tool: mdbook@0.4.52,mdbook-linkcheck,mdbook-utils,mdbook-webinclude
 
       - name: Create sitemap
         run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml
