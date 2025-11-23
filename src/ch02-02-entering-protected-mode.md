@@ -299,3 +299,5 @@ pub fn first_stage() -> ! {
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/main.rs enter_protected_mode}}
 }
 ```
+
+- [x] Load the global descriptor table

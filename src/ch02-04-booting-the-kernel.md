@@ -114,3 +114,5 @@ This can be done with the following code:
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/second_stage/src/main.rs _start}}
 ```
+
+- [x] Enabling memory paging
