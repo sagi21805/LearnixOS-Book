@@ -55,7 +55,7 @@ Huge page means it is bigger then the normal 4Kib size, and it is used in the ca
 
 Instead of creating multiple tables, and wasting precious memory, we can flag the entry as `huge page`. which says to the mmu _"This entry points to a contiguous memory block and not to a table"_.
 
-> This flag can only be put on a L2 or L3 table and it is not support on older cpu's, on L2 table the resulting page size is 2Mib (4Kib x 512 entries) and on L3 table 1Gib (2Mib * 512 entires)
+> This flag can only be put on a L2 or L3 table and it is not support on older cpu's, on L2 table the resulting page size is 2Mib (4Kib x 512 entries) and on L3 table 1Gib (2Mib * 512 entries)
 
 ## What is Long Mode?
 
