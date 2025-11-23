@@ -42,6 +42,3 @@ preferred-light-theme = "navy"
 additional-css = ["theme/whichlang.css", "theme/hlrs.css"]
 additional-js = ["theme/whichlang.js"]
 mathjax-support = true
-
-[output.html.render]
-task-list = true
