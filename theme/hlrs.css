@@ -25,7 +25,8 @@
     color: #e5c07b;
 }
 
-.hlrs-variable {
+.hlrs-variable,
+.hljs-meta {
     color: #e06c75;
 }
 
@@ -44,4 +45,8 @@
 
 .hlrs-attribute {
     color: lightgrey;
+}
+
+.hljs-symbol {
+    color: #FDC5B1
 }

@@ -35,14 +35,11 @@ not_executable = "Function"
 before = ["rust-highlight"]
 
 [output.html]
-git-repository-url = "https://github.com/sagi21805/LearnixOS-Book"
-default-theme = "rust"
-preferred-dark-theme = "mocha"
-additional-css = [
-    "theme/whichlang.css",
-    "theme/hlrs.css",
-    "theme/catppuccin.css",
-]
+git-repository-url = "https://github.com/sagi21805/LearnixOS"
+default-theme = "navy"
+preferred-dark-theme = "navy"
+preferred-light-theme = "navy"
+additional-css = ["theme/whichlang.css", "theme/hlrs.css"]
 additional-js = ["theme/whichlang.js"]
 mathjax-support = true
 
