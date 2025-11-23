@@ -11,8 +11,11 @@ jobs:
   linkcheck:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout The Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
 
       - uses: taiki-e/install-action@v2
         with:
