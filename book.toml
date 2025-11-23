@@ -8,19 +8,37 @@ src = "src"
 whichlang = true
 command = "cargo run --release --manifest-path mdbook-rust-highlight/Cargo.toml"
 
-[output.html]
-git-repository-url = "https://github.com/sagi21805/LearnixOS-Book"
-default-theme = "rust"
-preferred-dark-theme = "mocha"
-additional-css = [
-    "theme/whichlang.css",
-    "theme/hlrs.css",
-    "theme/catppuccin.css"
-]
-additional-js = [
-    "theme/whichlang.js"
-]
-mathjax-support = true
+[preprocessor.rust-highlight.mapping]
+present = "Function"
+code_or_data = "Function"
+executable = "Function"
+direction = "Function"
+conforming = "Function"
+readable = "Function"
+writable = "Function"
+granularity = "Function"
+protected = "Function"
+long = "Function"
+LimitFlags = "Type"
+usr_access = "Function"
+write_through_cache = "Function"
+disable_cache = "Function"
+huge_page = "Function"
+global = "Function"
+full = "Function"
+table = "Function"
+root_entry = "Function"
+not_executable = "Function"
 
-[output.html.render]
-task-list = true
+
+[preprocessor.webinclude]
+before = ["rust-highlight"]
+
+[output.html]
+git-repository-url = "https://github.com/sagi21805/LearnixOS"
+default-theme = "navy"
+preferred-dark-theme = "navy"
+preferred-light-theme = "navy"
+additional-css = ["theme/whichlang.css", "theme/hlrs.css"]
+additional-js = ["theme/whichlang.js"]
+mathjax-support = true

@@ -1,0 +1,4 @@
+[submodule "mdbook-rust-highlight"]
+	path = mdbook-rust-highlight
+	url = https://github.com/sagi21805/mdbook-rust-highlight
+	branch = master

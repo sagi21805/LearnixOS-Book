@@ -54,24 +54,13 @@ like the access privileges of this segment.
 All of these fields can become a struct and together they will represent a single entry.
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
-struct AccessByte(u8);
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte}}
 
-struct LimitFlags(u8);
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs limit_flags}}
 
-// The 32 flags that it for a 32bit table
-// A 64bit table have a different structure
-#[repr(C)]
-struct GlobalDescriptorTableEntry32 {
-    limit_low: u16,
-    base_low: u16,
-    base_mid: u8,
-    access_byte: AccessByte,
-    // Low 4 bits limit_high
-    // high 4 bits flags
-    limit_flags: LimitFlags,
-    base_high: u8,
-}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_entry32}}
 ```
+
 Both the `AccessByte` and the `LimitFlags` and more structures throughout the book, are using one bit flags, which represents some inner settings to the cpu.
 Although setting one bit flag is easy, and can be done with `1 << bit_number` to set the nth bit, we would like abstractions such as `set_<flag_name>`, which are more readable and error prone.
 But, if we would do that to every flag, it will be **A LOT** of boiler plate code.
@@ -83,58 +72,7 @@ The goal of this macro is to use the flag name, and it's bit number to generate 
 Our macro will look like this:
 
 ```rust, fp=shared\common\src\macros.rs
-#[macro_export]
-/// This macro will obtain `flag_name` and the corresponding `bit_number`
-///
-/// With this information it will automatically generate three methods
-///
-/// 1. `set_<flag_name>`: set the bit without returning self
-/// 2. `<flag_name>`: set the bit and will return self
-/// 3. `unset_<flag_name>:` unset the bit without returning self
-/// 4. `is_<flag_name>`: return true if the flag is set or false if not
-macro_rules! flag {
-    ($flag_name:ident, $bit_number:literal) => {
-        #[inline]
-        #[allow(dead_code)]
-        #[allow(unused_attributes)]
-        /// Sets the corresponding flag
-        ///
-        /// `This method is auto-generated`
-        pub const fn ${concat(set_, $flag_name)}(&mut self) {
-            self.0 |= 1 << $bit_number;
-        }
-
-        #[inline]
-        #[allow(dead_code)]
-        #[allow(unused_attributes)]
-        /// Sets the corresponding flag while returning self
-        ///
-        /// `This method is auto-generated`
-        pub const fn $flag_name(self) -> Self {
-            Self(self.0 | (1 << $bit_number))
-        }
-
-        #[inline]
-        #[allow(dead_code)]
-        #[allow(unused_attributes)]
-        /// Unset the corresponding flag
-        ///
-        /// `This method is auto-generated`
-        pub const fn ${concat(unset_, $flag_name)}(&mut self) {
-            self.0 &= !(1 << $bit_number)
-        }
-
-        /// Checks if the corresponding flag in set to 1
-        ///
-        /// `This method is auto-generated`
-        #[inline]
-        #[allow(dead_code)]
-        #[allow(unused_attributes)]
-        pub const fn ${concat(is_, $flag_name)}(&self) -> bool {
-            self.0 & (1 << $bit_number) != 0
-        }
-    };
-}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/learnix-macros/src/lib.rs flag}}
 ```
 
 While this macro seems complex, it will just create four functions that will help up set, unset and read the flag.
@@ -275,52 +213,36 @@ impl Example {
 
 So now, without a lot of boiler plate, we can define our `AccessByte` and `LimitFlags`.
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/enums/general.rs dpl}}
+
 impl AccessByte {
-    /// Creates an access byte with all flags turned off.
-    pub const fn new() -> Self {
-        Self(0)
-    }
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_new}}
 
-    // Is this a valid segment?
-    // for all active segments this should be turned on.
-    flag!(present, 7);
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_present}}
 
-    /// Sets the privilege level while returning self.
-    /// This is corresponding to the cpu ring of this segment
-    /// 0 is commonly called kernel mode, 4 is commonly called user mode
-    pub const fn dpl(mut self, level: u8) -> Self {
-        self.0 |= (level & 0x3) << 5;
-        self
-    }
-    // Is this a code / data segment or a system segment.
-    flag!(code_or_data, 4);
-    // Will this segment contains executable code?
-    flag!(executable, 3);
-    // Will the segment grow downwards?
-    // relevant for non executable segments
-    flag!(direction, 2);
-    // Can this code be executed from lower privilege segments.
-    // relevant to executable segments
-    flag!(conforming, 2);
-    // Can this segment be read or it is only executable?
-    // relevant for code segment
-    flag!(readable, 1);
-    // Is this segment writable?
-    // relevant for data segments
-    flag!(writable, 1);
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_privilege_level}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_code_data}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_executable}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_direction}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_conforming}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_readable}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs access_byte_writable}}
 }
 
 impl LimitFlags {
-    /// Creates a default limit flags with all flags turned off.
-    pub const fn new() -> Self {
-        Self(0)
-    }
-    // Toggle on paging for this segment (limit *= 0x1000)
-    flag!(granularity, 7);
-    // Is this segment going to use 32bit mode?
-    flag!(protected, 6);
-    // Set long mode flag, this will also clear protected mode
-    flag!(long, 5);
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs limit_flags_new}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs limit_flags_granularity}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs limit_flags_protected}}
+
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs limit_flags_long}}
 }
 ```
 
@@ -329,32 +251,10 @@ Now, just before creating a `new` function to our entry, we don't want each time
 This will complicate it a bit, but will provide much more friendly interface.
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
-impl GlobalDescriptorTableEntry32 {
-    pub const fn new(
-        base: u32,
-        limit: u32,
-        access_byte: AccessByte,
-        flags: LimitFlags
-    ) -> Self {
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_protected}}
 
-        // Split base into the appropriate parts
-        let base_low = (base & 0xffff) as u16;
-        let base_mid = ((base >> 0x10) & 0xff) as u8;
-        let base_high = ((base >> 0x18) & 0xff) as u8;
-        // Split limit into the appropriate parts
-        let limit_low = (limit & 0xffff) as u16;
-        let limit_high = ((limit >> 0x10) & 0xf) as u8;
-        // Combine the part of the limit size with the flags
-        let limit_flags = flags.0 | limit_high;
-        Self {
-            limit_low,
-            base_low,
-            base_mid,
-            access_byte,
-            limit_flags: LimitFlags(limit_flags),
-            base_high,
-        }
-    }
+impl GlobalDescriptorTableEntry32 {
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_entry32_new}}
 }
 ```
 ## Jumping to the next stage!
@@ -362,68 +262,13 @@ impl GlobalDescriptorTableEntry32 {
 Now, after understanding the global descriptor table, we want to jump to the next stage.
 This will require us to create and load a temporary global descriptor table.
 
-Each table must have at least three entries, an initial `null` entry that is filled with zeros, which is always required as the first entry, a `data` entry for the data segment so we can read and write to memory, and code entry so we can execute code.
+Each table must have at least three entries, an initial `null` entry that is filled with zeros, which is always required as the first entry, a `data` entry for the data segment so we can read and write to memory, and `code` entry so we can execute code.
 
 Together it will all look like this:
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
-// This structure will seem as `dead code`
-// this is because we only initialize it
-// and don't use the fields directly
-// to remove the warning, we add the following attribute.
-#[allow(dead_code)]
-pub struct GlobalDescriptorTable {
-    null: GlobalDescriptorTableEntry32,
-    code: GlobalDescriptorTableEntry32,
-    data: GlobalDescriptorTableEntry32,
-}
-
-impl GlobalDescriptorTable {
-    /// Creates default global descriptor table for protected mode
-    pub const fn protected_mode() -> Self {
-        GlobalDescriptorTable {
-            // Null entry, fields with zeros.
-            null: GlobalDescriptorTableEntry32::new(
-                0,
-                0,
-                AccessByte::new(),
-                LimitFlags::new()
-            ),
-            code: GlobalDescriptorTableEntry32::new(
-                // The base is zero, because our code is aligned to 0x0 address
-                0,
-                // The size is max, so we won't have any limit
-                0xfffff,
-                // We mark this as code segment, with the highest privileges
-                AccessByte::new()
-                    .present()
-                    .dpl(0)
-                    .code_or_data()
-                    .executable()
-                    .readable(),
-                // Set the units of the limit to 4kib and set 32bit mode.
-                LimitFlags::new()
-                    .granularity()
-                    .protected(),
-            ),
-            data: GlobalDescriptorTableEntry32::new(
-                // The base is zero, because our data is aligned to 0x0 address
-                0,
-                // The size is max, so we won't have any limit
-                0xfffff,
-                // We mark this as code segment, with the highest privileges
-                AccessByte::new()
-                    .present()
-                    .dpl(0)
-                    .code_or_data()
-                    .writable(),
-                // Set the units of the limit to 4kib and set 32bit mode.
-                LimitFlags::new()
-                    .granularity()
-                    .protected(),
-            ),
-        }
-    }
+impl GlobalDescriptorTableProtected {
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_default}}
 }
 ```
 
@@ -435,83 +280,24 @@ So, the only thing left to do is to load the global descriptor table. This can b
 We will create a `load` function that will create this register structure, and will load it to the cpu.
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
-// The packed and repr(C) attributes are very important.
-// The repr(C) ensures the order of the data is as specified.
-// The packed attribute will ignore `Data Structure Alignment`
-#[repr(C, packed(2))]
-pub struct GlobalDescriptorTableRegister32 {
-    // This is the size of our table in bytes - 1.
-    pub limit: u16,
-    // This is the address of where we store the table.
-    pub base: *const GlobalDescriptorTable,
-}
-
-impl GlobalDescriptorTable {
-
-    pub unsafe fn load(&'static self) {
-        let global_descriptor_table_register = {
-            GlobalDescriptorTableRegister32 {
-                // Set the limit to the size - 1
-                limit: (size_of::<GlobalDescriptorTable>() - 1) as u16,
-                // Set the base to the address of the table
-                // (This is the global address of the var because it is static)
-                base: self as *const GlobalDescriptorTable,
-            }
-        };
-        unsafe {
-            asm!(
-                // Clear Interrupt Flag.
-                // This is done because we can't let random hardware interrupts
-                // to interfere with the lgdt instruction.
-                // This will be useful in the future until we set up interrupts
-                "cli",
-                // Then, load the table using our now created register.
-                "lgdt [{}]",
-                in(reg) &global_descriptor_table_register,
-                options(readonly, nostack, preserves_flags)
-            );
-        }
-    }
+impl GlobalDescriptorTableProtected {
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_load}}
 }
 ```
 
 Now, to apply all of the created functionality, enable protected mode, and to jump to the next stage, we add the following code to our entry function.
 
 ```rust,fp=kernel/stages/first_stage/src/main.rs
+// Notice that this also contains segments of other GDT 
+// that we will use in the future
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/enums/global_descriptor_table.rs sections}}
 
-// Static variable that holds our table
-static GLOBAL_DESCRIPTOR_TABLE: GlobalDescriptorTable = {
-    GlobalDescriptorTable::protected_mode()
-};
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/main.rs gdt_static}}
+
 pub fn first_stage() -> ! {
 
-    // Load Global Descriptor Table
-    GLOBAL_DESCRIPTOR_TABLE.load();
-
-    // Set the Protected Mode bit in control register 0
-    asm!(
-        "mov eax, cr0",
-        "or eax, 1",
-        "mov cr0, eax",
-        options(readonly, nostack, preserves_flags)
-    );
-
-    // Jump to the next stage
-    // We perform a long jump, which is a jump that also loads our segment
-    // from the global descriptor table.
-    //
-    // The segment is the offset in the global descriptor table
-    // which for the code segment is 0x10 (For readability, added an enum)
-    //
-    // The `next_stage` is the address of the next stage
-    // which is a variable in the constants.
-    //
-    // I want to think for yourselves what it value should be.
-    // As always, the answer, i.e var that I chose, will be in the Walkthrough
-    asm!(
-        "jmp ${section}, ${next_stage}",
-        section = const Sections::KernelCode as u8,
-        next_stage = const SECOND_STAGE_OFFSET,
-    );
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/main.rs enter_protected_mode}}
 }
 ```
+
+- [x] Load the global descriptor table

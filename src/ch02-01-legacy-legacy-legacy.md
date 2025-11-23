@@ -42,34 +42,14 @@ This technique results in a 20bit maximum address space instead of 16bit, which 
 So, to zero down all the segments we will use the following code:
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-
-; This will define a boot section for this asm code,
-; which we can put at the start of our binary.
-
-.section .boot, "awx"
-.global start
-.code16
-
-start:
-    ; zero segment registers
-    xor ax, ax
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
-    mov fs, ax
-    mov gs, ax
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/asm/boot.s segment}}
 ```
 
 Then, we want to initialize the stack and the direction flag.
 It is important to state the stack at a position that will not overwrite our code, this could happen because our code and the local variables we save can be in the same place in memory which might cause a `push` instruction to overwrite an instruction that we need. because of the we initialize the stack at `0x7c00` which will ensure it will not happen, because that stack only grows down.
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-    ; clear the direction flag (e.g. go forward in memory when using
-    ; instructions like lodsb)
-    cld
-
-    ; initialize stack
-    mov sp, 0x7c00
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/asm/boot.s stack}}
 ```
 - [x] Setup registers and stack
 
@@ -84,26 +64,11 @@ There are a lot of ways to enable the A20 line, the code we will use is a fast A
 Luckily, this method works on our QEMU virtual machine
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-; Enable the A20 line via I/O Port 0x92
-; This method might not work on all motherboards
-; Use with care!
-enable_a20:
-    ; Check if a20 is already enabled
-    in al, 0x92
-    test al, 2
-
-    ; If so, skip the enabling code
-    jnz enable_a20_after
-
-    ; Else, enable the a20 line
-    or al, 2
-    and al, 0xFE
-    out 0x92, al
-enable_a20_after:
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/asm/boot.s A20}}
 ```
-[x] Enable the A20 line
 
-<br><br>
+- [x] Enable the A20 line
+
 Now, after enabling the a20 line, we want to load from the disk into memory the rest of the bootloader and of course, our kernel.
 This is not a trivial task, especially when we have less then 512 bytes of code to do so. But don't worry, because the BIOS will come to our help.
 
@@ -234,45 +199,14 @@ After learning about LBA, the only logical thing to think, is how to read data f
 This is where the `extended read` functions comes in, it expects a structure called the `disk address packet` which looks like this:
 
 ```rust,fp=kernel/stages/first_stage/src/disk.rs
-
-// The `repr(C)` means that the layout in memory will be as specified
-// because rust ABI doesn't state that this is promised.
-//
-// The `repr(Packed) states that there will no padding due to alignment
-#[repr(C, packed)]
-pub struct DiskAddressPacket {
-    /// The size of the packet
-    packet_size: u8,
-
-    /// Zero
-    zero: u8,
-
-    /// How many sectors to read
-    num_of_sectors: u16,
-
-    /// Which address in memory to save the data
-    memory_address: u16,
-
-    /// Memory segment for the address
-    segment: u16,
-
-    /// The LBA address of the first sector
-    abs_block_num: u64,
-}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/disk.rs dap}}
 ```
 
 But, just before we use it, we need to check if this extension is available on our disk. This can be done with `int 0x13 ah=0x41` which checks if all extended functions are available on our disk.
 The check can be done with the following code:
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-check_int13h_extensions:
-    mov ah, 0x41
-    mov bx, 0x55aa
-    ; dl contains drive number
-    int 0x13
-    jnc .int13_pass
-    hlt
-.int13_pass:
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/asm/boot.s INT13}}
 ```
 
 Because we are all using the same emulator, it should pass the `hlt` instruction and continue execution. Now to read from disk we can implement a read function to our disk packet.
@@ -281,77 +215,22 @@ This is quite straight forward, we will create a `new` function that will initia
 First, for organization, we will create some helpful enums.
 
 ```rust,fp=shared\common\src\enums\bios_interrutps.rs
-#[repr(u8)]
-// This enum will hold all of our BIOS interrupts numbers
-pub enum BiosInterrupts {
-    DISK = 0x13,
-}
-
-// This enum will hold the specific functions for the disk interrupt (int 0x13)
-#[repr(u8)]
-pub enum Disk {
-    ExtendedRead = 0x42,
-}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/enums/bios_interrupts.rs bios_interrupts}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/enums/bios_interrupts.rs disk_interrupts}}
 ```
 
 Then, we can create an initializer function for our `disk packet`
 
 ```rust,fp=kernel\stages\first_stage\src\disk.rs
 impl DiskAddressPacket {
-    pub fn new(
-        num_of_sectors: u16,
-        memory_address: u16,
-        segment: u16,
-        abs_block_num: u64
-    ) -> Self {
-        Self {
-            // The size of the packet
-            packet_size: size_of::<Self>() as u8,
-            // zero
-            zero: 0,
-            // Number of sectors to read, this can be a max of 128 sectors.
-            // This is because the address increments every time we read a sector.
-            // The largest number a register in this mode can hold is 2^16
-            // When divided by a sector size, we get that we can read only 128 sectors.
-            num_of_sectors: num_of_sectors.min(128),
-            // The initial memory address
-            memory_address,
-            // The segment the memory address is in
-            segment,
-            // The starting LBA address to read from
-            abs_block_num,
-        }
-    }
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/disk.rs new}}
 }
 ```
 And then, finally the function that will call the interrupt with our packet, and will read the disk content into memory.
 
 ```rust,fp=kernel\stages\first_stage\src\disk.rs
 impl DiskAddressPacket {
-    pub fn load(&self, disk_number: u8) {
-        unsafe {
-            // This is an inline assembly block
-            // This block's assembly will be injected to the function.
-            asm!(
-                // si register is required for llvm it's content needs to be saved
-                "push si",
-                // Set the packet address in `si` and format it for a 16bit register
-                "mov si, {0:x}",
-                // Put function code in `ah`
-                "mov ah, {1}",
-                // Put disk number in `dl`
-                "mov dl, {2}",
-                // Call the `disk interrupt`
-                "int {3}",
-                // Restore si for llvm internal use.
-                "pop si",
-                in(reg) self as *const Self as u16,
-                const Disk::ExtendedRead as u8,
-                in(reg_byte) disk_number,
-                const BiosInterrupts::DISK as u8,
-            )
-        }
-    }
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/disk.rs load}}
 }
 ```
 
@@ -368,38 +247,15 @@ Then, we can get the disk number from the stack, and load our packet.
 
 
 ```x86asm,fp=kernel/stages/first_stage/asm/boot.s,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-; push disk number into the stack
-; which will be at 0x7bfe and call the first_stage function
-push dx
-call first_stage
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/asm/boot.s disk}}
 ```
 
 And create a constant for the disk number memory address
-
-```rust,fp=shared\common\src\constants\addresses.rs
-#[cfg(feature = "first_stage")]
-pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
-```
-
 Then, in the first stage function
 
 ```rust,fp=kernel\stages\first_stage\src\main.rs
-#[unsafe(no_mangle)]
-pub fn first_stage() -> ! {
-    // Read the disk number the os was booted from
-    let disk_number = unsafe { core::ptr::read(DISK_NUMBER_OFFSET as *const u8) };
-
-    // Create a disk packet which will load 128 sectors (512 bytes each)
-    // from the disk to memory address 0x7e00
-    // The address 0x7e00 was chosen because it is exactly one sector
-    //  after the initial address 0x7c00.
-    let dap = DiskAddressPacket::new(
-        128,    // Number of sectors
-        0,      // Memory address
-        0x7e0,  // Memory segment
-        1,      // Starting LBA address (LBA 0 was already loaded by the BIOS)
-    );
-    dap.load(disk_number);
+# pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/main.rs first_stage}}
 }
 ```
 - [x] Read kernel from disk

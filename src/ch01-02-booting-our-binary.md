@@ -261,21 +261,22 @@ When we do that, we can notice that it seems that more code was added, but at th
 
 > ### Default Segments In Rust
 > - **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
->   ```banner=no
+>   ```rust,banner=no
+>   
 >   fn some_function(x: u32, y: u32) -> u32 {
 >     return x + y;
 >   }
 >   ```
 > - **.data** - Includes the initialized data of our program, like static variables.
->   ```banner=no
+>   ```rust,banner=no
 >   static VAR: u32 = 42;
 >   ```
 > - **.bss** - Includes the uninitialized data of our program
->   ```banner=no
+>   ```rust,banner=no
 >   static mut MESSAGE: String = MaybeUninit::uninit();
 >   ```
 > - **.rodata** - Includes the read-only data of our program
->   ```banner=no
+>   ```rust,banner=no
 >   static mut MESSAGE: &'static str = "Hello World!";
 >   ```
 > - **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
