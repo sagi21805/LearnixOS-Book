@@ -16,7 +16,7 @@ After that we can also toggle [`long mode`](https://en.wikipedia.org/wiki/Long_m
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/build/linker_scripts/32bit.ld}}
 ```
 
-_I leave the starting address of the next stage as an exercise for the reader (There is a really good reason for that)._
+_I leave the starting address of the next stage as an exercise for the reader (There is a really good reason to use that address)._
 
 > **_Note:_** The code for using the linker script in the build script is the same as in stage one.
 
