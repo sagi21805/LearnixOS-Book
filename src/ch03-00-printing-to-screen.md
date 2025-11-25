@@ -23,7 +23,9 @@ We are gonna print using the Video Graphics Array or VGA for short. This protoco
 
 ## The VGA Protocol
 
-VGA has several 
+VGA has primarily two modes, the first one is called `graphic mode`, which is used to write raw pixels to the screen. The second mode is called `text mode` and it is used to write text to the screen. In this chapter we are going to focus on the `text mode` because we mostly want to provide messages and text on the screen.
+
+> The buffer of the `graphic mode` starts at address 0xA0000, The address of the `text mode` starts at address 0xB8000
 
 To Be Continued...
 
