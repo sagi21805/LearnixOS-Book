@@ -204,7 +204,7 @@ Just before we go to the implementation, what should we return in case there is 
 
 For this exact reason, rust has the `Result<T, E>` and `Option<T>` enum types, in this case we will use `Result` with a custom error using the [thiserror](https://docs.rs/thiserror/latest/thiserror/) crate by `David tolnay`.
 
-> If you are unfamiliar with the topic of result, I would highly recommend [A Simpler Way to See Results](https://www.youtube.com/watch?v=s5S2Ed5T-dc) by `_Logan Smith_`
+> If you are unfamiliar with the topic of result, I would highly recommend [A Simpler Way to See Results](https://www.youtube.com/watch?v=s5S2Ed5T-dc) by `Logan Smith`
 
 Our custom error should currently include two cases, the first one is that there is no mapping, and the second that the mapping is not a table.
 

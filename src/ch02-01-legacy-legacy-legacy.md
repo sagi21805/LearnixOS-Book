@@ -254,7 +254,8 @@ And create a constant for the disk number memory address
 Then, in the first stage function
 
 ```rust,fp=<repo>kernel\stages\first_stage\src\main.rs#L29
-# pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
+pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
+
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/first_stage/src/main.rs first_stage}}
 }
 ```

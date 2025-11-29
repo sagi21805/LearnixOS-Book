@@ -29,7 +29,9 @@ full = "Function"
 table = "Function"
 root_entry = "Function"
 not_executable = "Function"
-
+Backspace = "Enum"
+LineFeed = "Enum"
+Delete = "Enum"
 
 [preprocessor.webinclude]
 before = ["rust-highlight"]
