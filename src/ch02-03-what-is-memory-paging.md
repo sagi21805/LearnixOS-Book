@@ -82,13 +82,13 @@ The page table, just like the global descriptor table, is an array of 512 page t
 Each entry contains a `physical address` aligned to 0x1000, that is pointing to a memory regions, and also flags represents configuration and permissions for the memory page mapped by the entry.
 
 On a typical entry, there are 8 flags that are used with an optional 12 flags in total, in our operating system we will configure some of the optional flags, but not all of them.
-```rust,fp=shared/cpu_utils/src/structures/paging/entry_flags.rs
+```rust,fp=<repo>shared/cpu_utils/src/structures/paging/entry_flags.rs
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/entry_flags.rs table_entry_flags}}
 ```
 <div></div>
 
 The page table entry is just be a u64, and the page table is an array of page entries with 512 entries.
-```rust,fp=shared/cpu_utils/src/structures/paging/page_table.rs
+```rust,fp=<repo>shared/cpu_utils/src/structures/paging/page_table_entry.rs#L16
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/page_table_entry.rs page_table_entry}}
 
 impl PageTableEntry {
@@ -100,7 +100,7 @@ impl PageTableEntry {
 }
 ```
 
-```rust,fp=shared/cpu_utils/src/structures/paging/page_table.rs
+```rust,fp=<repo>shared/cpu_utils/src/structures/paging/page_table.rs#L15
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/page_table.rs page_table}}
 
 impl PageTable {
@@ -160,12 +160,13 @@ To implement all the simple and basic functionality, we will use a [proc-macro](
 
 
 These will be some simple functionality that we can't derive from derive more.
-```rust,fp=shared/common/src/macros.rs
+```rust,fp=<repo>learnix-macros/src/lib.rs#L8
+
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/learnix-macros/src/lib.rs common_address_functions}}
 ```
 Then, we can create our address structs and implement some more function with derive_more.
 
-```rust,fp=shared/common/src/address_types.rs
+```rust,fp=<repo>shared/common/src/address_types.rs#L6
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/address_types.rs trait_imports}}
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/address_types.rs physical_address}}
@@ -175,14 +176,14 @@ Then, we can create our address structs and implement some more function with de
 
 With these utility structs, we can now start implementing our paging logic. The first function that we need is a function that could map a physical page into an entry, this function should get the `physical address` to a memory block, and the flags that we want to put on this mapping. To avoid repetition, we will create a flags structure, which will help us define some default flags, and also to apply custom flags onto our entry. For now, a default flags for an entry, will contain the present flags, which is must for the entry to be counted mapped, and also the writable flags, which will make our memory also writable so we could store data in it.
 
-```rust,fp=shared/cpu_utils/src/structures/paging/entry_flags.rs
+```rust,fp=<repo>shared/cpu_utils/src/structures/paging/entry_flags.rs#L48
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/entry_flags.rs page_entry_flags}}
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/entry_flags.rs impl_page_entry_flags}}
 ```
 
 After creating the utilities of physical addresses and virtual addresses, and also defining some default flags, we can create a function to map an address to an entry, this function should obtain the physical address that should be mapped, and also set the flags for the entry.
-```rust,fp=shared/cpu_utils/src/structures/paging/page_table_entry.rs
+```rust,fp=<repo>shared/cpu_utils/src/structures/paging/page_table_entry.rs#L7
 impl PageTableEntry {
     
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/page_table_entry.rs page_table_entry_reset_flags}}
@@ -203,17 +204,17 @@ Just before we go to the implementation, what should we return in case there is 
 
 For this exact reason, rust has the `Result<T, E>` and `Option<T>` enum types, in this case we will use `Result` with a custom error using the [thiserror](https://docs.rs/thiserror/latest/thiserror/) crate by `David tolnay`.
 
-> If you are unfamiliar with the topic of result, I would highly recommend [A Simpler Way to See Results](https://www.youtube.com/watch?v=s5S2Ed5T-dc) by `_Logan Smith_`
+> If you are unfamiliar with the topic of result, I would highly recommend [A Simpler Way to See Results](https://www.youtube.com/watch?v=s5S2Ed5T-dc) by `Logan Smith`
 
 Our custom error should currently include two cases, the first one is that there is no mapping, and the second that the mapping is not a table.
 
-```rust,fp=shared/common/src/error/paging.rs
+```rust,fp=<repo>shared/common/src/error/paging.rs#L13
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/error/paging.rs use_thiserror}}
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/error/paging.rs entry_error}}
 ```
 
-```rust,fp=shared/cpu_utils/src/structures/paging/page_table_entry.rs
+```rust,fp=<repo>shared/cpu_utils/src/structures/paging/page_table_entry.rs#L17
 impl PageTableEntry {
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/page_table_entry.rs page_table_entry_mapped_unchecked}}
@@ -231,7 +232,7 @@ The sharp eyed people may notice that we used a function that we didn't define b
 
 The last functions that we need to implement, are functions that can create our PageTable on an address. So far we created a function that could create an empty on a variable or a static value, but when we will need to create a lot of tables, or we will need to dynamically create tables this function will not help us. For this reason, we will create a function that will receive a virtual address, and construct on it our page table.
 
-```rust,fp=shared/cpu_utils/src/structures/paging/page_table.rs
+```rust,fp=<repo>shared/cpu_utils/src/structures/paging/page_table.rs#L41
 impl PageTable {
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/page_table.rs page_table_empty_from_ptr}} 

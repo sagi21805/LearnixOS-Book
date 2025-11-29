@@ -29,7 +29,9 @@ full = "Function"
 table = "Function"
 root_entry = "Function"
 not_executable = "Function"
-
+Backspace = "Enum"
+LineFeed = "Enum"
+Delete = "Enum"
 
 [preprocessor.webinclude]
 before = ["rust-highlight"]
@@ -40,5 +42,5 @@ default-theme = "navy"
 preferred-dark-theme = "navy"
 preferred-light-theme = "navy"
 additional-css = ["theme/whichlang.css", "theme/hlrs.css"]
-additional-js = ["theme/whichlang.js"]
+additional-js = ["theme/whichlang.js", "theme/filepath-links.js"]
 mathjax-support = true

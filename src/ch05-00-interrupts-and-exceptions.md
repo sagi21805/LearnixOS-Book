@@ -1,6 +1,6 @@
 # Interrupts and Exceptions
 
-_"In the middle of difficulty lies opportunity." — Albert Einstein_
+_"In the middle of difficulty lies opportunity." - Albert Einstein_
 
 ---
 

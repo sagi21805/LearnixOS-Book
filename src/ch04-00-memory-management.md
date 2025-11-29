@@ -1,6 +1,6 @@
 # Memory Management
 
-_"The art of programming is the art of organizing complexity." — Edsger W. Dijkstra_
+_"The art of programming is the art of organizing complexity." - Edsger W. Dijkstra_
 
 ---
 

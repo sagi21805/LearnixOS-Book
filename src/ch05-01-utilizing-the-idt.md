@@ -1,6 +1,6 @@
 # Utilizing the Interrupt Descriptor Table
 
-_"What we call chaos is just patterns we haven’t recognized." — Chuck Palahniuk_
+_"What we call chaos is just patterns we haven't recognized." - Chuck Palahniuk_
 
 ---
 
