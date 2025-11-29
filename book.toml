@@ -40,5 +40,5 @@ default-theme = "navy"
 preferred-dark-theme = "navy"
 preferred-light-theme = "navy"
 additional-css = ["theme/whichlang.css", "theme/hlrs.css"]
-additional-js = ["theme/whichlang.js"]
+additional-js = ["theme/whichlang.js", "theme/filepath-links.js"]
 mathjax-support = true
