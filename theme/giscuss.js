@@ -40,6 +40,9 @@ function createGiscusContainer() {
         <p style="margin-bottom: 1em; font-weight: 500;">
             💬 Have questions or feedback? Leave a comment below!
         </p>
+        <p style="margin-bottom: 1em; font-weight: 500;">
+            If you like this book, please consider giving a ⭐ on <a href="https://github.com/sagi21805/LearnixOS" target="_blank">github</a>
+        </p>
     `;
     container.appendChild(topText);
 
