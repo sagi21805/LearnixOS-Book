@@ -213,11 +213,9 @@ To make a sanity check that QEMU indeed works on your machine with our wanted ar
 
 To provide our code, we need to add the `-drive format=raw,file=<path-to-bin-file>` flag to qemu, which will add to our virtual machine a disk drive with our code.
 
-If you are following the [walkthrough](https://github.com/learnix-os/LearnixOS-Book-Walkthrough), this is the command you need to run.
-
 ```txt
 qemu-system-x86_64 -drive \
-        format=raw,file=target/16bit_target/release/LearnixOS-Book-Walkthrough
+        format=raw,file=<output_binary>
 ```
 
 At a first glance, we might think our code still doesn't work, because all we see is a black screen, but, if you notice closely, we don't get more messages of the BIOS trying other boot devices, and we don't get the message of `"No bootable device."`.

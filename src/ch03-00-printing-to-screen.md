@@ -81,9 +81,6 @@ But what does it mean for us? It means that if we implement our custom writer (w
 To create our custom writer we just need to implement the [`fmt::Writer`](https://doc.rust-lang.org/core/fmt/trait.Write.html) trait on a custom struct. Our simple writer, will just include place we currently are on the screen, the color the print has, and, and a reference to the screen buffer.
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L19
-// Notice the use of `MaybeUninit` is necessary.
-// Because we write into an address that we don't own (i.e just a usize)
-// The compiler will say we have no `provenance` on it so we must use MaybeUninit
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs writer}}
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs writer_default}}
@@ -131,6 +128,9 @@ With this, we are ready to implement the `fmt::Writer` trait on our struct. Beca
 The only thing that is missing is to initialize the writer, and write a function that will also print with a custom color, this function is relatively straight forward, and it will just change the color, print the message, and restore the color back to default.
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/mod.rs#L10
+// Notice the use of `MaybeUninit` is necessary.
+// Because we write into an address that we don't own (i.e just a usize)
+// The compiler will say we have no `provenance` on it so we must use MaybeUninit
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/mod.rs writer}}
 
 {{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/mod.rs vga_print}}

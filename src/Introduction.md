@@ -6,9 +6,11 @@ _"If you can't explain it simply, you don't understand it well enough." - Albert
 
 Hello there![^1]
 
-This is a book on how to write a functioning operating system in rust, from scratch.
+In this book we are going to write and learn about operating systems together!
 
-I will not use ANY[^2] external libraries, and all of the thought process, code and implementations will be explained and documented here as well as in this [repo](https://github.com/sagi21805/LearnixOS) which will contain all of the implementation!
+We are going to implement an entire POSIX compliant OS in Rust and not use ANY[^2] external libraries. All of the thought process, code and implementations will be explained and documented here as well as in this [repo](https://github.com/sagi21805/LearnixOS) which all the code snippets are from.
+
+> *Note*: ALL the syntax highlighting of the Rust code is custom and create by me! If you see and bug, please write in the comments or submit an [issue](https://github.com/sagi21805/mdbook-rust-highlight).
 
 ## Base Knowledge
 
@@ -16,19 +18,19 @@ This book will be technical, and will assume a little bit of a programming knowl
 
 If you are not coming from a low level programming knowledge that's fine!
 
-Just make sure you know this stuff, and probably similar stuff that I am forgetting. Also if in any place on this book I take some things for granted, please, open an issue [here](https://github.com/sagi21805/LearnixOS-Book) and let me know so I could explain it better.
+Just make sure you know this stuff or learn it as you read. Also if in any place on this book I take some things for granted, please, open an issue [here](https://github.com/sagi21805/LearnixOS-Book) and let me know so I could explain it better.
 
-The base things that I expect you to know are:
+Some of the base knowledge that you would need to have:
 
 - Some assembly knowledge. (just understand simple movs, and arithmetic operations, at a very basic level[^3])
 
 - Some knowledge on memory. (what's a pointer, what's an address)
 
-- A knowledge in rust is not _that_ important, but knowing at least one programming language is Important. I myself have some more learning to do on Rust, and in this book I will also explain some great features that it have! 
+- A knowledge in rust is not _that_ important, but knowing at least one programming language is. I myself have some more learning in Rust, and in this book I will also explain some great features that it has! 
 
-- A lot of motivation to learn and understand. Although this is a complex subject, in this book I break it down into simple blocks of knowledge that are logical and easier to understand.
+- A lot of motivation to learn and understand because it is a complex subject.
 
-## Chapters Of This Book
+## Roadmap of this book
 
 01. Compiling a stand alone binary
 
@@ -46,7 +48,7 @@ The base things that I expect you to know are:
 
 08. Writing a shell
 
-09. Running our first program!
+09. Running our first program! (Which off course will be Doom)
 
 10. To be continued (Hopefully virtualization section and loading a vm of other OS)
 

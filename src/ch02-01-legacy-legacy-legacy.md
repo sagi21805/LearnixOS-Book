@@ -261,6 +261,5 @@ pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
 ```
 - [x] Read kernel from disk
 
-Although everything seems correct now, at data from the disk should now be in memory, it will still not compile and boot properly.
+Although everything seems correct now, and data from the disk should now be in memory, it will still not compile and boot properly.
 But I will leave it as a challenge for you!
-If you want to know the solution, look at the commits in the [walkthrough](https://github.com/sagi21805/LearnixOS-Book-Walkthrough/), they fixed the problem and it boots!
