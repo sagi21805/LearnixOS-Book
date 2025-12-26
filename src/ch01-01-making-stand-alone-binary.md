@@ -23,7 +23,7 @@ This library is linked[^1] to our code by default, and provides us with the abil
 
 Most of the time, programming languages tend to add additional functionality to their standard library. For example, the [Rust Standard library](https://doc.rust-lang.org/std/), adds the `println!` macro for printing to screen, smart collections like a `Vec`, or a `LinkedList`, as well as `Box` for safe memory management, a lot of useful traits, very smart iterators and much much more!
 
-Unfortunately, we won't have this luxury of a library and we will to implement it all ourselves!
+Unfortunately, we won't have this luxury of a library and we will need to implement it all ourselves!
 But don't worry, Rust has an ace up it sleeve and it provides with the fantastic [Core](https://doc.rust-lang.org/core/) library, which is a dependency free base for the standard library, and more over, it provides us with traits, and structures that can be linked into our own os, for example, once we write our memory allocator[^2], we could create a `Vec` from the core library, and we can tell it to use our own allocator!
 [^2]: This is a subsystem in our operating system that is responsible for managing memory
 
