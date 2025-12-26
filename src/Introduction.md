@@ -38,7 +38,7 @@ Some of the base knowledge that you would need to have:
 
 03. Important cpu modes and instructions
 
-04. Paging, writing out own _malloc_ 
+04. Paging, writing our own _malloc_ 
 
 05. Utilizing the Interrupt Descriptor Table
 
