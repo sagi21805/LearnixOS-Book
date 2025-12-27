@@ -1,4 +1,4 @@
-# chapter 1
+# Chapter 1
 
 _"the journey of a thousand miles begins with one step." - lao tzu_
 
