@@ -25,7 +25,7 @@ Most of the time, programming languages tend to add additional functionality to 
 
 Unfortunately, we won't have this luxury of a library and we will need to implement it all ourselves!
 But don't worry, Rust has an ace up it sleeve and it provides with the fantastic [Core](https://doc.rust-lang.org/core/) library, which is a dependency free base for the standard library, and more over, it provides us with traits, and structures that can be linked into our own os, for example, once we write our memory allocator[^2], we could create a `Vec` from the core library, and we can tell it to use our own allocator!
-[^2]: This is a subsystem in our operating system that is responsible for managing memory
+[^2]: A subsystem in our operating system that is responsible for managing memory
 
 So without further ado, Let's get started!
 
@@ -58,9 +58,22 @@ fn main() {
 
 This can easily be run on you computer with `cargo run` but, because you are running it on a regular computer, with a functioning operating system it uses the standard library.
 
-## Ignoring The Standard Library
+> Note: In all of this project we are using the nightly distribution of Rust. This is because some features that we are going to use in the future are not yet stable, and only available in nightly.
+>
+> There are two way to include it, the first one, is to add `+nightly` on every cargo command, for example:
+> ```
+> $ cargo +nightly build
+> ```
+> The second option, is to create a file which will hold our default toolchain
+> ```toml,fp=rust-toolchain.toml
+> [toolchain]
+> channel = "nightly"
+> ```
+> This book uses the second approach.
 
-As mentioned before we don't want to depend on the standard library because it is meant for already existing operating systems. To ignore it, simply add `#![no_std]` on the top of our main file, this attribute tells the compiler that we don't want to use the standard library.
+## Ignoring the Standard Library
+
+As mentioned before we don't want to depend on the standard library because it is meant for an already existing operating systems. To ignore it, simply add `#![no_std]` on the top of our main file, this attribute tells the compiler that we don't want to use the standard library.
 
 Now, if we then try to compile our crate, we get this error massage:
 
@@ -155,6 +168,52 @@ pub fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
 
 This code unfortunately still doesn't compile, because we didn't handle the last error
 
+<details><summary><span>Some IDE's will still show an error, if you are like me, and want it to disappear, expand the following</span></summary>
+
+Some IDE's like VSCode, and Zed that uses rust-analyzer, will throw an error that the panic_handler function already exists.
+
+```
+found duplicate lang item `panic_impl`
+the lang item is first defined in crate `std` (which `test` depends on)
+...
+```
+
+Each IDE has it's own way to configure rust-analyzer to to ignore these, a fixes for VSCode and Zed is shown below
+
+### VSCode
+
+```json,fp=.vscode/settings.json,icon=@https://www.svgrepo.com/show/373712/json.svg
+{
+  "rust-analyzer.check.allTargets": false,
+  "rust-analyzer.cargo.target": "x86_64-unknown-linux-gnu",
+}
+```
+
+### Zed
+
+```json,fp=.zed/settings.json,icon=@https://www.svgrepo.com/show/373712/json.svg
+{
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "cargo": {
+          "target": "x86_64-unknown-linux-gnu"
+        },
+        "check": {
+          "allTargets": false
+        }
+      }
+    }
+  }
+}
+```
+
+This works, because it tells rust-analyzer to use a target that doesn't include the standard library, and not to check other targets except the one we specified.
+
+> Note: You might have to install the target with `rustup add target x86_64-unknown-linux-gnu`
+
+</details>
+
 ## What is Unwinding and How to Disable It
 
 In a normal rust execution environment, when a program panics, it means that it has encountered an unrecoverable error
@@ -187,7 +246,7 @@ As per usual, the rust compiler errors are pretty clear, and they tell us exactl
 To define an entry point, we need to understand the linker.
 
 The linker is a program that is responsible to structure our code into segments, define entry point, define the output format, and also link other code to our program. This configuration is controlled by a linker script. For example, a very simple linker script may look like this
-```linker,fp=linker_script.ld
+```linker,fp=linker.ld
 OUTPUT_FORMAT(binary)
 ENTRY(main)
 ```
@@ -256,4 +315,36 @@ pub fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
 }
 ```
 
-If you followed through, this binary should compile, but, it is still not bootable, which is what I will cover in the next section
+## Build Target
+
+On some platforms, like MacOS, the default target is not compatible with `#![no_std]` binaries, so we need to change it to a more compatible one, like `x86_64-unknown-none`. This target ensures that the binary will be compiled for a 64 bit architecture, without any operating system.
+
+> Note: Build targets will be discussed in more detail in the next chapter.
+> You might have to install the target with `rustup add target x86_64-unknown-none`
+
+## Including the Core Library
+
+As a final note, you might have noticed that we are using the `PanicInfo` struct from the core library. 
+
+To include it, without specifying it on the build command every time, we can create a cargo configuration file, and add the following lines to it
+
+```toml,fp=.cargo/config.toml
+[unstable]
+build-std = ["core"]
+build-std-features = ["compiler-builtins-mem"]
+unstable-options = true
+```
+
+This will tell cargo to always add the following arguments to the build command 
+
+```
+-Z build-std=core -Z build-std-features=compiler-builtins-mem -Z unstable-options
+```
+
+If you followed through, the code should now compile with the following command 
+
+```
+cargo build --target x86_64-unknown-none
+``` 
+
+Although the code compiled, it still doesn't make it bootable, which is what I will cover in the next section
