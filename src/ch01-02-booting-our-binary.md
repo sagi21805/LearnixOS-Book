@@ -4,7 +4,7 @@ _"There is no elevator to success - you have to take the stairs." - Zig Ziglar_
 
 ---
 
-In the previous section, we created a stand alone binary, which is not linked to any standard library. But if you looked closely, and inspected the binary, you would see that although we defined our output format to be 'binary' in the linker script, we got a different format. Why is that?
+In the previous section, we created a stand alone binary, which is not linked to any standard library. But if you looked closely, and inspected the binary, you would see that we used a build target that is called `x86_64-unknown-none`, which is a generic target that doesn't specify any operating system or vendor, but it still specifies the architecture as `x86_64`, which is the architecture of most modern computers. 
 
 ## Understanding Rust Targets
 
@@ -177,33 +177,14 @@ SECTIONS {
 
 To compile our code, we just need to run the following command:
 ```
-cargo +nightly build --release --target .\16bit_target.json -Z build-std=core
+cargo build --release --target .\16bit_target.json 
 ```
-
-The `+nightly` tells rust to use the nightly toolchain, which includes a lot of feature that we will use, including the -Z flag to rustc.
-
-The `build-std` flag tells cargo to also compile the core library with the specified target, and not use the precompiled default in our system.
 
 To see that indeed, the boot signature is in the correct place, we can use the `Format-Hex` command in windows or the `hexdump` command in Linux or MacOS to see the hex of our file.
 
 This should result in a lot of zeros, and at the end, this line, where we can see the boot signature in the right offset
 `000001F0   00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 AA`
 
-
-> **Note:**
-> If you are like me, and you don't like to specify a lot of configuration in the command of compiling, these arguments can be specified in the following configuration files.
->
-> ```toml,fp=rust-toolchain.toml
-> [toolchain]
-> channel = "nightly"
-> ```
-> To define that the default toolchain is the nightly toolchain
->
-> ```toml,fp=.cargo/config.toml
-> [unstable]
-> build-std = ["core"]
-> ```
-> To add the unstable `build-std` flag with the core parameter in it.
 
 ## Running Our Code
 
@@ -295,6 +276,11 @@ SECTIONS {
     .bss : { *(.bss .bss.*) }
     .rodata : { *(.rodata .rodata.*) }
     .data : { *(.data .data.*) }
+
+    /*
+      This segment is not relevant for us, because we use `panic = "abort"`,
+      but to be sure that nothing unexpected happens, we discard it.
+    */
     /DISCARD/ : {
         *(.eh_frame .eh_frame.*)
         *(.eh_frame_hdr .eh_frame_hdr.*)
