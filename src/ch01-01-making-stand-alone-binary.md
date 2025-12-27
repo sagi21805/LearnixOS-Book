@@ -320,7 +320,7 @@ pub fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
 On some platforms, like MacOS, the default target is not compatible with `#![no_std]` binaries, so we need to change it to a more compatible one, like `x86_64-unknown-none`. This target ensures that the binary will be compiled for a 64 bit architecture, without any operating system.
 
 > Note: Build targets will be discussed in more detail in the next chapter.
-> You might have to install the target with `rustup add target x86_64-unknown-none`
+> You might have to install the target with `rustup target add x86_64-unknown-none`
 
 ## Including the Core Library
 
