@@ -122,10 +122,10 @@ This target has some useful info that we can use, like useful keys, such as `arc
 "disable-redzone": true,
 
 // The default int is 32-bit
-"target-c-int-width": "32",
+"target-c-int-width": 32,
 
 // The default pointer is 32-bit
-"target-pointer-width": "32",
+"target-pointer-width": 32,
 
 // The endianness, little or big
 "target-endian": "little",
