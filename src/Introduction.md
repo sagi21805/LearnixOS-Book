@@ -10,7 +10,7 @@ In this book we are going to write and learn about operating systems together!
 
 We are going to implement an entire POSIX compliant OS in Rust and not use ANY[^2] external libraries. All of the thought process, code and implementations will be explained and documented here as well as in this [repo](https://github.com/sagi21805/LearnixOS) which all the code snippets are from.
 
-> *Note*: ALL the syntax highlighting of the Rust code is custom and create by me! If you see any bugs, please write in the comments or submit an [issue](https://github.com/sagi21805/mdbook-rust-highlight).
+> _Note_: ALL the syntax highlighting of the Rust code is custom and created by me! If you see any bugs, please write in the comments or submit an [issue](https://github.com/sagi21805/mdbook-rust-highlight).
 
 ## Base Knowledge
 
