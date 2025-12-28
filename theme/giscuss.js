@@ -41,9 +41,12 @@ function createGiscusContainer() {
             💬 Have questions or feedback? Leave a comment below!
         </p>
         <p style="margin-bottom: 1em; font-weight: 500;">
-            If you like this book, please consider giving a ⭐ on <a href="https://github.com/sagi21805/LearnixOS" target="_blank">github</a>
+            ⭐ If you like this book, please consider giving a star on <a href="https://github.com/sagi21805/LearnixOS" target="_blank">github</a>
         </p>
-    `;
+        <p style="margin-bottom: 1em; font-weight: 500;">
+            💗 If you enjoyed my work and want to support this project, please consider supporting on <a href="https://patreon.com/LearnixOS" target = "_blank">Patreon</a>.
+        </p>
+            `;
     container.appendChild(topText);
 
     // ⬇️ Giscus script will be added here
