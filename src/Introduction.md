@@ -18,7 +18,7 @@ This book will be technical, and will assume a little bit of a programming knowl
 
 If you are not coming from a low level programming knowledge that's fine!
 
-Just make sure you know this stuff or learn it as you read. Also, if in any place in this book I take some things for granted, please, open an issue [here](https://github.com/sagi21805/LearnixOS-Book) and let me know so I can explain it better.
+Just make sure you know this stuff or learn it as you read. Also, if in any place of this book I take some things for granted, please, open an issue [here](https://github.com/sagi21805/LearnixOS-Book) and let me know so I can explain it better.
 
 Some base knowledge that you will need to have:
 
