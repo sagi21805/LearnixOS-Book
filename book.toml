@@ -33,6 +33,10 @@ Backspace = "Enum"
 LineFeed = "Enum"
 Delete = "Enum"
 
+[preprocessor.gh-issue-preview]
+after = ["rust-highlight"]
+command = "cargo run --release --manifest-path mdbook-gh-issue-preview/Cargo.toml"
+
 [preprocessor.webinclude]
 before = ["rust-highlight"]
 
@@ -41,7 +45,7 @@ git-repository-url = "https://github.com/sagi21805/LearnixOS"
 default-theme = "navy"
 preferred-dark-theme = "navy"
 preferred-light-theme = "navy"
-additional-css = ["theme/whichlang.css", "theme/hlrs.css"]
+additional-css = ["theme/whichlang.css", "theme/hlrs.css", "theme/gh-issue.css"]
 additional-js = [
     "theme/whichlang.js",
     "theme/filepath-links.js",
