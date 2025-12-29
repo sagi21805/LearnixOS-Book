@@ -1,6 +1,7 @@
 # The Learnix Operating System
 
 [Introduction](./Introduction.md)
+[Roadmap](./Roadmap.md)
 
 # Chapters of The Book
 
