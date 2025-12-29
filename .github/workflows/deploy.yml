@@ -33,6 +33,8 @@ jobs:
         run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml
 
       - name: Build the book
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mdbook build
 
       - name: Setup Pages
