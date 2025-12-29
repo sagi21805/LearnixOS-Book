@@ -2,3 +2,8 @@
 	path = mdbook-rust-highlight
 	url = https://github.com/sagi21805/mdbook-rust-highlight
 	branch = master
+
+[submodule "mdbook-gh-issue-preview"]
+	path = mdbook-gh-issue-preview
+	url = https://github.com/sagi21805/mdbook-gh-issue-preview
+	branch = master
