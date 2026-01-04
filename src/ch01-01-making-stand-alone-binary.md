@@ -290,7 +290,7 @@ impl B {
     }
 }
 ```
-Athough the function are defined on different structs, they have the same name, but because of mangling, the actual name of the function would be something like
+Although the functions are defined on different structs, they have the same name, but because of mangling, the actual name of the function would be something like
 ```
 A::new -> _ZN7mycrate1A3new17h5f3a92c8e3b0a1a2E
 B::new -> _ZN7mycrate1B3new17h1c2d3e4f5a6b7c8dE
