@@ -297,7 +297,7 @@ B::new -> _ZN7mycrate1B3new17h1c2d3e4f5a6b7c8dE
 ```
 
 A similar thing is happening to our `main` function, which makes its name not exactly 'main', making the entry point not recognized.
-To fix it, we can add the `#[unsafe(no_mangle)]` attribute to our main function, which will make it's name just 'main'.
+To fix it, we can add the `#[unsafe(no_mangle)]` attribute to our main function, which will make its name just 'main'.
 
 Which makes this, our final main.rs file!
 ```rust,fp=main.rs
