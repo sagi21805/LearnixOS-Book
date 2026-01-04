@@ -238,7 +238,7 @@ error: using `fn main` requires the standard library
           and declare a platform specific entrypoint yourself,
           usually with `#[no_mangle]`
 ```
-As per usual, the Rust compiler errors are pretty clear, and they tell us exactly what we need to do to fix the problem. In this case, we need to add the `#![no_main]` attribute to our crate, and declare a platform specific entrypoint ourselves.
+As per usual, the Rust compiler errors are pretty clear, and they tell us exactly what we need to do to fix the problem. In this case, we need to add the `#![no_main]` attribute to our crate, and declare a platform-specific entrypoint ourselves.
 
 ## Defining an Entry Point
 
