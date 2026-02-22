@@ -12,7 +12,7 @@ The compiler of rust, `rustc` is a cross-compiler, which means it can compile th
 This provides us with a lot of flexibility, but it is the core reason for our problem. This is because you are probably compiling this code from a computer with a regular operating system (Linux, Windows or MacOS) which rustc supports, which means that is it's `default target`. To see your default target, you can run `rustc -vV` and look at the `host` section.
 
 The target contains information for the `rustc` compiler about which header should the binary have, what is the pointer and int size, what instruction set to use, and more information about the features of the cpu that it could utilize.
-So, because we compiled our code just with `cargo build`, cargo, which under the hood uses `rustc`, compiled our code to our default target, which resulted in a binary that is operating specific and not a truly stand alone even though we used `#![no_std]`.
+So, because we compiled our code just with `cargo build`, cargo, which under the hood uses `rustc`, compiled our code to our default target, which resulted in a binary that is operating system specific and not a truly stand alone even though we used `#![no_std]`.
 
 > **Note:** if you want to see the information of your computer target, use the following command
 > ```
@@ -21,7 +21,7 @@ So, because we compiled our code just with `cargo build`, cargo, which under the
 
 ## Custom Rust Target
 
-To boot our binary, we need to create a custom target that will specify that no vendor or operating system in our [_target triple_](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) is used, and that it will contain the right [architecture](https://simple.wikipedia.org/wiki/Computer_architecture). But, what architecture we need?
+To boot our binary, we need to create a custom target that will specify that no vendor or operating system in our [_target triple_](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) is used, and that it will contain the right [architecture](https://simple.wikipedia.org/wiki/Computer_architecture). But, what architecture do we need?
 
 In this guide, the operating system that we build will be compatible with the x86_64 computer architecture (and maybe other architectures in the far far future). So, for that we will need to understand what an x86_64 chip expects at boot time.
 
