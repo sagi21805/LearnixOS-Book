@@ -45,10 +45,11 @@ git-repository-url = "https://github.com/sagi21805/LearnixOS"
 default-theme = "navy"
 preferred-dark-theme = "navy"
 preferred-light-theme = "navy"
-additional-css = ["theme/whichlang.css", "theme/hlrs.css", "theme/gh-issue.css"]
+additional-css = ["theme/whichlang.css", "theme/hlrs.css", "theme/gh-issue.css", "theme/tags.css"]
 additional-js = [
     "theme/whichlang.js",
     "theme/filepath-links.js",
     "theme/giscuss.js",
+    "theme/tags.js"
 ]
 mathjax-support = true
