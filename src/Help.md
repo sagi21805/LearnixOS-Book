@@ -9,6 +9,6 @@ If you enjoyed what you found, there are three main ways you can help:
 
   1. Spread the word: A kind comment or a quick share goes a long way in helping this project grow.
     
-  2. Star: Giving a star on github helps the popularity of this project, and it also show's me you appretiated it!
+  2. Star: Giving a star on GitHub helps the popularity of this project, and it also show me you appreciated it!
 
   3. Fuel the work: If you're feeling extra generous, you can support me on [Ko-fi](https://ko-fi.com/learnixos). Every coffee helps!
