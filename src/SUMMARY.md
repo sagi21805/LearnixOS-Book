@@ -2,6 +2,7 @@
 
 [Introduction](./Introduction.md)
 [Roadmap](./Roadmap.md)
+[Helping This Project](./Help.md)
 
 # Chapters of The Book
 
