@@ -4,7 +4,7 @@ _"If debugging is the process of removing bugs, then programming must be the pro
 
 ---
 
-Debugging is a crucial part for a good operating system, and especially at the start of its development. We still don't have good debugging methods like printing, so we need to use other methods.
+Debugging is a crucial part of a good operating system, and especially at the start of its development. We still don't have good debugging methods like printing, so we need to use other methods.
 
 By far the most annoying bug is the triple fault, which will be explained extensively in the [Interrupts](ch05-00-interrupts-and-exceptions.md) Chapter. In short, this is an error that is not recoverable, and the CPU will reset itself, and it looks like this:
 
