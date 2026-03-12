@@ -45,4 +45,4 @@ Then, in this terminal, run the following command:
 
 Once we write our kernel, the first thing that we will do is writing a print method with formatting, because it is one of the best ways to debug our code.
 
-In the bootloader, at a time when we haven't written our print yet, we will mostly debug with the methods above, but we can for debug purposes print characters, and even small strings using the BIOS like we did in our [Hello, World!](./ch01-02-booting-our-binary.md) program.
+In the bootloader, at a time when we haven't written our print yet, we will mostly debug with the methods above, but for debugging purposes, we can print characters and even small strings using the BIOS like we did in our ["Hello, World!"](./ch01-02-booting-our-binary.md) program.
