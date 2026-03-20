@@ -43,7 +43,7 @@ function createGiscusContainer() {
             ⭐ If you like this book, please consider giving a star on <a href="https://github.com/sagi21805/LearnixOS" target="_blank">github</a>
         </p>
         <p style="margin-bottom: 1em; font-weight: 500;">
-            ❤️ If you enjoyed my work and want to support this project, please consider supporting on <a href="https://ko-fi.com/learnixos" target = "_blank">Ko-Fi</a>.
+            ❤️ If you enjoyed my work and want to support this project, please consider supporting on <a href="https://github.com/sponsors/sagi21805/" target = "_blank">github</a>.
         </p>
             `;
   container.appendChild(topText);
