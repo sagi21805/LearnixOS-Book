@@ -37,8 +37,8 @@ The first byte encodes the ascii character, and it is not special. The second by
 
 There are multiple color palettes that VGA uses, the one our mode uses, is the 4 bit color palette and it includes the following colors.
 
-```rust,fp=<repo>shared/common/src/enums/vga.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/enums/vga.rs color}}
+```rust,fp=<repo>crates/common/src/enums/vga.rs
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/common/src/enums/vga.rs color}}
 ```
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/color_code.rs

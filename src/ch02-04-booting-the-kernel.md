@@ -36,15 +36,15 @@ But how should we set our initial table? This is where problem 2 helps us. Becau
 
 So firstly, let initialize our page tables.
 
-```rust,fp=<repo>shared/cpu_utils/src/structures/paging/init.rs#L15
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L15
 #[cfg(target_arch = "x86")]
 pub fn enable() -> Option<()> {
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/init.rs initialize_page_tables}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/init.rs initialize_page_tables}}
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/init.rs setup_page_tables}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/init.rs setup_page_tables}}
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/init.rs set_cr3}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/init.rs set_cr3}}
 
 }
 ```
@@ -62,13 +62,13 @@ Instead of creating multiple tables, and wasting precious memory, we can flag th
 Just before we will toggle paging on our cpu, we should enter protected mode, to do that, we need to toggle 2 things, the first is called the `physical address extension` (PAE) which is an extension for protected mode paging, which allows 32bit paging entries to be 64bit, which results in a way to access addresses above 32bit because the page table walker can access the 64bit address on the entries. This extension must be activated to access long mode, which also allows us to have 64bit instructions.
 
 To activate PAE and Long mode, we can use this inline assembly.
-```rust,fp=<repo>shared/cpu_utils/src/structures/paging/init.rs#L100
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L100
 #[cfg(target_arch = "x86")]
 pub fn enable() -> Option<()> {
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/init.rs set_cr4}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/init.rs set_cr4}}
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/init.rs set_efermsr}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/init.rs set_efermsr}}
 
 }
 ```
@@ -76,11 +76,11 @@ pub fn enable() -> Option<()> {
 After that, we can finally turn on paging!
 
 Like the previous features, this also it toggled by a control register, and done via inline assembly
-```rust,fp=<repo>shared/cpu_utils/src/structures/paging/init.rs#L128
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L128
 #[cfg(target_arch = "x86")]
 pub fn enable() -> Option<()> {
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/paging/init.rs enable_paging}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/init.rs enable_paging}}
 
 }   
 ```
@@ -92,10 +92,10 @@ _For now ignore the tss entry, it will be relevant on later chapters_
 
 So after the changes the table will look like this:
 
-```rust,fp=<repo>shared/cpu_utils/src/structures/global_descriptor_table.rs#L277
+```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L277
 impl GlobalDescriptorTableLong {
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/cpu_utils/src/structures/global_descriptor_table.rs gdt_long_default}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs gdt_long_default}}
 
 }
 ```
@@ -108,11 +108,11 @@ All that is left to do is to call the `enable` function we created to enable pag
 
 This can be done with the following code: 
 
-```rust,fp=<repo>kernel/stages/second_stage/src/main.rs#L23
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/second_stage/src/main.rs gdt_long}}
+```rust,fp=<repo>bootloader/second_stage/src/main.rs#L23
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/second_stage/src/main.rs gdt_long}}
 
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/stages/second_stage/src/main.rs _start}}
+{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/second_stage/src/main.rs _start}}
 ```
 
 - [x] Enabling memory paging
