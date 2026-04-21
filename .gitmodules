@@ -9,3 +9,4 @@
 [submodule "LearnixOS"]
 	path = LearnixOS
 	url = https://github.com/sagi21805/LearnixOS.git
+	branch = master
