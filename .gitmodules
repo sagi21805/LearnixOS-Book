@@ -6,7 +6,6 @@
 	path = mdbook-gh-issue-preview
 	url = https://github.com/sagi21805/mdbook-gh-issue-preview.git
 	branch = master
-[submodule "learnixOS"]
-	path = learnixOS
-	url = https://github.com/sagi21805/learnixOS.git
-	branch = master
+[submodule "LearnixOS"]
+	path = LearnixOS
+	url = https://github.com/sagi21805/LearnixOS.git
