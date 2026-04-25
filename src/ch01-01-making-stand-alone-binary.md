@@ -49,10 +49,8 @@ If you have done everything correct, your project should look like this:
 
 And the main file, should look something like this:
 
-```rust,main.rs
-fn main() {
-    println!("Hello, world!");
-}
+```rust,fp=main.rs
+#![function!("snippets/src/book/init.rs", main)]
 ```
 
 
@@ -115,9 +113,7 @@ def failing_function(x: str):
 
 Instead, Rust provides us with the `panic!` macro, which will call the `Panic Handler Function`. This function is very important and it will be called every time the `panic!` macro is invoked, for example:
 ```rust
-fn main() {
-    panic!("This is a custom message");
-}
+#![function!("snippets/src/book/panic.rs", main)]
 ```
 Normally, the Standard Library provides us with an implementation of the Panic Handler Function, which will typically print the line number and file in which the error occurred; however, because we are now not using the Standard Library, we need to define the implementation of the function ourselves.
 This function can be any function, it just needs to include the attribute `#[panic_handler]`. This attribute is added so the compiler will know which function to use when invoking the `panic!` macro, to enforce that only one function of this type exists, and to also enforce the input argument and the output type.
@@ -140,13 +136,7 @@ But what is this struct? and what is this weird type?
 
 The `PanicInfo` struct includes basic information about our panic such as the location, and message. Its definition can be found in the core library:
 ```rust,fp=<rust-doc>core/panic/panic_info.rs
-
-pub struct PanicInfo<'a> {
-    message: &'a fmt::Arguments<'a>,
-    location: &'a Location<'a>,
-    can_unwind: bool,
-    force_no_backtrace: bool,
-}
+#![struct!("snippets/src/book/panic.rs", PanicInfo)]
 ```
 
 The `!` type is a very special type in rust, called the `never` type, as the type name may suggest, it says that a function should **never** return, which means our program will not continue after the function is called.
@@ -155,15 +145,9 @@ In a normal operating system, this is not a problem; just print the panic messag
 So at the end, this is the definition of our handler, which results in the following code
 
 ```rust,fp=main.rs
-#![no_std]
-fn main() {
+#![function!("snippets/src/book/no_std.rs", main)]
 
-}
-
-#[panic_handler]
-pub fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
+#![function!("snippets/src/book/no_std.rs", panic_handler)]
 ```
 
 This code unfortunately still doesn't compile, because we didn't handle the last error.
@@ -255,40 +239,14 @@ This will set our entry point to main, and our output into a raw binary, which m
 
 Then, to make our linker to use this script, we mainly have two options; one is to add some arguments to our build command, and the other one is to create a [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html). In this guide, we use the following build script:
 ```rust,fp=build.rs
-use std::path::Path;
-
-fn main() {
-    // Environment variable that stores the current working directory
-    let local_path = Path::new(env!("CARGO_MANIFEST_DIR"));
-
-    // This tells cargo to add the `-C link-arg=--script=./linker.ld` argument.
-    // Which will result in linking with our code with our linker script
-    println!(
-        "cargo:rustc-link-arg-bins=--script={}",
-        local_path.join("linker.ld").display()
-    )
-}
+#![source_file!("snippets/src/book/build.rs")]
 ```
 
 But, after we do all this and again, run `cargo build`, we get the same error. At first, this doesn't seem logical, because we defined a main function. But, although it is true that we defined one, we didn't consider Rust's default [mangling](https://doc.rust-lang.org/rustc/symbol-mangling/index.html).
 This is a very clever idea done by Rust, and without it, things like the following wouldn't be possible:
 
 ```rust
-struct A(u32);
-
-impl A {
-    pub fn new(a: u32) -> A {
-        A(a)
-    }
-}
-
-struct B(u32);
-
-impl B {
-    pub fn new(b: u32) -> B {
-        B(b)
-    }
-}
+#![source_file!("snippets/src/book/impl_ex.rs")]
 ```
 Although the functions are defined on different structs, they have the same name, but because of mangling, the actual name of the function would be something like
 ```
@@ -301,17 +259,7 @@ To fix it, we can add the `#[unsafe(no_mangle)]` attribute to our main function,
 
 Which makes this, our final main.rs file!
 ```rust,fp=main.rs
-#![no_std]
-#![no_main]
-
-#[unsafe(no_mangle)]
-fn main() {
-}
-
-#[panic_handler]
-pub fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
+#![source_file!("snippets/src/book/minimal_main.rs")]
 ```
 
 ## Build Target

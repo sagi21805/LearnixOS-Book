@@ -54,11 +54,9 @@ like the access privileges of this segment.
 All of these fields can become a struct and together they will represent a single entry.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L6
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs limit_flags}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs gdt_entry32}}
+#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", AccessByte)]
+#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", LimitFlags)]
+#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32)]
 ```
 
 Both the `AccessByte` and the `LimitFlags` and more structures throughout the book, are using one bit flags, which represents some inner settings to the cpu.
@@ -216,40 +214,7 @@ So now, without a lot of boiler plate, we can define our `AccessByte` and `Limit
 _We will also define an enum that will include the protection level, so it would be more clear_
 
 ```rust,fp=<repo>crates/common/src/enums/general.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/common/src/enums/general.rs dpl}}
-```
-
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L10
-
-impl AccessByte {
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_new}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_present}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_privilege_level}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_code_data}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_executable}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_direction}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_conforming}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_readable}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs access_byte_writable}}
-}
-
-impl LimitFlags {
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs limit_flags_new}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs limit_flags_granularity}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs limit_flags_protected}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs limit_flags_long}}
-}
+#![enum!("crates/common/src/enums/general.rs", ProtectionLevel)]
 ```
 
 
@@ -257,11 +222,8 @@ Now, just before creating a `new` function to our entry, we don't want each time
 This will complicate it a bit, but will provide much more friendly interface.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L153
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs gdt_protected}}
-
-impl GlobalDescriptorTableEntry32 {
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs gdt_entry32_new}}
-}
+#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected)]
+#![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32::new)]
 ```
 ## Jumping to the next stage!
 
@@ -273,9 +235,7 @@ Each table must have at least three entries, an initial `null` entry that is fil
 Together it will all look like this:
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L273
-impl GlobalDescriptorTableProtected {
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs gdt_default}}
-}
+#![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::default)]
 ```
 
 If you noticed, all of the functions that we defined so far are marked with `const` this is useful because we can create our global descriptor table as a static variable, which will be in the binary.
@@ -286,9 +246,7 @@ So, the only thing left to do is to load the global descriptor table. This can b
 We will create a `load` function that will create this register structure, and will load it to the cpu.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L312
-impl GlobalDescriptorTableProtected {
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/global_descriptor_table.rs gdt_load}}
-}
+#![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::load)]
 ```
 
 Now, to apply all of the created functionality, enable protected mode, and to jump to the next stage, we need add the following code to our entry function.
@@ -298,17 +256,11 @@ But just before that, when we jump to the next stage, we need to specify the off
 ```rust,fp=<repo>crates/common/src/enums/global_descriptor_table.rs
 // Notice that this also contains segments of other GDT 
 // that we will use in the future
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/common/src/enums/global_descriptor_table.rs sections}}
+#![enum!("crates/common/src/enums/global_descriptor_table.rs", Sections)]
 ```
 
 ```rust,fp=<repo>bootloader/first_stage/src/main.rs
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/src/main.rs gdt_static}}
-
-pub fn first_stage() -> ! {
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/src/main.rs enter_protected_mode}}
-}
+#![function!("bootloader/first_stage/src/main.rs", first_stage)]
 ```
 
 - [x] Load the global descriptor table

@@ -42,14 +42,14 @@ This technique results in a 20bit maximum address space instead of 16bit, which 
 So, to zero down all the segments we will use the following code:
 
 ```x86asm,fp=<repo>bootloader/first_stage/asm/boot.s#L1,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/asm/boot.s segment}}
+{{#include ../LearnixOS/bootloader/first_stage/asm/boot.s:segment}}
 ```
 
 Then, we want to initialize the stack and the direction flag.
 It is important to state the stack at a position that will not overwrite our code, this could happen because our code and the local variables we save can be in the same place in memory which might cause a `push` instruction to overwrite an instruction that we need. because of the we initialize the stack at `0x7c00` which will ensure it will not happen, because that stack only grows down.
 
 ```x86asm,fp=<repo>bootloader/first_stage/asm/boot.s#L19,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/asm/boot.s stack}}
+{{#include ../LearnixOS/bootloader/first_stage/asm/boot.s:stack}}
 ```
 - [x] Setup registers and stack
 
@@ -199,14 +199,14 @@ After learning about LBA, the only logical thing to think, is how to read data f
 This is where the `extended read` functions comes in, it expects a structure called the `disk address packet` which looks like this:
 
 ```rust,fp=<repo>bootloader/first_stage/src/disk.rs#L4
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/src/disk.rs dap}}
+#![struct!("bootloader/first_stage/src/disk.rs", DiskAddressPacket)]
 ```
 
 But, just before we use it, we need to check if this extension is available on our disk. This can be done with `int 0x13 ah=0x41` which checks if all extended functions are available on our disk.
 The check can be done with the following code:
 
 ```x86asm,fp=<repo>bootloader/first_stage/asm/boot.s#L47,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/asm/boot.s INT13}}
+{{#include ../LearnixOS/bootloader/first_stage/asm/boot.s:INT13}}
 ```
 
 Because we are all using the same emulator, it should pass the `hlt` instruction and continue execution. Now to read from disk we can implement a read function to our disk packet.
@@ -215,23 +215,19 @@ This is quite straight forward, we will create a `new` function that will initia
 First, for organization, we will create some helpful enums.
 
 ```rust,fp=<repo>crates/common/src/enums/bios_interrupts.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/common/src/enums/bios_interrupts.rs bios_interrupts}}
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/common/src/enums/bios_interrupts.rs disk_interrupts}}
+#![enum!("crates/common/src/enums/bios_interrupts.rs", BiosInterrupts)]
+#![enum!("crates/common/src/enums/bios_interrupts.rs", DiskInterrupt)]
 ```
 
 Then, we can create an initializer function for our `disk packet`
 
-```rust,fp=<repo>kernel\stages\first_stage\src\disk.rs#L44
-impl DiskAddressPacket {
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/src/disk.rs new}}
-}
+```rust,fp=<repo>kernel/stages/first_stage/src/disk.rs#L44
+#![impl_method!("bootloader/first_stage/src/disk.rs", DiskAddressPacket::new)]
 ```
 And then, finally the function that will call the interrupt with our packet, and will read the disk content into memory.
 
-```rust,fp=<repo>kernel\stages\first_stage\src\disk.rs#L71
-impl DiskAddressPacket {
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/src/disk.rs load}}
-}
+```rust,fp=<repo>kernel/stages/first_stage/src/disk.rs#L71
+#![impl_method!("bootloader/first_stage/src/disk.rs", DiskAddressPacket::load)]
 ```
 
 ### Read The Kernel
@@ -247,17 +243,14 @@ Then, we can get the disk number from the stack, and load our packet.
 
 
 ```x86asm,fp=<repo>bootloader/first_stage/asm/boot.s#L60,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/asm/boot.s disk}}
+{{#include ../LearnixOS/bootloader/first_stage/asm/boot.s:disk}}
 ```
 
 And create a constant for the disk number memory address
 Then, in the first stage function
 
-```rust,fp=<repo>kernel\stages\first_stage\src\main.rs#L29
-pub const DISK_NUMBER_OFFSET: u16 = 0x7BFE;
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/src/main.rs first_stage}}
-}
+```rust,fp=<repo>bootloader/first_stage/src/main.rs#L29
+#![function!("bootloader/first_stage/src/main.rs", first_stage)]
 ```
 - [x] Read kernel from disk
 

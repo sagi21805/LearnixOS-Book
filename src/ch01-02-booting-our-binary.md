@@ -209,28 +209,7 @@ To print "Hello, World!", we can utilize the BIOS [video interrupt](https://en.w
 _For now, don't worry about the code implementation and just use and play with it. This code piece, and a lot more will be explained in the next chapter._
 
 ```rust,fp=main.rs
-use core::arch::asm;
-
-#[unsafe(no_mangle)]
-fn main() {
-    let msg = b"Hello, World!";
-    for &ch in msg {
-        unsafe {
-            asm!(
-                "mov ah, 0x0E",   // INT 10h function to print a char
-                "mov al, {0}",    // The input ASCII char
-                "int 0x10",       // Call the BIOS Interrupt Function
-                // --- settings ---
-                in(reg_byte) ch,  // {0} Will become the register with the char
-                out("ax") _,      // Lock the 'ax' as output reg, so it won't be used elsewhere
-            );
-        }
-    }
-
-    unsafe {
-        asm!("hlt"); // Halt the system
-    }
-}
+#![source_file!("snippets/src/book/print.rs")]
 ```
 
 When we try to compile and run our code, we can see that it's indeed booting, but we don't see any massage.
@@ -238,27 +217,28 @@ If you believe me that the code above is correct, and indeed works, we can try a
 
 When we do that, we can notice that it seems that more code was added, but at the end of the file, and not at the start of it, and more over, it is located after the first sector which means it doesn't even loaded by the BIOS. To resolve this, we need to learn about the default segment `rustc` generates.
 
-> ### Default Segments In Rust
-> - **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
->   ```rust,banner=no
->   
->   fn some_function(x: u32, y: u32) -> u32 {
->     return x + y;
->   }
->   ```
-> - **.data** - Includes the initialized data of our program, like static variables.
->   ```rust,banner=no
->   static VAR: u32 = 42;
->   ```
-> - **.bss** - Includes the uninitialized data of our program
->   ```rust,banner=no
->   static mut MESSAGE: String = MaybeUninit::uninit();
->   ```
-> - **.rodata** - Includes the read-only data of our program
->   ```rust,banner=no
->   static mut MESSAGE: &'static str = "Hello World!";
->   ```
-> - **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
+### Default Segments In Rust
+- **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
+```rust,banner=no
+#![source_file!("snippets/src/book/func.rs")] 
+#![source_file!("")]
+```
+- **.data** - Includes the initialized data of our program, like static variables.
+```rust,banner=no
+#![source_file!("snippets/src/book/static_var.rs")] 
+#![source_file!("")]
+```
+- **.bss** - Includes the uninitialized data of our program
+```rust,banner=no
+#![source_file!("snippets/src/book/static_uninit.rs")] 
+#![source_file!("")]
+```
+- **.rodata** - Includes the read-only data of our program
+```rust,banner=no
+#![source_file!("snippets/src/book/static_str.rs")] 
+#![source_file!("")]
+```
+- **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
 
 So, to make our linker put the segments in the right position, we need to change the `SECTION` segment of our linker script to this.
 
