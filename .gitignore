@@ -2,3 +2,4 @@ book
 target/
 .obsidian
 media/
+**/Cargo.lock

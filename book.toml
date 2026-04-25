@@ -7,7 +7,7 @@ src = "src"
 [preprocessor.mdbook-rust-analyzer-highlight]
 whichlang = true
 command = "cargo run --release --manifest-path mdbook-rust-analyzer-highlight/Cargo.toml"
-project-root = "./learnixOS"
+project-root = "./LearnixOS"
 
 [preprocessor.gh-issue-preview]
 after = ["mdbook-rust-analyzer-highlight"]

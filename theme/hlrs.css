@@ -7,27 +7,39 @@
     color: #98c379;
 }
 
+.parenthesis,
+.operator,
+.brace,
+.semicolon,
+.punctuation,
+.angle {
+    color: rgb(200, 200, 200);
+}
+
 .hlrs-selftoken,
 .hlrs-keyword {
     color: #c678dd;
 }
 
-.hlrs-const,
 .hlrs-macro,
 .hlrs-litnum {
     color: #d19a66;
 }
 
 .hlrs-segment,
-.hlrs-returntype,
+.hlrs-returnType,
 .hlrs-fntype,
 .hlrs-type {
     color: #e5c07b;
 }
 
 .hlrs-variable,
-.hljs-meta {
+.reg {
     color: #e06c75;
+}
+
+.inlay-hint {
+    color: #8895a1;
 }
 
 .hlrs-comment {
@@ -44,9 +56,5 @@
 }
 
 .hlrs-attribute {
-    color: lightgrey;
-}
-
-.hljs-symbol {
-    color: #FDC5B1
+    color: #abb2bf;
 }
