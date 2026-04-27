@@ -8,13 +8,15 @@ In the previous section, we created a stand alone binary, which is not linked to
 
 ## Understanding Rust Targets
 
-The compiler of rust, `rustc` is a cross-compiler, which means it can compile the same source code into multiple architectures and operating systems.
-This provides us with a lot of flexibility, but it is the core reason for our problem. This is because you are probably compiling this code from a computer with a regular operating system (Linux, Windows or MacOS) which rustc supports, which means that is it's `default target`. To see your default target, you can run `rustc -vV` and look at the `host` section.
+The compiler of Rust, `rustc` is a cross-compiler, which means it can compile the same source code into multiple architectures and operating systems.
+This provides us with a lot of flexibility, but it is the core reason for our problem. This is because you are probably compiling this code from a computer with a regular operating system (Linux, Windows or MacOS) which rustc supports, which means that is it's `default target` is your computer OS + your CPU architecture.
 
-The target contains information for the `rustc` compiler about which header should the binary have, what is the pointer and int size, what instruction set to use, and more information about the features of the cpu that it could utilize.
+> To see your default target, you can run `rustc -vV` and look at the `host` section.
+
+The target contains information for the `rustc` compiler about which header should the binary have, what is the pointer and int size, what instruction set to use, and more information about the features of the CPU that it could utilize.
 So, because we compiled our code just with `cargo build`, cargo, which under the hood uses `rustc`, compiled our code to our default target, which resulted in a binary that is operating system specific and not a truly stand alone even though we used `#![no_std]`.
 
-> **Note:** if you want to see the information of your computer target, use the following command
+> **Note:** If you want to see the information of your computer target, use the following command
 > ```
 > rustc +nightly -Z unstable-options --print target-spec-json
 > ```
@@ -218,6 +220,8 @@ If you believe me that the code above is correct, and indeed works, we can try a
 When we do that, we can notice that it seems that more code was added, but at the end of the file, and not at the start of it, and more over, it is located after the first sector which means it doesn't even loaded by the BIOS. To resolve this, we need to learn about the default segment `rustc` generates.
 
 ### Default Segments In Rust
+<blockquote>
+
 - **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
 ```rust,banner=no
 #![source_file!("snippets/src/book/func.rs")] 
@@ -239,6 +243,7 @@ When we do that, we can notice that it seems that more code was added, but at th
 #![source_file!("")]
 ```
 - **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
+</blockquote>
 
 So, to make our linker put the segments in the right position, we need to change the `SECTION` segment of our linker script to this.
 
