@@ -74,11 +74,12 @@ function loadGiscus() {
   script.setAttribute("data-repo-id", "R_kgDOPD-4VA");
   script.setAttribute("data-category", "General");
   script.setAttribute("data-category-id", "DIC_kwDOPD-4VM4Cs_dl");
-  script.setAttribute("data-mapping", "pathname");
+  script.setAttribute("data-mapping", "title");
   script.setAttribute("data-strict", "0");
   script.setAttribute("data-reactions-enabled", "1");
   script.setAttribute("data-emit-metadata", "1");
   script.setAttribute("data-input-position", "bottom");
+  script.setAttribute("data-loading", "lazy");
   script.setAttribute("data-theme", mapMdbookThemeToGiscus(getCurrentTheme()));
   script.setAttribute("data-lang", "en");
   script.setAttribute("crossorigin", "anonymous");
