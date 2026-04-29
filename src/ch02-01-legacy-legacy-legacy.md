@@ -250,7 +250,9 @@ And create a constant for the disk number memory address
 Then, in the first stage function
 
 ```rust,fp=<repo>bootloader/first_stage/src/main.rs#L29
-#![function!("bootloader/first_stage/src/main.rs", first_stage)]
+#![const!("crates/common/src/constants/addresses.rs", DISK_NUMBER_OFFSET)]
+
+#![function!("bootloader/first_stage/src/main.rs", load_dap)]
 ```
 - [x] Read kernel from disk
 
