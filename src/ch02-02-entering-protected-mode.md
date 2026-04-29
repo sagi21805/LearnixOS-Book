@@ -4,24 +4,37 @@ _"With great power comes great responsibility." - Voltaire / Spider-Man_
 
 ---
 
-After we read from disk, it will enable us to write much more code, because we are not limited to 512 bytes.
+As you may recall from previous chapters, our BIOS only loads the first sector to RAM, which leaves about just shy of 512 bytes[^1].
+After we read from disk, it will enable us to write much more code, because we will not be limited to 512 bytes.
 But just before we do that, we don't want to limit ourselves only to 16bit instructions.
 For that we need to enter [`protected mode`](https://en.wikipedia.org/wiki/Protected_mode) which will allow us to unlock some cpu features such as 32bit instructions.
 
+[^1]: 446 bytes to be exact, this number is derived by removing the size of the master boot record and the size of the boot signature from the sector size. 
+
 Entering protected mode requires us to initialize the [`global descriptor table`](https://wiki.osdev.org/Global_Descriptor_Table) which is a CPU structure that will be discussed in depth bellow, and toggling the protected mode bit in [`cr0`](https://en.wikipedia.org/wiki/Control_register)
+
 
 ## The Global Descriptor Table
 
-This is a structure that is specific to the x86 cpu family, and it contains information about the different segments.
-In general, segments are used to divide memory into logical parts and as we seen in real mode, to also translate addresses.
+> _All the information about the global descriptor table is taken from both the [Intel manual Volume 3a](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf&ved=2ahUKEwjK-duH0pOUAxXvhf0HHRkeN1sQFnoECA0QAQ&usg=AOvVaw3xCH_sFKn73Bg5tPFbOzaC) section 3.4.5, and the great [osdev](https://wiki.osdev.org/GDT_Tutorial) website_
 
-In protected mode, the common way to organize memory is using these segments. Because segments registers can only hold one number,
+This is a structure that is specific to the x86 cpu family, and it contains information about the different segments.
+In general, segments are used to divide memory into logical parts, and to translate addresses as we seen in real mode.
+
+_Address translation with the GDT will not be wildely at this chapter, because it will not be used throughout the OS and memory paging, which will be explained in the next chpater will be used._
+_For now, think of a memory segment as a fixed size blob of contiguous physical memory_ 
+
+In protected mode, the common way to organize memory is using these segments. Because segments registers[^2] can only hold one number,
 they can't hold enough information for us, and that is where the global descriptor table comes in place.
 The global descriptor table is an array of structures that include information about a segment,
-when we want to use our custom segment, we load it's offset to the segment register.
+when we want to use our custom segment, we load it's offset on the GDT to the segment register.
 For example, we can create a segment for user data at index one of our table.
-this segment will not hold important data for the system, and will not contain code that can be executed,
+This segment will not hold important data for the system, and will not contain code that can be executed,
 if we want to load it into the `ds` we will set it to the offset of the structure in the table.
+
+_Each entry is 8 bytes long, index one will be at an offset of 8, which means we will set ds=8_
+
+[^2]: Registers like cs, ds, gs, fs, ss etc.
 
 > Instead of just revealing you the structure that is used for each segment, I want you to pause and ponder about what each segment should include.
 >
@@ -35,7 +48,7 @@ When I asked myself this question, I came up with the following ideas:
 - For a data segment, Is the data read only, or may I modify it?
 - For a code segment, Can I execute it, or not yet.
 
-Although this first guess of what the global descriptor table includes don't include everything, It is mostly accurate!
+If you gussed something that is similar to this, you are mostly correct!
 
 Our entry will look like this:
 <figure style="margin: 0; text-align: center">
@@ -51,178 +64,76 @@ But what are these fields?
 like the access privileges of this segment.
 - **Flags:** general flags that are relevant for the entry fields.
 
-All of these fields can become a struct and together they will represent a single entry.
+All of these fields will become a struct and together they represent a single entry on our GDT.
+
+
+Both the `AccessByte` and the `LimitFlags` and more structures throughout the book, are using one bit flags, which represents some inner settings to the CPU.
+Although setting one bit flag is easy, and can be done with `1 << bit_number` to set the nth bit, we would like abstractions such as `set_<flag_name>`, which are more readable and error prone.
+But, if we would do that to every flag, it will be **A LOT** of boiler plate code.
+For this reason, Rust provides us with an amazing macro system
+
+<blockquote>
+
+If you read through some previous version of this book, you may have seen the explanation of the [flag!](https://github.com/sagi21805/LearnixOS/blob/c6560ef225262a3cfea58d5a5eae716ddb082ff3/learnix-macros/src/lib.rs#L74) proc-macro, which was used like this:
+
+<pre><code><span class="hlrs-keyword">impl</span> <span class="hlrs-type">AccessByte</span> {
+    <span class="hlrs-macro">flag</span><span class="hlrs-macro">!</span>(<span class="hlrs-function">readable</span>, <span class="hlrs-litnum">1</span>);
+}
+</code></pre>
+
+This macro was used to define thouse exactly 1 bit flags. But as it will turn out, this is not enough, and more functionality will be needed. 
+
+</blockquote>
+
+The problem that this macro had, is that the struct the these functions were defined on, didn't understand that it was a structure that contains bit flags, but it was rathar a struct that wraps an integer type, and it has functions that is defined on it to turn specific bits. At first glance this seems almost the same. But, because the macro doesn't get as input all the information on the flags, but rather 'per flag' input, it cannot implement the [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait automatically when we want to print and look on the flags.
+
+_More problems that are I was having, but are not a direct outcome of the initial design, is that flags sometimes contain more then 1 bit, and may contain n bits, also, certain n bit flags may have a specific set of values that are valid, and we may want to name them in an enum_
+
+The currect design of this macros, looks like this:
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L6
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", AccessByte)]
-#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", LimitFlags)]
-#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32)]
 ```
 
-Both the `AccessByte` and the `LimitFlags` and more structures throughout the book, are using one bit flags, which represents some inner settings to the cpu.
-Although setting one bit flag is easy, and can be done with `1 << bit_number` to set the nth bit, we would like abstractions such as `set_<flag_name>`, which are more readable and error prone.
-But, if we would do that to every flag, it will be **A LOT** of boiler plate code.
-For this reason, rust provides us with an amazing macro system
-> **Note:** If you are unfamiliar with macros, and especially rust macros, a little explanation will be given in this book, to read more about rust's macros, click [here](https://doc.rust-lang.org/book/ch20-05-macros.html)
+As you can see, we have the macro attribute at the top of our struct, which is called `bitfields`.
 
-So, to mitigate all of this boiler plate, will will create a `flag!` macro.
-The goal of this macro is to use the flag name, and it's bit number to generate utility functions that are readable and error prone.
-Our macro will look like this:
+- Each field in this struct, is a flag, and as you can see, the highlighter is smart and can expand our macro, so the color of the field is the same as functions.
 
-```rust, fp=<repo>learnix-macros/src/lib.rs#L62
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/learnix-macros/src/lib.rs flag}}
-```
+- The type of each field represents the flag width in bits. B1 is one bit and B20 is 20 bits.
 
-While this macro seems complex, it will just create four functions that will help up set, unset and read the flag.
+- Some flags can have thier own attribute, which may contain r and w, which creates only read function, or write function (defaults to both)
+
+- Flags may also contain types, which are mostly enums that contains the valid values, or even all the values but gives them a readable name.
+
+- While this macro seems complex, it will just create the functions that will help us to set flags in a convenient way.
+
+<blockquote>
 
 To see what this macro generated, we can you the amazing [`cargo-expand`](https://crates.io/crates/cargo-expand) tool created by [`David Tolnay`](https://github.com/dtolnay)
 
 <details>
-<summary>To see an example</summary>
-
-A simple code like this:
+<summary>For example, the expansion of the call above</summary>
 
 ```rust
-struct Example(u8);
-
-impl Example {
-    flag!(first, 1);
-    flag!(second, 2);
-    flag!(third, 3);
-}
-```
-
-Will be expanded to this:
-
-```rust
-struct Example(u8);
-impl Example {
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Sets the corresponding flag
-    ///
-    /// `This method is auto-generated`
-    pub const fn set_first(&mut self) {
-        self.0 |= 1 << 1;
-    }
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Sets the corresponding flag while returning self
-    ///
-    /// `This method is auto-generated`
-    pub const fn first(self) -> Self {
-        Self(self.0 | (1 << 1))
-    }
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Unset the corresponding flag
-    ///
-    /// `This method is auto-generated`
-    pub const fn unset_first(&mut self) {
-        self.0 &= !(1 << 1);
-    }
-    /// Checks if the corresponding flag in set to 1
-    ///
-    /// `This method is auto-generated`
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    pub const fn is_first(&self) -> bool {
-        self.0 & (1 << 1) != 0
-    }
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Sets the corresponding flag
-    ///
-    /// `This method is auto-generated`
-    pub const fn set_second(&mut self) {
-        self.0 |= 1 << 2;
-    }
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Sets the corresponding flag while returning self
-    ///
-    /// `This method is auto-generated`
-    pub const fn second(self) -> Self {
-        Self(self.0 | (1 << 2))
-    }
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Unset the corresponding flag
-    ///
-    /// `This method is auto-generated`
-    pub const fn unset_second(&mut self) {
-        self.0 &= !(1 << 2);
-    }
-    /// Checks if the corresponding flag in set to 1
-    ///
-    /// `This method is auto-generated`
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    pub const fn is_second(&self) -> bool {
-        self.0 & (1 << 2) != 0
-    }
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Sets the corresponding flag
-    ///
-    /// `This method is auto-generated`
-    pub const fn set_third(&mut self) {
-        self.0 |= 1 << 3;
-    }
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Sets the corresponding flag while returning self
-    ///
-    /// `This method is auto-generated`
-    pub const fn third(self) -> Self {
-        Self(self.0 | (1 << 3))
-    }
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    /// Unset the corresponding flag
-    ///
-    /// `This method is auto-generated`
-    pub const fn unset_third(&mut self) {
-        self.0 &= !(1 << 3);
-    }
-    /// Checks if the corresponding flag in set to 1
-    ///
-    /// `This method is auto-generated`
-    #[inline]
-    #[allow(dead_code)]
-    #[allow(unused_attributes)]
-    pub const fn is_third(&self) -> bool {
-        self.0 & (1 << 3) != 0
-    }
-}
+#![source_file!("snippets/src/book/flag_macro_expand.rs")]
 ```
 </details>
+</blockquote>
 
-So now, without a lot of boiler plate, we can define our `AccessByte` and `LimitFlags`.
+If this macro seems really cool and complicated, that great! because it will be fully explained in later chpaters.
 
-_We will also define an enum that will include the protection level, so it would be more clear_
+_We will also define an enum that will include the protection level and the system segment type, so it would be more clear_
 
 ```rust,fp=<repo>crates/common/src/enums/general.rs
 #![enum!("crates/common/src/enums/general.rs", ProtectionLevel)]
+#![enum!("crates/common/src/enums/global_descriptor_table.rs", SegmentDescriptorType)]
 ```
 
 
-Now, just before creating a `new` function to our entry, we don't want each time to specify the base in three parts and the limit in two parts, instead we want the `new` function to take care of that.
-This will complicate it a bit, but will provide much more friendly interface.
+Now, just before creating a `new` function to our entry, we don't want each time to specify the base in three parts and the limit in two parts, instead we want the `new` function to abstract it from as.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L153
-#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected)]
+#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32::new)]
 ```
 ## Jumping to the next stage!
@@ -235,6 +146,7 @@ Each table must have at least three entries, an initial `null` entry that is fil
 Together it will all look like this:
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L273
+#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::default)]
 ```
 
@@ -246,21 +158,23 @@ So, the only thing left to do is to load the global descriptor table. This can b
 We will create a `load` function that will create this register structure, and will load it to the cpu.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L312
+#![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableRegister)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::load)]
 ```
 
 Now, to apply all of the created functionality, enable protected mode, and to jump to the next stage, we need add the following code to our entry function.
 
-But just before that, when we jump to the next stage, we need to specify the offset in the GDT of the relevant section we want to jump to. In out case it is the `kernel_code` section, which will allow us to run code on ring0. For an easy way to specify the section, we will create an enum.
+But just before that, when we jump to the next stage, we need to specify the offset in the GDT of the relevant section we want to jump to, which will load the cs segment register with that value. In that case it is the `kernel_code` section, which will allow us to run code on ring0. For an easy way to specify the section, we will create an enum.
+
+_Notice that this also contains segments of other GDT that we will use in the future_
 
 ```rust,fp=<repo>crates/common/src/enums/global_descriptor_table.rs
-// Notice that this also contains segments of other GDT 
-// that we will use in the future
 #![enum!("crates/common/src/enums/global_descriptor_table.rs", Sections)]
 ```
 
 ```rust,fp=<repo>bootloader/first_stage/src/main.rs
-#![function!("bootloader/first_stage/src/main.rs", first_stage)]
+#![static!("bootloader/first_stage/src/main.rs", GLOBAL_DESCRIPTOR_TABLE)]
+#![function!("bootloader/first_stage/src/main.rs", enter_protected_mode)]
 ```
 
 - [x] Load the global descriptor table
