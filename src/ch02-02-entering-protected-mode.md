@@ -16,7 +16,7 @@ Entering protected mode requires us to initialize the [`global descriptor table`
 
 ## The Global Descriptor Table
 
-> _All the information about the global descriptor table is taken from both the [Intel manual Volume 3a](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf&ved=2ahUKEwjK-duH0pOUAxXvhf0HHRkeN1sQFnoECA0QAQ&usg=AOvVaw3xCH_sFKn73Bg5tPFbOzaC) section 3.4.5, and the great [osdev](https://wiki.osdev.org/GDT_Tutorial) website_
+> _All the information about the global descriptor table is taken from both the [Intel Manual Volume 3A](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf&ved=2ahUKEwjK-duH0pOUAxXvhf0HHRkeN1sQFnoECA0QAQ&usg=AOvVaw3xCH_sFKn73Bg5tPFbOzaC) section 3.4.5, and the great [osdev](https://wiki.osdev.org/GDT_Tutorial) website_
 
 This is a structure that is specific to the x86 cpu family, and it contains information about the different segments.
 In general, segments are used to divide memory into logical parts, and to translate addresses as we seen in real mode.

@@ -11,12 +11,12 @@ Although this system worked in older 32bit operating systems, it will not be goo
 Before we define paging, let's understand what we want for our operating system memory management.
 For starters, I can think about the following things:
 
-- Basic permissions, i.e Read, Write and Execute
-- Kernel mode and User mode.
+- Basic permissions (i.e read, write and execute)
+- Kernel mode and user mode.
 - Every process has it's own address space.
 
-At first glance, we may see that all of this can be achieved via segmentation, because we can create multiple segments for process code, data etc which creates the process separation, and each segment have the read, write and execute permissions, while also providing the cpu rings for kernel and user mode.
-So why would we want another system for managing memory?
+At first glance, we may see that all of this can be achieved via segmentation. This is because we can create multiple segments, one for each process code, data etc which creates the process separation. Also, each segment have a read, write and execute permissions, while also utilizing the CPU rings for kernel and user mode.
+So why do we need another system for managing memory?
 
 Let's draw a scenario, we will have three processes, A and B, and we will look at our memory, for convenience, we will manage memory at multiplications of 0x100.
 
@@ -40,10 +40,9 @@ Let's now assume that process B wants more memory, it asks the operating system 
 
 Just before explaining how paging works, let's define some core terms.
 
-  - **Physical Memory** - This is the actual memory that is used, and it has `absolute` addresses, and it is the address space that our hardware talks.
+  - **Physical Memory** - This is the actual memory that is used, and it has `absolute` addresses. This is the address space that our hardware talks.
 
-  - **Virtual Memory** - This is the address space of our processes, because we want to make an illusion that each process has it's own address space, addresses are absolute only `inside the process`, For example, process A address 0x100 represents other region of memory then process B address 0x100.
-  Both of these addresses `will` translate into a different `physical address` so we can read and write data to it.
+  - **Virtual Memory** - This is the address space of our user and kernel processes, because we want to make an illusion that each process has it's own address space, addresses are absolute only `inside the process`, For example, both process A and process B can use address number 0x100. But, on both of these processes the address will `translate` into a different `physical address` so we can read and write data to it.
 
 > The concept of virtual memory is not new to us. For example, when we discussed before about creating different segments for each process,
 > we created a virtual memory space for each process in terms of accessing data or executing code.
@@ -51,9 +50,9 @@ Just before explaining how paging works, let's define some core terms.
 
 ## Introduction to Paging
 
->Just before explaining paging, I want you to know that there are _`four paging modes`_[^1] and they all cover the same concepts, and the key difference is the tables layout. We are going to talk about the third type, which is called '`4-level paging`' and is mostly used on modern computers. 
+>Just before explaining paging, I want you to know that there are `four paging modes`[^1] and they all cover the same concepts, and the key difference is the tables layout. We are going to talk about the third type, which is called `4-level paging` and is mostly used on modern computers. 
 
-[^1]: Once you know how one works, you know that for all the others as well. For more information about the four available paging modes you may look on [Intel Manual Volume 3](https://cdrdv2.intel.com/v1/dl/getContent/671200) section 5.1.1 
+[^1]: Once you know how one works, you know that for all the others as well. For more information about the four available paging modes you may look on [Intel Manual Volume 3](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf&ved=2ahUKEwjK-duH0pOUAxXvhf0HHRkeN1sQFnoECA0QAQ&usg=AOvVaw3xCH_sFKn73Bg5tPFbOzaC) section 5.1.1 
 
 In memory paging we divide our physical memory into units that are called `pages`, which are blocks of contiguous memory of fixed size (4Kib, 2Mib or 1Gib). Then we create a `mapping` between the virtual address space, and the physical one. Each process holds a different mapping, hence a different virtual address space.
 
@@ -69,11 +68,13 @@ _for simplification, I changed the block size to 0x100 instead of 0x1000 (4096 b
 In this example we can see that even if process B wants more memory, it is not blocked by process A, and can just ask our operating system for more memory
 and it will map it just after process A thus solving the fragmentation problem. You may also notice that I marked some memory as "Used For Paging" this is because the mapping itself takes some memory and it is not a small portion.
 
+_Although it solved our problem for most cases, it makes addresses easily `virtually contiguous` but we might still have fragmentation if we need our addresses `physically contiguous`. This case is mainly useful for hardware, and will be discused on later chapters._
+
 ## How Addresses Are Translated
 
 When we used segments we knew how to translate virtual address into a physical one. We would go to the appropriate entry in the global descriptor table, and we would take the base address of it, and add it to our virtual address, which would give us the physical address.
 In paging the address translation process is a bit more complicated, and it is done with four hierarchical tables.
-The official names for those tables are `Page-Map Level 4 (PML4)`, `Page Directory Pointer Table (PDT)`, `Page Directory Table (PDT)` and `Page Table (PT)`.
+The official names for those tables are `Page-Map Level 4 (PML4)`, `Page Directory Pointer Table (PDPT)`, `Page Directory Table (PDT)` and `Page Table (PT)`.
 In this book I will not use these names because they are complicated, and I am just going to number each level, PML4 being the 4th level, and PT being the 1st level.
 
 ###  Page Table & Page Table Entry
@@ -87,7 +88,6 @@ On a typical entry, there are 8 flags that are used with an optional 12 flags in
 ```
 <div></div>
 
-The page table entry is just be a u64, and the page table is an array of page entries with 512 entries.
 ```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L16
 #![struct!("crates/arch/x86/src/structures/paging/page_table_entry.rs", PageTableEntry)]
 ```
@@ -100,7 +100,7 @@ The page table entry is just be a u64, and the page table is an array of page en
 Because of how addresses are translated, addresses are actually capped by 48bits, which results in 256Tib of addressable memory, and if this is somehow not enough,
 new processors support a 5th table hierarchy, which support 57bit address space, or 128Pib of addressable memory.
 The address the entry points to, is between bits 12 and 48. Because the pointed address is always aligned to 0x1000, only the upper 36 bits of the pointed address are saved.
-In addition, when we use the top half of the address space, where the 47th bit is on, we must also set bits 63-48 to 1 because of the sign extension.
+In addition, when we use the top half of the address space, where the 47th bit is on, we must also set bits 63-48 to 1 because of something that is called the [sign extension](en.wikipedia.org/wiki/Sign_extension).
 
 Then, to translate an address, a special hardware on the CPU, which is called the MMU (Memory Management Unit) translates the addresses with the following logic:
 
