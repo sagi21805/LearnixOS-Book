@@ -1,0 +1,40 @@
+{
+  "adjustment_hints": "Never",
+  "adjustment_hints_disable_reborrows": true,
+  "adjustment_hints_hide_outside_unsafe": false,
+  "adjustment_hints_mode": "Prefix",
+  "binding_mode_hints": false,
+  "chaining_hints": true,
+  "closing_brace_hints_min_lines": 16,
+  "closure_capture_hints": false,
+  "closure_return_type_hints": "WithBlock",
+  "closure_style": "RANotation",
+  "discriminant_hints": "Fieldless",
+  "fields_to_resolve": {
+    "resolve_hint_tooltip": true,
+    "resolve_label_command": true,
+    "resolve_label_location": true,
+    "resolve_label_tooltip": true,
+    "resolve_text_edits": true
+  },
+  "generic_parameter_hints": {
+    "type_hints": false,
+    "lifetime_hints": true,
+    "const_hints": true
+  },
+  "hide_closure_initialization_hints": false,
+  "hide_closure_parameter_hints": false,
+  "hide_inferred_type_hints": false,
+  "hide_named_constructor_hints": false,
+  "implicit_drop_hints": false,
+  "implied_dyn_trait_hints": true,
+  "lifetime_elision_hints": "Never",
+  "max_length": 256,
+  "param_names_for_lifetime_elision_hints": true,
+  "parameter_hints": true,
+  "parameter_hints_for_missing_arguments": true,
+  "range_exclusive_hints": true,
+  "render_colons": true,
+  "sized_bound": false,
+  "type_hints": true
+}

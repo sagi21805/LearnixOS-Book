@@ -8,6 +8,7 @@ src = "src"
 whichlang = true
 command = "cargo run --release --manifest-path mdbook-rust-analyzer-highlight/Cargo.toml"
 project-root = "./LearnixOS"
+inlay-hint-config = "inlay_config.json"
 
 [preprocessor.gh-issue-preview]
 after = ["mdbook-rust-analyzer-highlight"]
