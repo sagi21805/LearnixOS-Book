@@ -38,30 +38,26 @@ The first byte encodes the ascii character, and it is not special. The second by
 There are multiple color palettes that VGA uses, the one our mode uses, is the 4 bit color palette and it includes the following colors.
 
 ```rust,fp=<repo>crates/common/src/enums/vga.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/common/src/enums/vga.rs color}}
+#![enum!("crates/common/src/enums/vga.rs", Color)]
 ```
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/color_code.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/color_code.rs colorcode}}
+#![struct!("crates/drivers/vga-display/src/color_code.rs", ColorCode)]
 
+#![impl!("crates/drivers/vga-display/src/color_code.rs", ColorCode)]
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/color_code.rs impl_colorcode}}
-
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/color_code.rs colorcode_default}}
+#![trait_impl!("crates/drivers/vga-display/src/color_code.rs", Default for ColorCode)]
 ```
 
 Then the encoding of each `Screen Character` will look like this.
 
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/screen_char.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/screen_char.rs screen_char}}
+#![struct!("crates/drivers/vga-display/src/screen_char.rs", ScreenChar)]
 
+#![impl!("crates/drivers/vga-display/src/screen_char.rs", ScreenChar)]
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/screen_char.rs impl_screen_char}}
-
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/screen_char.rs screen_char_default}}
+#![trait_impl!("crates/drivers/vga-display/src/screen_char.rs", Default for ScreenChar)]
 ```
 
 At this point, we are ready to write to the screen whatever we want, we just need ti write a ScreeChar to the screen. But, this is not exactly what we want, because it is hard to print strings this way.
@@ -81,9 +77,9 @@ But what does it mean for us? It means that if we implement our custom writer (w
 To create our custom writer we just need to implement the [`fmt::Writer`](https://doc.rust-lang.org/core/fmt/trait.Write.html) trait on a custom struct. Our simple writer, will just include place we currently are on the screen, the color the print has, and, and a reference to the screen buffer.
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L19
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs writer}}
+#![struct!("crates/drivers/vga-display/src/writer.rs", Writer)]
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs writer_default}}
+#![trait_impl!("crates/drivers/vga-display/src/writer.rs", Default for Writer)]
 ```
 
 Then, we need to handle the following functionalities: 
@@ -101,56 +97,28 @@ Then, we need to handle the following functionalities:
 Now that we have all the functionality in mind, we can go right into the implementation!
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L36
-impl<const W: usize, const H: usize> Writer<W, H> {
-
-    fn write_char(&mut self, char: u8) {
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs handle_char}}
-
-    }
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs scroll_down}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs new_line}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs backspace}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs clear}}
-}
+#![impl_method!("crates/drivers/vga-display/src/writer.rs", Writer::write_char, scroll_down, new_line, backspace, clear)]
 ```
+
+> For now, the `change_cursor_position_on_screen` function is not relevant, and it uses I/O instruction to change the cursor position. This will be covered in future chapters.
 
 With this, we are ready to implement the `fmt::Writer` trait on our struct. Because it only requires as to implement the `write_str` function, which is easy to implement because we have our `write_char` function.
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L129
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs format_impl}}
+#![trait_impl!("crates/drivers/vga-display/src/writer.rs", Write for Writer)]
 ```
 
 The only thing that is missing is to initialize the writer, and write a function that will also print with a custom color, this function is relatively straight forward, and it will just change the color, print the message, and restore the color back to default.
 
 ```rust,fp=<repo>kernel/src/drivers/vga_display/mod.rs#L10
-// Notice the use of `MaybeUninit` is necessary.
-// Because we write into an address that we don't own (i.e just a usize)
-// The compiler will say we have no `provenance` on it so we must use MaybeUninit
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/mod.rs writer}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/mod.rs vga_print}}
+#![static!("crates/drivers/vga-display/src/lib.rs", WRITER)]
+#![function!("crates/drivers/vga-display/src/lib.rs", vga_print)]
 ```
 
 An example usage, could be an OK message of what we already initialized!
 
 ```rust
-#[unsafe(no_mangle)]
-#[unsafe(link_section = ".start")]
-#[allow(clippy::missing_safety_doc)]
-pub unsafe extern "C" fn _start() -> ! {
-    okprintln!("Entered Protected Mode");
-    okprintln!("Enabled Paging");
-    okprintln!("Entered Long Mode");
-    eprintln!("Custom Failure!");
-    loop {
-        unsafe { instructions::interrupts::hlt() }
-    }
-}
+#![function!("snippets/src/book/print_example.rs", _start)]
 ```
 <figure><img src="assets/vga_print.png" alt=""><figcaption></figcaption></figure>
 
