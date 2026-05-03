@@ -37,7 +37,7 @@ But how should we set our initial table? This is where problem 2 helps us. Becau
 So firstly, let initialize our page tables.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L15
-#![function!("crates/arch/x86/src/structures/paging/init.rs", enable)]
+#![function!("crates/arch/x86/src/structures/paging/init.rs", init_identity_tables)]
 ```
 
 After we initialize the table, notice we set the L2 table to hold `huge page` offset for address 0. 
@@ -54,14 +54,14 @@ Just before we will toggle paging on our cpu, we should enter protected mode, to
 
 To activate PAE and Long mode, we can use this inline assembly.
 ```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L100
-#![function!("crates/arch/x86/src/structures/paging/init.rs", enable)]
+#![function!("crates/arch/x86/src/structures/paging/init.rs", set_pae_long_mode)]
 ```
 
 After that, we can finally turn on paging!
 
 Like the previous features, this also it toggled by a control register, and done via inline assembly
 ```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L128
-#![function!("crates/arch/x86/src/structures/paging/init.rs", enable)]
+#![function!("crates/arch/x86/src/structures/paging/init.rs", toggle_paging)]
 ```
 
 Now, to go into long mode, we need to `far jump` just like in protected mode, with a special global descriptor table.
@@ -79,7 +79,7 @@ So after the changes the table will look like this:
 
 After all that initialization we can jump to our kernel main!
 
-All that is left to do is to call the `enable` function we created to enable paging, load the new long mode GDT, and jump to our kernel.
+All that is left to do is to call the `enable` function which calls all the functions above sequentially, create and enable paging, load the new long mode GDT, and jump to our kernel.
 
 This can be done with the following code: 
 
