@@ -83,19 +83,23 @@ The page table, just like the global descriptor table, is an array of 512 page t
 Each entry contains a `physical address` aligned to 0x1000, that is pointing to a memory regions, and also flags represents configuration and permissions for the memory page mapped by the entry.
 
 On a typical entry, there are 8 flags that are used with an optional 12 flags in total, in our operating system we will configure some of the optional flags, but not all of them.
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table.rs#L15
+#![struct!("crates/arch/x86/src/structures/paging/page_table.rs", PageTable)]
+#![impl_method!("crates/arch/x86/src/structures/paging/page_table.rs", PageTable::empty)]
+```
+
 ```rust,fp=<repo>crates/arch/x86/src/structures/paging/entry_flags.rs
 #![struct!("crates/arch/x86/src/structures/paging/entry_flags.rs", PageEntryFlags)]
 ```
-<div></div>
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L16
 #![struct!("crates/arch/x86/src/structures/paging/page_table_entry.rs", PageTableEntry)]
 ```
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table.rs#L15
-#![struct!("crates/arch/x86/src/structures/paging/page_table.rs", PageTable)]
-#![impl_method!("crates/arch/x86/src/structures/paging/page_table.rs", PageTable::empty)]
-```
+> You may have noticed the `dont_shift` flag in our `PageTableEntry` address. This flags is used in our proc-macro to indicate that the value in the bit range of 12:63 should be given to us raw and not shifted, and also it will be set raw and not shifted.
+> This is because the address that is saved in the entry is aligned to a page size (1 << 12, or 4096 bytes.)
+>
+> As an example, on most flags we are interested on the value relative to the entry size, like with `ProtectionLevel` when we store a value between 1-4, and expected to get 1-4 in return no matter where it is on the struct. With the address we store the exact address value, and get it in return as we set it, thus the `dont_shift` flag.
 
 Because of how addresses are translated, addresses are actually capped by 48bits, which results in 256Tib of addressable memory, and if this is somehow not enough,
 new processors support a 5th table hierarchy, which support 57bit address space, or 128Pib of addressable memory.
@@ -143,57 +147,45 @@ As a diagram, this process should look like this:
 Just before we will implement the core functionality of paging, we will need to create some utility structs of `VirtualAddress` and `PhysicalAddress`.
 These will just be a wrapper struct of usize and will implement certain functions that are relevant on addresses.
 
-To implement all the simple and basic functionality, we will use a [proc-macro](https://doc.rust-lang.org/reference/procedural-macros.html), so we don't have much boilerplate. We will also use the great [`derive_more`](https://crates.io/crites/derive_more) crate, which will provide us basic derives for operator like deref, mathematical operations.
+To implement all the simple and basic functionality, we will use a trait, so we won't much boilerplate. We will also use the great [`derive_more`](https://crates.io/crites/derive_more) crate, which will provide us basic derives for operator like deref, and mathematical operations.
 
-
-These will be some simple functionality that we can't derive from derive more.
 ```rust,fp=<repo>learnix-macros/src/lib.rs#L8
-
-#![function!("crates/macros/src/lib.rs", common_address_functions)]
-```
-Then, we can create our address structs and implement some more function with derive_more.
-
-```rust,fp=<repo>crates/common/src/address_types.rs#L6
 #![struct!("crates/common/src/address_types.rs", PhysicalAddress)]
 #![struct!("crates/common/src/address_types.rs", VirtualAddress)]
 ```
 
-With these utility structs, we can now start implementing our paging logic. The first function that we need is a function that could map a physical page into an entry, this function should get the `physical address` to a memory block, and the flags that we want to put on this mapping. To avoid repetition, we will create a flags structure, which will help us define some default flags, and also to apply custom flags onto our entry. For now, a default flags for an entry, will contain the present flags, which is must for the entry to be counted mapped, and also the writable flags, which will make our memory also writable so we could store data in it.
+Then, we can define all the functionality that we want for our address types, and implement the trait on them.
+
+```rust,fp=<repo>crates/common/src/address_types.rs#L6
+#![trait!("crates/common/src/address_types.rs", Address)]
+#![trait_impl!("crates/common/src/address_types.rs", Address for PhysicalAddress)]
+#![trait_impl!("crates/common/src/address_types.rs", Address for VirtualAddress)]
+```
+
+With these utility structs, we can now start implementing our paging logic. To avoid repetition, we will create some function which will help us define some default flags, and also to apply custom flags onto our entry. For now, a default flags for an entry, will contain the present flags, which is must for the entry to be counted mapped, and also the writable flags, which will make our memory also writable so we could store data in it.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/paging/entry_flags.rs#L48
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/entry_flags.rs page_entry_flags}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/entry_flags.rs impl_page_entry_flags}}
+#![impl_method!("crates/arch/x86/src/structures/paging/entry_flags.rs", PageEntryFlags::table_flags, regular_page_flags)]
 ```
 
-After creating the utilities of physical addresses and virtual addresses, and also defining some default flags, we can create a function to map an address to an entry, this function should obtain the physical address that should be mapped, and also set the flags for the entry.
+After that, we can create functions to map an address to an entry, this function should obtain the physical address that should be mapped, and also set the flags for the entry.
 ```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L7
-impl PageTableEntry {
-    
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/page_table_entry.rs page_table_entry_reset_flags}}
+#![const!("crates/common/src/constants/values.rs", REGULAR_PAGE_SIZE)]
+#![const!("crates/common/src/constants/values.rs", REGULAR_PAGE_ALIGNMENT)]
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/page_table_entry.rs page_table_entry_set_flags_unchecked}}
-    
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/page_table_entry.rs page_table_entry_set_flags}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/page_table_entry.rs page_table_entry_map_unchecked}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/crates/arch/x86/src/structures/paging/page_table_entry.rs page_table_entry_map}}
-
-}
+#![impl_method!("crates/arch/x86/src/structures/paging/page_table_entry.rs", PageTableEntry::map_unchecked, map)]
 ```
 
-After mapping an address into an entry, we should also implement the other side of the coin, which is to read the address from the entry. We will implement two core logics, one will be to read the address as is, and return the physical address, the other is based on observation that tables only map memory blocks, or other pages, so we might want instead of the address to get it as a reference of a table.
+After mapping an address into an entry, we should also implement the other side of the coin, which is to read the address from the entry. We will implement two core logics, one will be to read the address as is, and return the physical address, the other is based on observation that tables only map memory blocks, or other page tables, so we might want instead of the address to get it as a pointer to a table.
 Just before we go to the implementation, what should we return in case there is no mapping, or in the case there is a mapping but it is not a table.
 
-For this exact reason, rust has the `Result<T, E>` and `Option<T>` enum types, in this case we will use `Result` with a custom error using the [thiserror](https://docs.rs/thiserror/latest/thiserror/) crate by `David tolnay`.
+For this exact reason, Rust has the `Result<T, E>` and `Option<T>` enum types which helps us express recoverable errors. In this case we will use `Result` with a custom error using the [thiserror](https://docs.rs/thiserror/latest/thiserror/) crate by `David tolnay`.
 
-> If you are unfamiliar with the topic of result, I would highly recommend [A Simpler Way to See Results](https://www.youtube.com/watch?v=s5S2Ed5T-dc) by `Logan Smith`
+> If you are unfamiliar with the topic of Result, I would highly recommend [A Simpler Way to See Results](https://www.youtube.com/watch?v=s5S2Ed5T-dc) by `Logan Smith`
 
 Our custom error should currently include two cases, the first one is that there is no mapping, and the second that the mapping is not a table.
 
 ```rust,fp=<repo>crates/common/src/error/paging.rs#L13
-#![enum!("crates/common/src/error/paging.rs",  TableError)]
 #![enum!("crates/common/src/error/paging.rs",  EntryError)]
 ```
 
