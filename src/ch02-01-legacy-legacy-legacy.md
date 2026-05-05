@@ -178,7 +178,7 @@ This, unlike the sector count scheme is a zero-based address, which means the fi
 
 This address scheme is compatible to CHS addressing, and a CHS address can be translated to an LBA with the following formula:
 
-$$ LBA = (C x N_{Heads Per Cylinder} + H) x K_{Sectors Per Track} + (S - 1) $$
+$$ LBA = (C \times N_{Heads Per Cylinder} + H) \times K_{Sectors Per Track} + (S - 1) $$
 
 This address can translate backwards, so an LBA address can become a CHS tuple with these formulas:
 

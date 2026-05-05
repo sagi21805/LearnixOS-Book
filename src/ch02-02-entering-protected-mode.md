@@ -132,7 +132,7 @@ _We will also define an enum that will include the protection level and the syst
 
 Now, just before creating a `new` function to our entry, we don't want each time to specify the base in three parts and the limit in two parts, instead we want the `new` function to abstract it from as.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L153
+```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L39
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32::new)]
 ```
@@ -145,7 +145,7 @@ Each table must have at least three entries, an initial `null` entry that is fil
 
 Together it will all look like this:
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L273
+```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L244
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::default)]
 ```
@@ -168,11 +168,11 @@ But just before that, when we jump to the next stage, we need to specify the off
 
 _Notice that this also contains segments of other GDT that we will use in the future_
 
-```rust,fp=<repo>crates/common/src/enums/global_descriptor_table.rs
+```rust,fp=<repo>crates/common/src/enums/global_descriptor_table.rs#L8
 #![enum!("crates/common/src/enums/global_descriptor_table.rs", Sections)]
 ```
 
-```rust,fp=<repo>bootloader/first_stage/src/main.rs
+```rust,fp=<repo>bootloader/first_stage/src/main.rs#L93
 #![static!("bootloader/first_stage/src/main.rs", GLOBAL_DESCRIPTOR_TABLE)]
 #![function!("bootloader/first_stage/src/main.rs", enter_protected_mode)]
 ```

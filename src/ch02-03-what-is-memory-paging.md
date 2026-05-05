@@ -149,14 +149,14 @@ These will just be a wrapper struct of usize and will implement certain function
 
 To implement all the simple and basic functionality, we will use a trait, so we won't much boilerplate. We will also use the great [`derive_more`](https://crates.io/crites/derive_more) crate, which will provide us basic derives for operator like deref, and mathematical operations.
 
-```rust,fp=<repo>learnix-macros/src/lib.rs#L8
+```rust,fp=<repo>crates/common/src/address_types.rs#L87
 #![struct!("crates/common/src/address_types.rs", PhysicalAddress)]
 #![struct!("crates/common/src/address_types.rs", VirtualAddress)]
 ```
 
 Then, we can define all the functionality that we want for our address types, and implement the trait on them.
 
-```rust,fp=<repo>crates/common/src/address_types.rs#L6
+```rust,fp=<repo>crates/common/src/address_types.rs#L12
 #![trait!("crates/common/src/address_types.rs", Address)]
 #![trait_impl!("crates/common/src/address_types.rs", Address for PhysicalAddress)]
 #![trait_impl!("crates/common/src/address_types.rs", Address for VirtualAddress)]
@@ -164,12 +164,12 @@ Then, we can define all the functionality that we want for our address types, an
 
 With these utility structs, we can now start implementing our paging logic. To avoid repetition, we will create some function which will help us define some default flags, and also to apply custom flags onto our entry. For now, a default flags for an entry, will contain the present flags, which is must for the entry to be counted mapped, and also the writable flags, which will make our memory also writable so we could store data in it.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/entry_flags.rs#L48
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/entry_flags.rs#L36
 #![impl_method!("crates/arch/x86/src/structures/paging/entry_flags.rs", PageEntryFlags::table_flags, regular_page_flags)]
 ```
 
 After that, we can create functions to map an address to an entry, this function should obtain the physical address that should be mapped, and also set the flags for the entry.
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L7
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L32
 #![const!("crates/common/src/constants/values.rs", REGULAR_PAGE_SIZE)]
 #![const!("crates/common/src/constants/values.rs", REGULAR_PAGE_ALIGNMENT)]
 
@@ -189,7 +189,7 @@ Our custom error should currently include two cases, the first one is that there
 #![enum!("crates/common/src/error/paging.rs",  EntryError)]
 ```
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L17
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L80
 #![impl_method!("crates/arch/x86/src/structures/paging/page_table_entry.rs", PageTableEntry::mapped, mapped_table)]
 ```
 

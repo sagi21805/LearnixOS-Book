@@ -53,14 +53,14 @@ Instead of creating multiple tables, and wasting precious memory, we can flag th
 Just before we will toggle paging on our cpu, we should enter protected mode, to do that, we need to toggle 2 things, the first is called the `physical address extension` (PAE) which is an extension for protected mode paging, which allows 32bit paging entries to be 64bit, which results in a way to access addresses above 32bit because the page table walker can access the 64bit address on the entries. This extension must be activated to access long mode, which also allows us to have 64bit instructions.
 
 To activate PAE and Long mode, we can use this inline assembly.
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L100
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L108
 #![function!("crates/arch/x86/src/structures/paging/init.rs", set_pae_long_mode)]
 ```
 
 After that, we can finally turn on paging!
 
 Like the previous features, this also it toggled by a control register, and done via inline assembly
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L128
+```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L133
 #![function!("crates/arch/x86/src/structures/paging/init.rs", toggle_paging)]
 ```
 

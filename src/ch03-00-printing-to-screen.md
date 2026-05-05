@@ -41,7 +41,7 @@ There are multiple color palettes that VGA uses, the one our mode uses, is the 4
 #![enum!("crates/common/src/enums/vga.rs", Color)]
 ```
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/color_code.rs
+```rust,fp=<repo>crates/drivers/vga-display/src/color_code.rs
 #![struct!("crates/drivers/vga-display/src/color_code.rs", ColorCode)]
 
 #![impl!("crates/drivers/vga-display/src/color_code.rs", ColorCode)]
@@ -52,7 +52,7 @@ There are multiple color palettes that VGA uses, the one our mode uses, is the 4
 Then the encoding of each `Screen Character` will look like this.
 
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/screen_char.rs
+```rust,fp=<repo>crates/drivers/vga-display/src/screen_char.rs
 #![struct!("crates/drivers/vga-display/src/screen_char.rs", ScreenChar)]
 
 #![impl!("crates/drivers/vga-display/src/screen_char.rs", ScreenChar)]
@@ -76,7 +76,7 @@ But what does it mean for us? It means that if we implement our custom writer (w
 
 To create our custom writer we just need to implement the [`fmt::Writer`](https://doc.rust-lang.org/core/fmt/trait.Write.html) trait on a custom struct. Our simple writer, will just include place we currently are on the screen, the color the print has, and, and a reference to the screen buffer.
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L19
+```rust,fp=<repo>crates/drivers/vga-display/src/writer.rs#L19
 #![struct!("crates/drivers/vga-display/src/writer.rs", Writer)]
 
 #![trait_impl!("crates/drivers/vga-display/src/writer.rs", Default for Writer)]
@@ -96,7 +96,7 @@ Then, we need to handle the following functionalities:
 
 Now that we have all the functionality in mind, we can go right into the implementation!
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L36
+```rust,fp=<repo>crates/drivers/vga-display/src/writer.rs#L36
 #![impl_method!("crates/drivers/vga-display/src/writer.rs", Writer::write_char, scroll_down, new_line, backspace, clear)]
 ```
 
@@ -104,13 +104,13 @@ Now that we have all the functionality in mind, we can go right into the impleme
 
 With this, we are ready to implement the `fmt::Writer` trait on our struct. Because it only requires as to implement the `write_str` function, which is easy to implement because we have our `write_char` function.
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L129
+```rust,fp=<repo>crates/drivers/vga-display/src/writer.rs#L129
 #![trait_impl!("crates/drivers/vga-display/src/writer.rs", Write for Writer)]
 ```
 
 The only thing that is missing is to initialize the writer, and write a function that will also print with a custom color, this function is relatively straight forward, and it will just change the color, print the message, and restore the color back to default.
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/mod.rs#L10
+```rust,fp=<repo>crates/drivers/vga-display/src/lib.rs#L10
 #![static!("crates/drivers/vga-display/src/lib.rs", WRITER)]
 #![function!("crates/drivers/vga-display/src/lib.rs", vga_print)]
 ```
@@ -128,4 +128,4 @@ An example usage, could be an OK message of what we already initialized!
 
 2. Implement the `okprintln!` and `eprintln` that we used above.
 
-Answers can be found at [here](https://github.com/sagi21805/LearnixOS/blob/master/kernel/src/drivers/vga_display/mod.rs#37)
+Answers can be found at [here](https://github.com/sagi21805/LearnixOS/blob/master/crates/drivers/vga-display/src/lib.rs#37)
