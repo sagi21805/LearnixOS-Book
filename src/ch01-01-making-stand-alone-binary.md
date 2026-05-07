@@ -20,16 +20,16 @@ Go        =>  fmt, os
 This library is linked[^1] to our code by default, and provides us with the ability to access our operating system.
 [^1]: Linking is the process of combining compiled software builds so they can share functions.
 
-Most of the time, programming languages add additional functionality to their standard library. For example, the [Rust Standard library](https://doc.rust-lang.org/std/), adds the `println!` macro for printing to screen, smart collections like a `Vec`, or a `LinkedList`, as well as `Box` for safe memory management, a lot of useful traits, very smart iterators and much much more!
+Most of the time, programming languages add additional functionality to their standard library. For example, the [Rust Standard library](https://doc.rust-lang.org/std/), adds the `println!` macro for printing to screen, smart collections like a `Vec`, or a `LinkedList`, as well as `Box` for safe memory management, a lot of useful traits, very smart iterators and much, much more!
 
 Unfortunately, we won't have this luxury of a library and we will need to implement a big part of it ourselves!
-But don't worry, Rust has an ace up its sleeve; it provides us with the fantastic [Core](https://doc.rust-lang.org/core/) library, which is a dependency free base for the standard library, and more over, it provides us with traits, and structures that can be linked into our own OS, for example, the Core library provide the [Allocator](https://doc.rust-lang.org/beta/core/alloc/trait.Allocator.htm) trait, which defines a generic interface the Vec, and Box use. Then, once we write our memory allocator[^2], we could create a `Vec` from the core library, and we can tell it to use our own allocator!
+But don't worry, Rust has an ace up its sleeve; it provides us with the great [Core](https://doc.rust-lang.org/core/) library, which is a dependency free base for the standard library, and more over, it provides us with traits, and structures that can be linked into our own OS, for example, the Core library provide the [Allocator](https://doc.rust-lang.org/beta/core/alloc/trait.Allocator.htm) trait, which defines a generic interface the Vec, and Box use. Then, once we write our memory allocator[^2], we could create a `Vec` from the core library, and we can tell it to use our own allocator!
 
 _If any of this doesn't tell you much, that's fine! All of this and more will be explained with much more details on later chapters._
 
 [^2]: A subsystem in our operating system that is responsible for managing memory.
 
-So without further ado, Let's get started!
+So without further ado, let's get started!
 
 ## Making a Rust Project
 
@@ -125,7 +125,7 @@ Instead, Rust provides us with the `panic!` macro, which will call the `Panic Ha
 #![function!("snippets/src/book/panic.rs", main)]
 ```
 Normally, the Standard Library provides us with an implementation of the Panic Handler, which will typically print the line number and file in which the error occurred. However, because we are now not using the Standard Library, we need to define the implementation of the function ourselves.
-This function can be any function, it just needs to include the attribute `#[panic_handler]`. This attribute is added so the compiler will know which function to use when invoking the `panic!` macro, to enforce that only one function of this type exists, and to also enforce the input argument and the output type.
+This function can be any function, as long as it includes the attribute `#[panic_handler]`. This attribute is added so the compiler will know which function to use when invoking the `panic!` macro, to enforce that only one function of this type exists, and to enforce the correct input argument signature and return type.
 
 If we create an empty function for the panic handler, we will get this error:
 ```banner=no
@@ -203,7 +203,7 @@ Each IDE has it's own way to configure rust-analyzer to to ignore these, fixes f
 
 This works, because it tells rust-analyzer to use a target that doesn't include the standard library, and not to check other targets except the one we specified.
 
-> Note: You might have to install the target with `rustup add target x86_64-unknown-none`
+> Note: You might have to install the target with `rustup target add x86_64-unknown-none`
 
 </details>
 
@@ -259,7 +259,7 @@ This is a very clever idea done by Rust, and without it, things like the followi
 ```rust
 #![source_file!("snippets/src/book/impl_ex.rs")]
 ```
-Although the functions are defined on different structs, they have the same name, but because of mangling, the actual name of the function would be something like
+Although the functions are defined on different structs, they have the same name. But, because of mangling, the actual name of the function would be something like
 ```
 A::new -> _ZN7mycrate1A3new17h5f3a92c8e3b0a1a2E
 B::new -> _ZN7mycrate1B3new17h1c2d3e4f5a6b7c8dE
