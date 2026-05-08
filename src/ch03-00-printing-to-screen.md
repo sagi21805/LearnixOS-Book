@@ -4,18 +4,18 @@ _"The most effective debugging tool is still and careful thought, coupled with j
 
 ---
 
-Printing is an important aspect of an operating system, especially in early development because it is our way to gain a visual output from our operating system. This will massively improve the interaction with our OS, and not only it will let us huge advantage in debugging, but it will also grant us the ability to display a shell, which we will do in the upcoming chapters.
+Printing is an important aspect of an operating system, especially in early development because it is our way to gain a visual output from our operating system. This will massively improve the interaction with our OS, and not only will it give us a huge advantage in debugging, but it will also grant us the ability to display a shell, which we will do in the upcoming chapters.
 
 ## Why didn't we print until now?
 
 If you remember the [example code](./ch01-02-booting-our-binary.md#hello-world) in the first bootable code we wrote, we did print to screen during that code.
 This print utilized the `Video (int 10h)` interrupt on BIOS with the `Print Char (0xE)` function to print character by character the string 'Hello, World!' 
 
-This was our only way to print we we were on `real mode`. And while I developed the code, I actually did use it to print single characters as errors code, So I could understand what was my program doing.
+This was our only way to print we were on `real mode`. And while I developed the code, I actually did use it to print single characters as errors code, So I could understand what was my program doing.
 
-On `protected mode`, we couldn't use the BIOS anymore, So printing was much harder, and also we only turned on paging, so debugging with [QEMU monitor](https://qemu-project.gitlab.io/qemu/system/monitor.html) was much easier.
+On `protected mode`, we couldn't use the BIOS anymore, so printing was much harder. Additionally, we only turned on paging, so debugging with [QEMU monitor](https://qemu-project.gitlab.io/qemu/system/monitor.html) was much easier.
 
-While we could have written a simple printer for each stage, it was not necessary, and it would have bloated our binary, which in the first stage had only 512 bytes, and had almost no use in the second stage. But now, on the kernel init stage, it would be really handy!.
+While we could have written a simple printer for each stage, it was not necessary, and it would have bloated our binary, which in the first stage had only 512 bytes, and had almost no use in the second stage. But now, on the kernel init stage, it would become really handy!
 
 ## How to print without BIOS?
 
@@ -29,42 +29,38 @@ _Maybe on later chapters we will implement UI, so we will a more graphic mode, b
 
 ### Printing with Text Mode
 
-To print with text mode, we need to write to the screen buffer a special character that is 2 bytes long. This special character encodes the actual ascii character that we are going, the background color of the text, and the foreground color of the text. 
+To print with text mode, we need to write to the screen buffer a special character that is 2 bytes long. This special character encodes the actual ASCII character that we are going to print, the background color of the text, and the foreground color of the text. 
 
 > The screen buffer of the `graphic mode` starts at address 0xA0000 and the screen buffer of the `text mode` starts at address 0xB8000. 
 
-The first byte encodes the ascii character, and it is not special. The second byte will encode our color, the first 4 bits will be the foreground color, and the next 4 bits will be the background color.
+The first byte encodes the ASCII character, and it is not special. The second byte will encode our color, the first 4 bits will be the foreground color, and the next 4 bits will be the background color.
 
 There are multiple color palettes that VGA uses, the one our mode uses, is the 4 bit color palette and it includes the following colors.
 
-```rust,fp=<repo>shared/common/src/enums/vga.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/shared/common/src/enums/vga.rs color}}
+```rust,fp=<repo>crates/common/src/enums/vga.rs
+#![enum!("crates/common/src/enums/vga.rs", Color)]
 ```
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/color_code.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/color_code.rs colorcode}}
+```rust,fp=<repo>crates/drivers/vga-display/src/color_code.rs
+#![struct!("crates/drivers/vga-display/src/color_code.rs", ColorCode)]
 
+#![impl!("crates/drivers/vga-display/src/color_code.rs", ColorCode)]
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/color_code.rs impl_colorcode}}
-
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/color_code.rs colorcode_default}}
+#![trait_impl!("crates/drivers/vga-display/src/color_code.rs", Default for ColorCode)]
 ```
 
 Then the encoding of each `Screen Character` will look like this.
 
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/screen_char.rs
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/screen_char.rs screen_char}}
+```rust,fp=<repo>crates/drivers/vga-display/src/screen_char.rs
+#![struct!("crates/drivers/vga-display/src/screen_char.rs", ScreenChar)]
 
+#![impl!("crates/drivers/vga-display/src/screen_char.rs", ScreenChar)]
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/screen_char.rs impl_screen_char}}
-
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/screen_char.rs screen_char_default}}
+#![trait_impl!("crates/drivers/vga-display/src/screen_char.rs", Default for ScreenChar)]
 ```
 
-At this point, we are ready to write to the screen whatever we want, we just need ti write a ScreeChar to the screen. But, this is not exactly what we want, because it is hard to print strings this way.
+At this point, we are ready to write to the screen whatever we want, we just need to write a `ScreenChar` to the screen. But, this is not exactly what we want, because it is hard to print strings this way.
 
 ## Creating a Custom Writer
 
@@ -76,81 +72,55 @@ As always, rust has amazing features, and one of them is built in formatting on 
 >
 > You might be familiar with the [`printf`](https://en.wikipedia.org/wiki/Printf) function is C (Print Formatted), Rust offers us the [`fmt::Display`](https://doc.rust-lang.org/core/fmt/trait.Display.html) and [`fmt::Debug`](https://doc.rust-lang.org/core/fmt/trait.Debug.html) traits to handle formatting
 
-But what does it mean for us? It means that if we implement our custom writer (which just need to print regular ascii strings), we freely get the ability to print variables in the code, and complex structs because they can easily derive the Debug trait!
+But what does it mean for us? It means that if we implement our custom writer (which just needs to print regular ASCII strings), we freely get the ability to print variables in the code, and complex structs, since they can be easily derived by the Debug trait.
 
 To create our custom writer we just need to implement the [`fmt::Writer`](https://doc.rust-lang.org/core/fmt/trait.Write.html) trait on a custom struct. Our simple writer, will just include place we currently are on the screen, the color the print has, and, and a reference to the screen buffer.
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L19
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs writer}}
+```rust,fp=<repo>crates/drivers/vga-display/src/writer.rs#L19
+#![struct!("crates/drivers/vga-display/src/writer.rs", Writer)]
 
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs writer_default}}
+#![trait_impl!("crates/drivers/vga-display/src/writer.rs", Default for Writer)]
 ```
 
 Then, we need to handle the following functionalities: 
 
-1. If character is in ascii rage, write it to the buffer at cursor position, and advance the cursor.
+1. If a character is in ASCII range, write it to the buffer at cursor position, and advance the cursor.
 
 2. If the `\n` character was entered, don't print anything, but put the cursor at the start of the next line.
 
-3. If `Backspace` or `Delete` character were entered, revert the cursor one position to the back, and fill that position with the default character.
+3. If `Backspace` or `Delete` character were entered, move the cursor back one position, and fill that position with the default character.
 
-4. If we are at the end of the screen, we need to scroll down a line, which means to copy all the buffer one line to the left.
+4. If we are at the end of the screen, we need to scroll down a line, which means to copy the entire buffer one line to the left[^1].
+
+[^1]: Our buffer represents a 2D grid of `ScreenChar` elements, but it is actually just one big 1D buffer. So copying the entire buffer one line up is equivalent to shifting all the characters one line to the left.
 
 5. Function to clear the screen entirely
 
 Now that we have all the functionality in mind, we can go right into the implementation!
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L36
-impl<const W: usize, const H: usize> Writer<W, H> {
-
-    fn write_char(&mut self, char: u8) {
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs handle_char}}
-
-    }
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs scroll_down}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs new_line}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs backspace}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs clear}}
-}
+```rust,fp=<repo>crates/drivers/vga-display/src/writer.rs#L36
+#![impl_method!("crates/drivers/vga-display/src/writer.rs", Writer::write_char, scroll_down, new_line, backspace, clear)]
 ```
 
-With this, we are ready to implement the `fmt::Writer` trait on our struct. Because it only requires as to implement the `write_str` function, which is easy to implement because we have our `write_char` function.
+> For now, the `change_cursor_position_on_screen` function is not relevant, and it uses I/O instruction to change the cursor position. This will be covered in future chapters.
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/writer.rs#L129
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/writer.rs format_impl}}
+With this, we are ready to implement the `fmt::Writer` trait on our struct. Because it only requires us to implement the `write_str` function, which is easy to implement because we have our `write_char` function.
+
+```rust,fp=<repo>crates/drivers/vga-display/src/writer.rs#L129
+#![trait_impl!("crates/drivers/vga-display/src/writer.rs", Write for Writer)]
 ```
 
 The only thing that is missing is to initialize the writer, and write a function that will also print with a custom color, this function is relatively straight forward, and it will just change the color, print the message, and restore the color back to default.
 
-```rust,fp=<repo>kernel/src/drivers/vga_display/mod.rs#L10
-// Notice the use of `MaybeUninit` is necessary.
-// Because we write into an address that we don't own (i.e just a usize)
-// The compiler will say we have no `provenance` on it so we must use MaybeUninit
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/mod.rs writer}}
-
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/kernel/src/drivers/vga_display/mod.rs vga_print}}
+```rust,fp=<repo>crates/drivers/vga-display/src/lib.rs#L10
+#![static!("crates/drivers/vga-display/src/lib.rs", WRITER)]
+#![function!("crates/drivers/vga-display/src/lib.rs", vga_print)]
 ```
 
 An example usage, could be an OK message of what we already initialized!
 
 ```rust
-#[unsafe(no_mangle)]
-#[unsafe(link_section = ".start")]
-#[allow(clippy::missing_safety_doc)]
-pub unsafe extern "C" fn _start() -> ! {
-    okprintln!("Entered Protected Mode");
-    okprintln!("Enabled Paging");
-    okprintln!("Entered Long Mode");
-    eprintln!("Custom Failure!");
-    loop {
-        unsafe { instructions::interrupts::hlt() }
-    }
-}
+#![function!("snippets/src/book/print_example.rs", _start)]
 ```
 <figure><img src="assets/vga_print.png" alt=""><figcaption></figcaption></figure>
 
@@ -158,6 +128,6 @@ pub unsafe extern "C" fn _start() -> ! {
 
 1. The standard library has a `print!` and `println!` macros, we are really close for one, implement it!
 
-2. Implement the `okprintln!` and `eprintln` that we used above.
+2. Implement the `okprintln!` and `eprintln!` that we used above.
 
-Answers can be found at [here](https://github.com/sagi21805/LearnixOS/blob/master/kernel/src/drivers/vga_display/mod.rs#37)
+Answers can be found at [here](https://github.com/sagi21805/LearnixOS/blob/master/crates/drivers/vga-display/src/lib.rs#37)

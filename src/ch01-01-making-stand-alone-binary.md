@@ -10,24 +10,26 @@ Sometimes, this library is provided by the operating system itself, for example,
 Its name may vary per language, but here are some popular names:
 
 ```
-Rust   -> std::*
-C++    -> std::*
-C      -> stdlib.h, libc.so
-Python -> Modules like os, sys, math
-Java   -> java.*, javax.*
-Go     -> fmt, os
+Rust/C++  =>  std::*
+C         =>  stdlib.h, libc.so
+Python    =>  os, sys, math
+Java      =>  java.*, javax.*
+Go        =>  fmt, os
 ```
 
 This library is linked[^1] to our code by default, and provides us with the ability to access our operating system.
 [^1]: Linking is the process of combining compiled software builds so they can share functions.
 
-Most of the time, programming languages add additional functionality to their standard library. For example, the [Rust Standard library](https://doc.rust-lang.org/std/), adds the `println!` macro for printing to screen, smart collections like a `Vec`, or a `LinkedList`, as well as `Box` for safe memory management, a lot of useful traits, very smart iterators and much much more!
+Most of the time, programming languages add additional functionality to their standard library. For example, the [Rust Standard library](https://doc.rust-lang.org/std/), adds the `println!` macro for printing to screen, smart collections like a `Vec`, or a `LinkedList`, as well as `Box` for safe memory management, a lot of useful traits, very smart iterators and much, much more!
 
-Unfortunately, we won't have this luxury of a library and we will need to implement it all ourselves!
-But don't worry, Rust has an ace up its sleeve; it provides us with the fantastic [Core](https://doc.rust-lang.org/core/) library, which is a dependency free base for the standard library, and more over, it provides us with traits, and structures that can be linked into our own OS, for example, once we write our memory allocator[^2], we could create a `Vec` from the core library, and we can tell it to use our own allocator!
+Unfortunately, we won't have this luxury of a library and we will need to implement a big part of it ourselves!
+But don't worry, Rust has an ace up its sleeve; it provides us with the great [Core](https://doc.rust-lang.org/core/) library, which is a dependency free base for the standard library, and more over, it provides us with traits, and structures that can be linked into our own OS, for example, the Core library provide the [Allocator](https://doc.rust-lang.org/beta/core/alloc/trait.Allocator.htm) trait, which defines a generic interface the Vec, and Box use. Then, once we write our memory allocator[^2], we could create a `Vec` from the core library, and we can tell it to use our own allocator!
+
+_If any of this doesn't tell you much, that's fine! All of this and more will be explained with much more details on later chapters._
+
 [^2]: A subsystem in our operating system that is responsible for managing memory.
 
-So without further ado, Let's get started!
+So without further ado, let's get started!
 
 ## Making a Rust Project
 
@@ -49,10 +51,8 @@ If you have done everything correct, your project should look like this:
 
 And the main file, should look something like this:
 
-```rust,main.rs
-fn main() {
-    println!("Hello, world!");
-}
+```rust,fp=main.rs
+#![function!("snippets/src/book/init.rs", main)]
 ```
 
 
@@ -106,21 +106,26 @@ The first error is more obvious. Because we don't have our standard library, `pr
 
 ## Defining a Panic Handler
 
-Rust doesn't offer a standard exception like other languages, for example, in Python an exception could be raised like this:
+[Exception handling](https://en.wikipedia.org/wiki/Exception_handling) is a big subject on computer science, but in general, we have two types of errors.
+
+- **<u>Recoverable Errors</u>**   => Errors that the program know to handle, and have an alternative operation in case of a failure. 
+- **<u>Unrecoverable Errors</u>** => Errors that the program doesn't know how to handle. In that case, most program crash[^3]
+
+[^3]: Most programs don't immediately crash, and have a crashing strategy to exit in a cleaner way.
+
+Rust doesn't offer a standard exception for unrecoverable errors like other languages, for example, in Python an exception could be raised like this:
 ```python
 def failing_function(x: str):
     if not isinstance(x, str):
         raise TypeError("The type of x is not string!")
 ```
 
-Instead, Rust provides us with the `panic!` macro, which will call the `Panic Handler Function`. This function is very important and it will be called every time the `panic!` macro is invoked, for example:
-```rust
-fn main() {
-    panic!("This is a custom message");
-}
+Instead, Rust provides us with the `panic!` macro, which will call the `Panic Handler`. This function is very important and it will be called every time the `panic!` macro is invoked, for example:
+```rust,fp=main.rs
+#![function!("snippets/src/book/panic.rs", main)]
 ```
-Normally, the Standard Library provides us with an implementation of the Panic Handler Function, which will typically print the line number and file in which the error occurred; however, because we are now not using the Standard Library, we need to define the implementation of the function ourselves.
-This function can be any function, it just needs to include the attribute `#[panic_handler]`. This attribute is added so the compiler will know which function to use when invoking the `panic!` macro, to enforce that only one function of this type exists, and to also enforce the input argument and the output type.
+Normally, the Standard Library provides us with an implementation of the Panic Handler, which will typically print the line number and file in which the error occurred. However, because we are now not using the Standard Library, we need to define the implementation of the function ourselves.
+This function can be any function, as long as it includes the attribute `#[panic_handler]`. This attribute is added so the compiler will know which function to use when invoking the `panic!` macro, to enforce that only one function of this type exists, and to enforce the correct input argument signature and return type.
 
 If we create an empty function for the panic handler, we will get this error:
 ```banner=no
@@ -138,32 +143,20 @@ This means that it wants our function to receive a reference to a structure call
 
 But what is this struct? and what is this weird type?
 
-The `PanicInfo` struct includes basic information about our panic such as the location, and message. Its definition can be found in the core library:
+The `PanicInfo` struct includes basic information about our panic such as the location, and message. Its definition can be found in the Core library:
 ```rust,fp=<rust-doc>core/panic/panic_info.rs
-
-pub struct PanicInfo<'a> {
-    message: &'a fmt::Arguments<'a>,
-    location: &'a Location<'a>,
-    can_unwind: bool,
-    force_no_backtrace: bool,
-}
+#![struct!("snippets/src/book/panic.rs", PanicInfo)]
 ```
 
-The `!` type is a very special type in rust, called the `never` type, as the type name may suggest, it says that a function should **never** return, which means our program will not continue after the function is called.
+The `!` type is a very special type in Rust, called the `never` type, as the type name may suggest, it says that a function should **never** return, which means our program will not continue after the function is called.
 In a normal operating system, this is not a problem; just print the panic message + the location, and kill the process so it will not return. But in our own OS, unfortunately, this is not possible because there is not a process that we can exit. So, how can we prove to Rust we are not returning? By endlessly looping!
 
-So at the end, this is the definition of our handler, which results in the following code
+So at the end, this is the minimal definition of our handler, which results in the following code
 
 ```rust,fp=main.rs
-#![no_std]
-fn main() {
+#![function!("snippets/src/book/no_std.rs", main)]
 
-}
-
-#[panic_handler]
-pub fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
+#![function!("snippets/src/book/no_std.rs", panic_handler)]
 ```
 
 This code unfortunately still doesn't compile, because we didn't handle the last error.
@@ -185,7 +178,7 @@ Each IDE has it's own way to configure rust-analyzer to to ignore these, fixes f
 ```json,fp=.vscode/settings.json,icon=@https://www.svgrepo.com/show/373712/json.svg
 {
   "rust-analyzer.check.allTargets": false,
-  "rust-analyzer.cargo.target": "x86_64-unknown-linux-gnu",
+  "rust-analyzer.cargo.target": "x86_64-unknown-none",
 }
 ```
 
@@ -197,7 +190,7 @@ Each IDE has it's own way to configure rust-analyzer to to ignore these, fixes f
     "rust-analyzer": {
       "initialization_options": {
         "cargo": {
-          "target": "x86_64-unknown-linux-gnu"
+          "target": "x86_64-unknown-none"
         },
         "check": {
           "allTargets": false
@@ -210,13 +203,15 @@ Each IDE has it's own way to configure rust-analyzer to to ignore these, fixes f
 
 This works, because it tells rust-analyzer to use a target that doesn't include the standard library, and not to check other targets except the one we specified.
 
-> Note: You might have to install the target with `rustup add target x86_64-unknown-linux-gnu`
+> Note: You might have to install the target with `rustup target add x86_64-unknown-none`
 
 </details>
 
 ## What is Unwinding and How to Disable It
 
-When a program panics, usually because of an unrecoverable error, it has to stop whatever it is doing. In a normal execution environment with neighboring programs, all of the program's memory should be cleaned up so a memory leak doesn't occur. This is where _unwinding_ comes in.
+When a program panics, usually because of an unrecoverable error, it has to stop whatever it is doing. In a normal execution environment with neighboring programs, all of the program's memory should be cleaned up so a memory leak doesn't occur on the operating system[^4]. This is where _unwinding_ comes in.
+[^4]: Some operating systems may not free up memory when terminating a program, and may assume it is the program responsibility to free up all memory before exiting.
+
 When a Rust program panics, and the _panic strategy_ is to _unwind_, Rust goes up the stack of the program, and cleans up the data from each function that it encounters. However, walking back and cleaning up is a lot of work. Rust, therefore, allows you to choose the alternative of immediately aborting, which ends the program without cleaning up. This alternative is also useful in our case, where we don't have the sense of "cleaning up", because we still don't have an operating system.
 So, to simply switch the panic strategy to abort, we can add the following line to our `Cargo.toml` file:
 
@@ -250,47 +245,21 @@ OUTPUT_FORMAT(binary)
 ENTRY(main)
 ```
 
-This will set our entry point to main, and our output into a raw binary, which means the binary header[^3] of the program will not be included.
-[^3]: Operating systems have their own binary header so they can understand how to treat a binary. Some common ones are [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) and [PE](https://en.wikipedia.org/wiki/Portable_Executable)
+This will set our entry point to main, and our output into a raw binary, which means the binary header[^5] of the program will not be included.
+[^5]: Operating systems have their own binary header so they can understand how to treat a binary. Some common ones are [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) and [PE](https://en.wikipedia.org/wiki/Portable_Executable)
 
-Then, to make our linker to use this script, we mainly have two options; one is to add some arguments to our build command, and the other one is to create a [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html). In this guide, we use the following build script:
+Then, to make our linker to use this script, we mainly have two options; one is to add some arguments to our build command, and the other one is to create a [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html). In this book, we use the following build script:
 ```rust,fp=build.rs
-use std::path::Path;
-
-fn main() {
-    // Environment variable that stores the current working directory
-    let local_path = Path::new(env!("CARGO_MANIFEST_DIR"));
-
-    // This tells cargo to add the `-C link-arg=--script=./linker.ld` argument.
-    // Which will result in linking with our code with our linker script
-    println!(
-        "cargo:rustc-link-arg-bins=--script={}",
-        local_path.join("linker.ld").display()
-    )
-}
+#![source_file!("snippets/src/book/build.rs")]
 ```
 
 But, after we do all this and again, run `cargo build`, we get the same error. At first, this doesn't seem logical, because we defined a main function. But, although it is true that we defined one, we didn't consider Rust's default [mangling](https://doc.rust-lang.org/rustc/symbol-mangling/index.html).
 This is a very clever idea done by Rust, and without it, things like the following wouldn't be possible:
 
 ```rust
-struct A(u32);
-
-impl A {
-    pub fn new(a: u32) -> A {
-        A(a)
-    }
-}
-
-struct B(u32);
-
-impl B {
-    pub fn new(b: u32) -> B {
-        B(b)
-    }
-}
+#![source_file!("snippets/src/book/impl_ex.rs")]
 ```
-Although the functions are defined on different structs, they have the same name, but because of mangling, the actual name of the function would be something like
+Although the functions are defined on different structs, they have the same name. But, because of mangling, the actual name of the function would be something like
 ```
 A::new -> _ZN7mycrate1A3new17h5f3a92c8e3b0a1a2E
 B::new -> _ZN7mycrate1B3new17h1c2d3e4f5a6b7c8dE
@@ -301,17 +270,7 @@ To fix it, we can add the `#[unsafe(no_mangle)]` attribute to our main function,
 
 Which makes this, our final main.rs file!
 ```rust,fp=main.rs
-#![no_std]
-#![no_main]
-
-#[unsafe(no_mangle)]
-fn main() {
-}
-
-#[panic_handler]
-pub fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
+#![source_file!("snippets/src/book/minimal_main.rs")]
 ```
 
 ## Build Target

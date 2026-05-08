@@ -22,7 +22,7 @@ By analyzing the assembly code, we can gain insights into the control flow and d
 
 Another useful debugging technique is to extract memory dumps. A memory dump is a snapshot of the contents of the system's memory at a specific point in time. By examining the memory dump, we can see the state of various variables, data structures, and the stack at the moment of failure.
 
-This provides valuable information about CPU structures that we are loading to the CPU, which might cause the triple fault if we don't initialize them correctly.
+This provides valuable information about CPU structures that we are loading into the CPU, which might cause the triple fault if we don't initialize them correctly.
 
 A memory dump can be obtained with the following commands.
 
@@ -33,11 +33,11 @@ Then, in this terminal, run the following command:
 ```
 (qemu) pmemsave <start_address> <size> <file name>
 
-// For example
+# For example
 
 (qemu) pmemsave 0x1000 0x500 memory.dump
 
-// This will create a dump of size 0x500 from 0x1000 - 0x1500.
+# This will create a dump of size 0x500 from 0x1000 - 0x1500.
 ```
 
 

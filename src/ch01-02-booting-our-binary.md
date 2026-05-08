@@ -4,17 +4,19 @@ _"There is no elevator to success - you have to take the stairs." - Zig Ziglar_
 
 ---
 
-In the previous section, we created a stand alone binary, which is not linked to any standard library. But if you looked closely, and inspected the binary, you would see that we used a build target that is called `x86_64-unknown-none`, which is a generic target that doesn't specify any operating system or vendor, but it still specifies the architecture as `x86_64`, which is the architecture of most modern computers. 
+In the previous section, we created a standalone binary, which is not linked to any standard library. But if you looked closely, and inspected the binary, you would see that we used a build target that is called `x86_64-unknown-none`, which is a generic target that doesn't specify any operating system or vendor, but it still specifies the architecture as `x86_64`, which is the architecture of most modern computers. 
 
 ## Understanding Rust Targets
 
-The compiler of rust, `rustc` is a cross-compiler, which means it can compile the same source code into multiple architectures and operating systems.
-This provides us with a lot of flexibility, but it is the core reason for our problem. This is because you are probably compiling this code from a computer with a regular operating system (Linux, Windows or MacOS) which rustc supports, which means that is it's `default target`. To see your default target, you can run `rustc -vV` and look at the `host` section.
+The compiler of Rust, `rustc` is a cross-compiler, which means it can compile the same source code into multiple architectures and operating systems.
+This provides us with a lot of flexibility, but it is the core reason for our problem. This is because you are probably compiling this code from a computer with a regular operating system (Linux, Windows or MacOS) which rustc supports, which means that its `default target` is your computer OS + your CPU architecture.
 
-The target contains information for the `rustc` compiler about which header should the binary have, what is the pointer and int size, what instruction set to use, and more information about the features of the cpu that it could utilize.
-So, because we compiled our code just with `cargo build`, cargo, which under the hood uses `rustc`, compiled our code to our default target, which resulted in a binary that is operating system specific and not a truly stand alone even though we used `#![no_std]`.
+> To see your default target, you can run `rustc -vV` and look at the `host` section.
 
-> **Note:** if you want to see the information of your computer target, use the following command
+The target contains information for the `rustc` compiler about which header should the binary have, what is the pointer and int size, what instruction set to use, and more information about the features of the CPU that it could utilize.
+So, because we compiled our code just with `cargo build`, cargo, which under the hood uses `rustc`, compiled our code to our default target, which resulted in a binary that is operating system specific and not a truly standalone even though we used `#![no_std]`.
+
+> **Note:** If you want to see the information of your computer target, use the following command
 > ```
 > rustc +nightly -Z unstable-options --print target-spec-json
 > ```
@@ -29,16 +31,18 @@ In this guide, the operating system that we build will be compatible with the x8
 
 When our computer (or virtual machine) powers on, the first software that the CPU encounters is the [BIOS](https://en.wikipedia.org/wiki/BIOS), which is a piece of software that is responsible to perform hardware initialization during the computer start up. It comes pre installed on the motherboard and as an OS developer, we can't interfere or modify the BIOS in any way.
 
-The last thing BIOS does before handing to us the control over the computer, is to load one sector (512 bytes) form the boot device (can be hard-disk, cd-rom, floppy-disk etc) to memory address `0x7c00` if the sector is considered `valid`, which means that it has the `BIOS Boot Signature` at the end of it, which is the byte sequence `0x55` followed by `0xAA` in offset bytes 510 and 511 respectively.
+The last thing BIOS does before handing to us the control over the computer, is to load one sector (512 bytes)[^1] from the boot device (can be hard-disk, cd-rom, floppy-disk etc) to memory address `0x7c00` if the sector is considered `valid`, which means that it has the `BIOS Boot Signature` at the end of it, which is the byte sequence `0x55` followed by `0xAA` in offset bytes 510 and 511 respectively.
 
-At this time for backward compatibility reasons, the computer starts at a reduced instruction set, at a 16bit mode called [_real mode_](https://en.wikipedia.org/wiki/Real_mode) which provides direct access to the BIOS interface, and access to all of the I/O or peripheral devices. This mode lacks support for memory protection, multitasking, or code privileges, and has only 1Mib of address space. Because of these limitation we want to escape it as soon as possible, but that is a problem that we will solve later (Maybe add link to when this is done).
+[^1]: This sector is not just `any` sector and it is called the 'Master Boot Record' which also contains our partition table. Although important, in this version of our operating and bootloader, we will ignore this partition table.
+
+At this time for backward compatibility reasons, the computer starts at a reduced instruction set, at a 16bit mode called [_real mode_](https://en.wikipedia.org/wiki/Real_mode) which provides direct access to the BIOS interface. This mode lacks support for memory protection, multitasking, or code privileges, and has roughly 1 MiB of address space. Because of these limitation we want to escape it as soon as possible, but that is a problem that we will solve later (Maybe add link to when this is done).
 
 ## Building Our Target
 
 With this information, we understand that we will need to build a target that will support 16bit real mode.
 Unfortunately, if we look at all of the available targets, we would see that there is no target that support this unique need, but, luckily, Rust allows us to create custom targets!
 
-As a clue, we can try and peak on the builtin targets, and check if there is something similar that we can borrow. For example, my target, which is the `x86_64-unknown-linux-gnu` looks like this:
+As a clue, we can try and peek at the builtin targets, and check if there is something similar that we can borrow. For example, my target, which is the `x86_64-unknown-linux-gnu` looks like this:
 ```json,icon=@https://www.svgrepo.com/show/373712/json.svg
 {
   "arch": "x86_64",
@@ -84,7 +88,7 @@ This target has some useful info that we can use, like useful keys, such as `arc
 // p:32:32    -> The default pointer is 32-bit with 32-bit address space
 // p270:32:32 -> Special pointer type ID-270 with 32-bit size and alignment
 // p271:32:32 -> Special pointer type ID-271 with 32-bit size and alignment
-// p271:64:64 -> Special pointer type ID-272 with 64-bit size and alignment
+// p272:64:64 -> Special pointer type ID-272 with 64-bit size and alignment
 // i128:128   -> 128-bit integers are 128-bit aligned
 // f64:32:64  -> 64-bit floats are 32-bit or 64-bit aligned
 // n:8:16:32  -> Native integers are 8-bit, 16-bit, 32-bit
@@ -188,9 +192,9 @@ This should result in a lot of zeros, and at the end, this line, where we can se
 
 ## Running Our Code
 
-Because our code is experimental, we will not want to run it on our machine, because it can make **PERMANENT DAMAGE** to it. This is because we don't monitor cpu temperature, and other hardware sensors that can help us protect our pc. Instead, we will run our code in [QEMU](https://www.qemu.org/), which is a free and open-source full machine emulator and virtualizer. To download QEMU for your platform, follow the instructions [here](https://www.qemu.org/download/)
+Because our code is experimental, we will not want to run it on our machine, because it can cause **PERMANENT DAMAGE** to it. This is because we don't monitor cpu temperature, and other hardware sensors that can help us protect our pc. Instead, we will run our code in [QEMU](https://www.qemu.org/), which is a free and open-source full machine emulator and virtualizer. To download QEMU for your platform, follow the instructions [here](https://www.qemu.org/download/)
 
-To make a sanity check that QEMU indeed works on your machine with our wanted architecture after you downloaded it, run `qemu-system-x86_64` on a terminal. This should open a window and in it write some messages it tries to boot from certain devices, and after it fails, it should write it cannot find any bootable device. If that's what you are seeing, it all works as it should!
+To make a sanity check that QEMU indeed works on your machine with our wanted architecture after you downloaded it, run `qemu-system-x86_64` on a terminal. This should open a window and in it write some messages that it tries to boot from certain devices, and after it, it fails, it should also write at the end it cannot find any bootable device. If that's what you are seeing, everything is working correctly.
 
 To provide our code, we need to add the `-drive format=raw,file=<path-to-bin-file>` flag to qemu, which will add to our virtual machine a disk drive with our code.
 
@@ -199,9 +203,9 @@ qemu-system-x86_64 -drive \
         format=raw,file=<output_binary>
 ```
 
-At a first glance, we might think our code still doesn't work, because all we see is a black screen, but, if you notice closely, we don't get more messages of the BIOS trying other boot devices, and we don't get the message of `"No bootable device."`.
+At a first glance, we might think our code still doesn't work, because all we see is a black screen, but, if you notice closely, we no longer get more messages of the BIOS trying other boot devices, and we don't get the `"No bootable device."` message.
 
-So why we see black screen? This is because we didn't provide the computer any code to run and our main function is empty, but now we have the platform to write any code that we like!
+So why we see black screen? This is because we didn't provide the computer with any code to run and our main function is empty, but now we have a platform on which we can run any code we like!
 
 ## Hello, World!
 To print "Hello, World!", we can utilize the BIOS [video interrupt](https://en.wikipedia.org/wiki/INT_10H) which can help us print [ASCII](https://en.wikipedia.org/wiki/ASCII) characters to the screen.
@@ -209,56 +213,39 @@ To print "Hello, World!", we can utilize the BIOS [video interrupt](https://en.w
 _For now, don't worry about the code implementation and just use and play with it. This code piece, and a lot more will be explained in the next chapter._
 
 ```rust,fp=main.rs
-use core::arch::asm;
-
-#[unsafe(no_mangle)]
-fn main() {
-    let msg = b"Hello, World!";
-    for &ch in msg {
-        unsafe {
-            asm!(
-                "mov ah, 0x0E",   // INT 10h function to print a char
-                "mov al, {0}",    // The input ASCII char
-                "int 0x10",       // Call the BIOS Interrupt Function
-                // --- settings ---
-                in(reg_byte) ch,  // {0} Will become the register with the char
-                out("ax") _,      // Lock the 'ax' as output reg, so it won't be used elsewhere
-            );
-        }
-    }
-
-    unsafe {
-        asm!("hlt"); // Halt the system
-    }
-}
+#![source_file!("snippets/src/book/print.rs")]
 ```
 
-When we try to compile and run our code, we can see that it's indeed booting, but we don't see any massage.
+When we try to compile and run our code, we can see that it's indeed booting, but we don't see any message.
 If you believe me that the code above is correct, and indeed works, we can try and look at the binary file that the compiler emitted with the `hexdump` command in Linux or MacOS, or `Format-Hex` in Windows.
 
-When we do that, we can notice that it seems that more code was added, but at the end of the file, and not at the start of it, and more over, it is located after the first sector which means it doesn't even loaded by the BIOS. To resolve this, we need to learn about the default segment `rustc` generates.
+When we do that, we can notice that it seems that code was added, but at the end of the file, and not at the start of it, and more over, it is located after the first sector which means it doesn't even loaded by the BIOS. To resolve this, we need to learn about the default segment `rustc` generates.
 
-> ### Default Segments In Rust
-> - **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
->   ```rust,banner=no
->   
->   fn some_function(x: u32, y: u32) -> u32 {
->     return x + y;
->   }
->   ```
-> - **.data** - Includes the initialized data of our program, like static variables.
->   ```rust,banner=no
->   static VAR: u32 = 42;
->   ```
-> - **.bss** - Includes the uninitialized data of our program
->   ```rust,banner=no
->   static mut MESSAGE: String = MaybeUninit::uninit();
->   ```
-> - **.rodata** - Includes the read-only data of our program
->   ```rust,banner=no
->   static mut MESSAGE: &'static str = "Hello World!";
->   ```
-> - **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
+### Default Segments In Rust
+<blockquote>
+
+- **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
+```rust,banner=no
+#![source_file!("snippets/src/book/func.rs")] 
+#![source_file!("")]
+```
+- **.data** - Includes the initialized data of our program, like static variables.
+```rust,banner=no
+#![source_file!("snippets/src/book/static_var.rs")] 
+#![source_file!("")]
+```
+- **.bss** - Includes the uninitialized data of our program
+```rust,banner=no
+#![source_file!("snippets/src/book/static_uninit.rs")] 
+#![source_file!("")]
+```
+- **.rodata** - Includes the read-only data of our program
+```rust,banner=no
+#![source_file!("snippets/src/book/static_str.rs")] 
+#![source_file!("")]
+```
+- **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
+</blockquote>
 
 So, to make our linker put the segments in the right position, we need to change the `SECTION` segment of our linker script to this.
 
