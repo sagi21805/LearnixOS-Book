@@ -4,7 +4,7 @@ _"If debugging is the process of removing bugs, then programming must be the pro
 
 ---
 
-Debugging is a crucial part of a good operating system, and especially on the start of the development when we still don't have good debugging methods, like printing, we need to use other methods.
+Debugging is a crucial part of a good operating system, and especially at the start of its development. We still don't have good debugging methods like printing, so we need to use other methods.
 
 By far the most annoying bug is the triple fault, which will be explained extensively in the [Interrupts](ch05-00-interrupts-and-exceptions.md) Chapter. In short, this is an error that is not recoverable, and the CPU will reset itself, and it looks like this:
 
@@ -43,6 +43,6 @@ Then, in this terminal, run the following command:
 
 ## Minimal Printing
 
-Once we write our kernel, the first thing that we will do is write a print method with formatting, because it is one of the best ways to debug our code.
+Once we write our kernel, the first thing that we will do is writing a print method with formatting, because it is one of the best ways to debug our code.
 
-In the bootloader, at a time we haven't written our print method yet, we will mostly debug with the methods above, but we can, for debugging purposes, print characters, and even small strings using the BIOS like we did in our [Hello, World!](./ch01-02-booting-our-binary.md) program.
+In the bootloader, at a time when we haven't written our print yet, we will mostly debug with the methods above, but for debugging purposes, we can print characters and even small strings using the BIOS like we did in our ["Hello, World!"](./ch01-02-booting-our-binary.md) program.
