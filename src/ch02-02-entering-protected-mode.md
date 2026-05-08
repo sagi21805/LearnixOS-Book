@@ -9,9 +9,9 @@ After we read from disk, it will enable us to write much more code, because we w
 But just before we do that, we don't want to limit ourselves only to 16bit instructions.
 For that we need to enter [`protected mode`](https://en.wikipedia.org/wiki/Protected_mode) which will allow us to unlock some cpu features such as 32bit instructions.
 
-[^1]: 446 bytes to be exact, this number is derived by removing the size of the master boot record and the size of the boot signature from the sector size. 
+[^1]: 446 bytes to be exact, this number is derived by removing the size of the partition table (64 bytes) and the size of the boot signature(2 bytes) from the sector size (512 bytes). 
 
-Entering protected mode requires us to initialize the [`global descriptor table`](https://wiki.osdev.org/Global_Descriptor_Table) which is a CPU structure that will be discussed in depth bellow, and toggling the protected mode bit in [`cr0`](https://en.wikipedia.org/wiki/Control_register)
+Entering protected mode requires us to initialize the [`global descriptor table`](https://wiki.osdev.org/Global_Descriptor_Table) which is a CPU structure that will be discussed in depth below, and toggling the protected mode bit in [`cr0`](https://en.wikipedia.org/wiki/Control_register)
 
 
 ## The Global Descriptor Table
@@ -21,7 +21,7 @@ Entering protected mode requires us to initialize the [`global descriptor table`
 This is a structure that is specific to the x86 cpu family, and it contains information about the different segments.
 In general, segments are used to divide memory into logical parts, and to translate addresses as we seen in real mode.
 
-_Address translation with the GDT will not be wildely at this chapter, because it will not be used throughout the OS and memory paging, which will be explained in the next chpater will be used._
+_Address translation with the GDT will not be wildely used in this chapter, because it will not be used throughout the OS and memory paging, which will be explained in the next chapter will be used._
 _For now, think of a memory segment as a fixed size blob of contiguous physical memory_ 
 
 In protected mode, the common way to organize memory is using these segments. Because segments registers[^2] can only hold one number,
@@ -38,7 +38,7 @@ _Each entry is 8 bytes long, index one will be at an offset of 8, which means we
 
 > Instead of just revealing you the structure that is used for each segment, I want you to pause and ponder about what each segment should include.
 >
-> _Remember that some instructions assume segments, like mov, jmp etc. and we want segments for the kernel, users, date and code_
+> _Remember that some instructions assume segments, like mov, jmp etc. and we want segments for the kernel, users, data and code_
 
 When I asked myself this question, I came up with the following ideas:
 - What is the initial address of the segment. i.e the start address in memory where the segment starts.
@@ -68,7 +68,7 @@ All of these fields will become a struct and together they represent a single en
 
 
 Both the `AccessByte` and the `LimitFlags` and more structures throughout the book, are using one bit flags, which represents some inner settings to the CPU.
-Although setting one bit flag is easy, and can be done with `1 << bit_number` to set the nth bit, we would like abstractions such as `set_<flag_name>`, which are more readable and error prone.
+Although setting one bit flag is easy, and can be done with `1 << bit_number` to set the nth bit, we would like abstractions such as `set_<flag_name>`, which are more readable and less prone to errors.
 But, if we would do that to every flag, it will be **A LOT** of boiler plate code.
 For this reason, Rust provides us with an amazing macro system
 
@@ -85,11 +85,11 @@ This macro was used to define thouse exactly 1 bit flags. But as it will turn ou
 
 </blockquote>
 
-The problem that this macro had, is that the struct the these functions were defined on, didn't understand that it was a structure that contains bit flags, but it was rathar a struct that wraps an integer type, and it has functions that is defined on it to turn specific bits. At first glance this seems almost the same. But, because the macro doesn't get as input all the information on the flags, but rather 'per flag' input, it cannot implement the [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait automatically when we want to print and look on the flags.
+The problem that this macro had, is that the struct the these functions were defined on, didn't understand that it was a structure that contains bit flags, but it was rather a struct that wraps an integer type, and it has functions that is defined on it to turn specific bits. At first glance this seems almost the same. But, because the macro doesn't get as input all the information on the flags, but rather 'per flag' input, it cannot implement the [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait automatically when we want to print and look on the flags.
 
-_More problems that are I was having, but are not a direct outcome of the initial design, is that flags sometimes contain more then 1 bit, and may contain n bits, also, certain n bit flags may have a specific set of values that are valid, and we may want to name them in an enum_
+_More problems that are I was having, but are not a direct outcome of the initial design, is that flags sometimes contain more than 1 bit, and may contain n bits, also, certain n bit flags may have a specific set of values that are valid, and we may want to name them in an enum_
 
-The currect design of this macros, looks like this:
+The current design of this macros, looks like this:
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L6
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", AccessByte)]
@@ -109,7 +109,7 @@ As you can see, we have the macro attribute at the top of our struct, which is c
 
 <blockquote>
 
-To see what this macro generated, we can you the amazing [`cargo-expand`](https://crates.io/crates/cargo-expand) tool created by [`David Tolnay`](https://github.com/dtolnay)
+To see what this macro generated, we can use the amazing [`cargo-expand`](https://crates.io/crates/cargo-expand) tool created by [`David Tolnay`](https://github.com/dtolnay)
 
 <details>
 <summary>For example, the expansion of the call above</summary>
@@ -120,7 +120,7 @@ To see what this macro generated, we can you the amazing [`cargo-expand`](https:
 </details>
 </blockquote>
 
-If this macro seems really cool and complicated, that great! because it will be fully explained in later chpaters.
+If this macro seems really cool and complicated, that's great! because it will be fully explained and implemented in later chpaters.
 
 _We will also define an enum that will include the protection level and the system segment type, so it would be more clear_
 
@@ -130,7 +130,7 @@ _We will also define an enum that will include the protection level and the syst
 ```
 
 
-Now, just before creating a `new` function to our entry, we don't want each time to specify the base in three parts and the limit in two parts, instead we want the `new` function to abstract it from as.
+Now, just before creating a `new` function to our entry, we don't want each time to specify the base in three parts and the limit in two parts, instead we want the `new` function to abstract it from us.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L39
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32)]
@@ -162,7 +162,7 @@ We will create a `load` function that will create this register structure, and w
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::load)]
 ```
 
-Now, to apply all of the created functionality, enable protected mode, and to jump to the next stage, we need add the following code to our entry function.
+Now, to apply all of the created functionality, enable protected mode, and to jump to the next stage, we need to add the following code to our entry function.
 
 But just before that, when we jump to the next stage, we need to specify the offset in the GDT of the relevant section we want to jump to, which will load the cs segment register with that value. In that case it is the `kernel_code` section, which will allow us to run code on ring0. For an easy way to specify the section, we will create an enum.
 

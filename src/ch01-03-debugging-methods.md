@@ -4,7 +4,7 @@ _"If debugging is the process of removing bugs, then programming must be the pro
 
 ---
 
-Debugging is a crucial part for a good operating system, and especially on the start of the development when we still don't have good debugging methods, like printing, we need to use other methods.
+Debugging is a crucial part of a good operating system, and especially on the start of the development when we still don't have good debugging methods, like printing, we need to use other methods.
 
 By far the most annoying bug is the triple fault, which will be explained extensively in the [Interrupts](ch05-00-interrupts-and-exceptions.md) Chapter. In short, this is an error that is not recoverable, and the CPU will reset itself, and it looks like this:
 
@@ -22,7 +22,7 @@ By analyzing the assembly code, we can gain insights into the control flow and d
 
 Another useful debugging technique is to extract memory dumps. A memory dump is a snapshot of the contents of the system's memory at a specific point in time. By examining the memory dump, we can see the state of various variables, data structures, and the stack at the moment of failure.
 
-This provides valuable information about CPU structures that we are loading to the CPU, which might cause the triple fault if we don't initialize them correctly.
+This provides valuable information about CPU structures that we are loading into the CPU, which might cause the triple fault if we don't initialize them correctly.
 
 A memory dump can be obtained with the following commands.
 
@@ -33,16 +33,16 @@ Then, in this terminal, run the following command:
 ```
 (qemu) pmemsave <start_address> <size> <file name>
 
-// For example
+# For example
 
 (qemu) pmemsave 0x1000 0x500 memory.dump
 
-// This will create a dump of size 0x500 from 0x1000 - 0x1500.
+# This will create a dump of size 0x500 from 0x1000 - 0x1500.
 ```
 
 
 ## Minimal Printing
 
-Once we write our kernel, the first thing that we will do is to write a print method with formatting, because it is one of the best ways to debug our code.
+Once we write our kernel, the first thing that we will do is write a print method with formatting, because it is one of the best ways to debug our code.
 
-In the bootloader, in a time we didn't write our print yet, we will mostly debug with the methods above, but we can for debug purposes print characters, and even small strings using the BIOS like we did in our [Hello, World!](./ch01-02-booting-our-binary.md) program.
+In the bootloader, at a time we haven't written our print method yet, we will mostly debug with the methods above, but we can, for debugging purposes, print characters, and even small strings using the BIOS like we did in our [Hello, World!](./ch01-02-booting-our-binary.md) program.

@@ -5,7 +5,7 @@ _"Compatibility means deliberately repeating other people's mistakes." - David W
 ---
 
 When writing our bootloader and especially on the first stages we encounter a lot of legacy that needs to be handled.
-This legacy may come in multiple shapes, like bios interrupts, magic numbers and things that are needed to be initialized and most of this stuff will be covered in this chapter.
+This legacy may come in multiple shapes, like bios interrupts, magic numbers and things that need to be initialized and most of these will be covered in this chapter.
 
 > **Note:** from now on, each of the code blocks will be structured as they are in the real project,
 > and every time a code file will have a path in it, that will be the same path in the real project.
@@ -46,7 +46,7 @@ So, to zero down all the segments we will use the following code:
 ```
 
 Then, we want to initialize the stack and the direction flag.
-It is important to state the stack at a position that will not overwrite our code, this could happen because our code and the local variables we save can be in the same place in memory which might cause a `push` instruction to overwrite an instruction that we need. because of the we initialize the stack at `0x7c00` which will ensure it will not happen, because that stack only grows down.
+It is important to state the stack at a position that will not overwrite our code, this could happen because our code and the local variables we save can be in the same place in memory which might cause a `push` instruction to overwrite an instruction that we need. because of this, we initialize the stack at `0x7c00` which will ensure it will not happen, because that stack only grows down.
 
 ```x86asm,fp=<repo>bootloader/first_stage/asm/boot.s#L19,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
 {{#include ../LearnixOS/bootloader/first_stage/asm/boot.s:stack}}
@@ -70,7 +70,7 @@ Luckily, this method works on our QEMU virtual machine
 - [x] Enable the A20 line
 
 Now, after enabling the a20 line, we want to load from the disk into memory the rest of the bootloader and of course, our kernel.
-This is not a trivial task, especially when we have less then 512 bytes of code to do so. But don't worry, because the BIOS will come to our help.
+This is not a trivial task, especially when we have less than 512 bytes of code to do so. But don't worry, because the BIOS will come to our help.
 
 ## BIOS Interrupts
 
@@ -110,12 +110,12 @@ Both of these functions will be explained, and at the end, we will use the newer
 ### Cylinder, Head and Sector
 
 In today's works, there are multiple ways to store persistent information,
-[SSD](https://en.wikipedia.org/wiki/Solid-state_drive) and [NVMe](https://en.wikipedia.org/wiki/NVM_Express) which are newer storage hardware that provides fast access speeds to data and lower latency comparing to [HDD](https://en.wikipedia.org/wiki/Hard_disk_drive) which is an older technology that the BIOS works with.
+[SSD](https://en.wikipedia.org/wiki/Solid-state_drive) and [NVMe](https://en.wikipedia.org/wiki/NVM_Express) which are newer storage hardware that provides fast access speeds to data and lower latency compared to [HDD](https://en.wikipedia.org/wiki/Hard_disk_drive) which is an older technology that the BIOS works with.
 
 To read from hdd, we first need to understand it's geometry.
-Each disk contains multiple `platters` which are a magnetic disk that can store data, each platter can store information on both sides, so the number of `heads` is `2 * platters`.
+Each disk contains multiple `platters` which are a magnetic disk that can store data, each platter can typically store information on both sides, so the number of `heads` is `2 * platters`.
 Each head of the disk is divided into inner circles which are called `tracks`, the set of aligned tracks on all of the heads is called a `cylinder`.
-Finally the `sector` is the arc on the track that actually holds our data, sectors have common a commons size of 512 bytes, but sometimes have [larger size](https://en.wikipedia.org/wiki/Advanced_Format).
+Finally the `sector` is the arc on the track that actually holds our data, sectors have a common size of 512 bytes, but sometimes have [larger size](https://en.wikipedia.org/wiki/Advanced_Format).
 
 With that information, we can understand that the disk uses a 3D coordinate system, and in order to specify which sector we want to read, we need to specify a `cylinder` number that the sector is in, then, provide the `head` number, in order to specify the `track` the sector is in, and then we provide the sector number in the track to get the actual `sector` that holds our data. This can be demonstrated with this picture:
 
@@ -186,7 +186,7 @@ $$
 Cylinder = \text{LBA} \div ({N_{Heads Per Cylinder}} \times K_{Sectors Per Track}) \\
 $$
 $$
-Head = (\text{LBA} \div {N_{Heads Per Cylinder}}) \bmod K_{Sectors Per Track} \\
+Head = (\text{LBA} \div K_{Sectors Per Track}) \bmod {N_{Heads Per Cylinder}} \\
 $$
 $$
 Sector = (\text{LBA} \bmod K_{Sectors Per Track}) + 1
@@ -232,11 +232,11 @@ And then, finally the function that will call the interrupt with our packet, and
 
 ### Read The Kernel
 
-Now, all that left is to put it all together!
+Now, all that is left is to put it all together!
 
 we can create a disk packet in our entry function, and load it!
 
-But, just before we can do that, we need get some how the disk number we are in, and call our function.
+But, just before we can do that, we need to somehow get the disk number we are in, and call our function.
 The disk number that we booted from as used in above examples is in the `dl` register, so we can push it to the stack.
 Then, use the `no_mangle` attribute on our function and call it by it's name.
 Then, we can get the disk number from the stack, and load our packet.
