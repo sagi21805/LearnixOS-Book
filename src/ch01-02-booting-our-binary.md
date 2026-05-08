@@ -31,7 +31,7 @@ In this guide, the operating system that we build will be compatible with the x8
 
 When our computer (or virtual machine) powers on, the first software that the CPU encounters is the [BIOS](https://en.wikipedia.org/wiki/BIOS), which is a piece of software that is responsible to perform hardware initialization during the computer start up. It comes pre installed on the motherboard and as an OS developer, we can't interfere or modify the BIOS in any way.
 
-The last thing BIOS does before handing to us the control over the computer, is to load one sector (512 bytes)[^1] form the boot device (can be hard-disk, cd-rom, floppy-disk etc) to memory address `0x7c00` if the sector is considered `valid`, which means that it has the `BIOS Boot Signature` at the end of it, which is the byte sequence `0x55` followed by `0xAA` in offset bytes 510 and 511 respectively.
+The last thing BIOS does before handing to us the control over the computer, is to load one sector (512 bytes)[^1] from the boot device (can be hard-disk, cd-rom, floppy-disk etc) to memory address `0x7c00` if the sector is considered `valid`, which means that it has the `BIOS Boot Signature` at the end of it, which is the byte sequence `0x55` followed by `0xAA` in offset bytes 510 and 511 respectively.
 
 [^1]: This sector is not just `any` sector and it is called the 'Master Boot Record' which also contains our partition table. Although important, in this version of our operating and bootloader, we will ignore this partition table.
 

@@ -8,7 +8,7 @@ Imagine you need to write some code to read from a file. You write a single, ele
 <code class="language-hlrs" style="filter: brightness(0.9); padding: 2px 3px; border-radius: 3px; display: inline-block;">
     <span class="hlrs-keyword">with</span> <span class="hlrs-function">open</span>(<span class="hlrs-litstr">"my_file.txt"</span>) <span class="hlrs-keyword">as</span> <span class="hlrs-variable">f</span>:
 </code>
-,the file opens and the content appears as if by magic. 
+, the file opens and the content appears as if by magic. 
 
 To the vast majority of the developers (more than 60%!) who rely on high level languages like Python and JavaScript[^1], writing code looks like this. We are all surrounded by abstractions, and have forgotten to learn the underlying implementation.
 We trust our operating system to handle the context switching, the virtual memory mapping, and the I/O operations, often treating the kernel as an infallible, black box rather than a piece of software we can actually understand.

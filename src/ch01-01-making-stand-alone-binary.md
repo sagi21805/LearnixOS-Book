@@ -111,7 +111,7 @@ The first error is more obvious. Because we don't have our standard library, `pr
 - **<u>Recoverable Errors</u>**   => Errors that the program know to handle, and have an alternative operation in case of a failure. 
 - **<u>Unrecoverable Errors</u>** => Errors that the program doesn't know how to handle. In that case, most program crash[^3]
 
-[^3]: Most programs don't immediatialy crash, and have a crashing strategy to exit in a cleaner way.
+[^3]: Most programs don't immediately crash, and have a crashing strategy to exit in a cleaner way.
 
 Rust doesn't offer a standard exception for unrecoverable errors like other languages, for example, in Python an exception could be raised like this:
 ```python

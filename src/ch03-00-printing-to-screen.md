@@ -92,7 +92,7 @@ Then, we need to handle the following functionalities:
 
 4. If we are at the end of the screen, we need to scroll down a line, which means to copy the entire buffer one line to the left[^1].
 
-[^1]: Our buffer represents a 2D grid of `ScreenChar` elements, but it is actually just one big 1D buffer. So copying the entire buffer one line 'u['
+[^1]: Our buffer represents a 2D grid of `ScreenChar` elements, but it is actually just one big 1D buffer. So copying the entire buffer one line up is equivalent to shifting all the characters one line to the left.
 
 5. Function to clear the screen entirely
 

@@ -64,7 +64,7 @@ There are a lot of ways to enable the A20 line, the code we will use is a fast A
 Luckily, this method works on our QEMU virtual machine
 
 ```x86asm,fp=<repo>bootloader/first_stage/asm/boot.s#L28,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
-{{#webinclude https://raw.githubusercontent.com/sagi21805/LearnixOS/refs/heads/master/bootloader/first_stage/asm/boot.s A20}}
+{{#include ../LearnixOS/bootloader/first_stage/asm/boot.s A20}}
 ```
 
 - [x] Enable the A20 line
@@ -221,12 +221,12 @@ First, for organization, we will create some helpful enums.
 
 Then, we can create an initializer function for our `disk packet`
 
-```rust,fp=<repo>kernel/stages/first_stage/src/disk.rs#L44
+```rust,fp=<repo>bootloader/first_stage/src/disk.rs#L44
 #![impl_method!("bootloader/first_stage/src/disk.rs", DiskAddressPacket::new)]
 ```
 And then, finally the function that will call the interrupt with our packet, and will read the disk content into memory.
 
-```rust,fp=<repo>kernel/stages/first_stage/src/disk.rs#L71
+```rust,fp=<repo>bootloader/first_stage/src/disk.rs#L71
 #![impl_method!("bootloader/first_stage/src/disk.rs", DiskAddressPacket::load)]
 ```
 
