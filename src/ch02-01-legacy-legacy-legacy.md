@@ -112,7 +112,7 @@ Both of these functions will be explained, and at the end, we will use the newer
 In today's computers, there are multiple ways to store persistent information,
 [SSD](https://en.wikipedia.org/wiki/Solid-state_drive) and [NVMe](https://en.wikipedia.org/wiki/NVM_Express) which are newer storage hardware that provides fast access speeds to data and lower latency compared to [HDD](https://en.wikipedia.org/wiki/Hard_disk_drive) which is an older technology that the BIOS works with.
 
-To read from a HDD, we first need to understand it's geometry.
+To read from a HDD, we first need to understand its geometry.
 Each disk contains multiple `platters` which are a magnetic disk that can store data, each platter can typically store information on both sides, so the number of `heads` is `2 * platters`.
 Each head of the disk is divided into inner circles which are called `tracks`, the set of aligned tracks on all of the heads is called a `cylinder`.
 Finally the `sector` is the arc on the track that actually holds our data. Sectors are commonly 512 bytes in size, but [larger sizes](https://en.wikipedia.org/wiki/Advanced_Format) are possible.
