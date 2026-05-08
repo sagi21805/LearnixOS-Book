@@ -210,7 +210,7 @@ This works, because it tells rust-analyzer to use a target that doesn't include 
 ## What is Unwinding and How to Disable It
 
 When a program panics, usually because of an unrecoverable error, it has to stop whatever it is doing. In a normal execution environment with neighboring programs, all of the program's memory should be cleaned up so a memory leak doesn't occur on the operating system[^4]. This is where _unwinding_ comes in.
-[^4]: Some opreating systems may not free up memory when terminating a program, and may assume it is the program responsibility to free up all memory before exiting.
+[^4]: Some operating systems may not free up memory when terminating a program, and may assume it is the program responsibility to free up all memory before exiting.
 
 When a Rust program panics, and the _panic strategy_ is to _unwind_, Rust goes up the stack of the program, and cleans up the data from each function that it encounters. However, walking back and cleaning up is a lot of work. Rust, therefore, allows you to choose the alternative of immediately aborting, which ends the program without cleaning up. This alternative is also useful in our case, where we don't have the sense of "cleaning up", because we still don't have an operating system.
 So, to simply switch the panic strategy to abort, we can add the following line to our `Cargo.toml` file:

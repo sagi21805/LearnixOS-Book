@@ -81,7 +81,7 @@ If you read through some previous version of this book, you may have seen the ex
 }
 </code></pre>
 
-This macro was used to define thouse exactly 1 bit flags. But as it will turn out, this is not enough, and more functionality will be needed. 
+This macro was used to define those exactly 1 bit flags. But as it will turn out, this is not enough, and more functionality will be needed. 
 
 </blockquote>
 
@@ -101,7 +101,7 @@ As you can see, we have the macro attribute at the top of our struct, which is c
 
 - The type of each field represents the flag width in bits. B1 is one bit and B20 is 20 bits.
 
-- Some flags can have thier own attribute, which may contain r and w, which creates only read function, or write function (defaults to both)
+- Some flags can have their own attribute, which may contain r and w, which creates only read function, or write function (defaults to both)
 
 - Flags may also contain types, which are mostly enums that contains the valid values, or even all the values but gives them a readable name.
 
