@@ -150,7 +150,7 @@ mov cl, 2
 ; Head number in 'dh' 0
 mov dh, 0
 
-; `dl` should already contain the drive number from BIOS if not overridden.
+; `dl` should already contain the drive number from BIOS if not overrode.
 
 ; The buffer to read to is es:bx.
 ; Since BIOS loads 512 bytes at the start, the next empty address is 0x7e00
