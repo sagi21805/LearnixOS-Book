@@ -14,9 +14,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 0
 
       - name: Check the Spelling of the Book
         uses: crate-ci/typos@v1.34.0
