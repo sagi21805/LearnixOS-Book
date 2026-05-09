@@ -45,6 +45,9 @@ function createGiscusContainer() {
         <p style="margin-bottom: 1em; font-weight: 500;">
             ❤️ If you enjoyed my work and want to support this project, please consider supporting on <a href="https://github.com/sponsors/sagi21805/" target = "_blank">github</a>.
         </p>
+        <p style="margin-bottom: 1em; font-weight: 500;">
+            📝 Would you like to help improve this book? If so, please consider giving your honest feedback on this <a href="https://forms.gle/pkWc5bocj58iL84o9" target = "_blank">form</a>.
+        </p>
             `;
   container.appendChild(topText);
 
