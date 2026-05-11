@@ -16,7 +16,7 @@ Entering protected mode requires us to initialize the [`Global Descriptor Table`
 
 ## The Global Descriptor Table
 
-> _All the information about the global descriptor table is taken from both the [Intel Manual Volume 3A](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf&ved=2ahUKEwjK-duH0pOUAxXvhf0HHRkeN1sQFnoECA0QAQ&usg=AOvVaw3xCH_sFKn73Bg5tPFbOzaC) section 3.4.5, and the great [osdev](https://wiki.osdev.org/GDT_Tutorial) website._
+> _All the information about the Global Descriptor Table is taken from both the [Intel Manual Volume 3A](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf&ved=2ahUKEwjK-duH0pOUAxXvhf0HHRkeN1sQFnoECA0QAQ&usg=AOvVaw3xCH_sFKn73Bg5tPFbOzaC) section 3.4.5, and the great [osdev](https://wiki.osdev.org/GDT_Tutorial) website._
 
 This is a structure that is specific to the x86 CPU family, and it contains information about the different segments.
 In general, segments are used to divide memory into logical parts, and to translate addresses as we seen in real mode.
@@ -29,7 +29,7 @@ they can't hold enough information for us. That is where the Global Descriptor T
 The Global Descriptor Table is an array of structures that include information about a segment.
 When we want to use our custom segment, we load its offset on the GDT to the segment register.
 For example, we can create a segment for user data at index 1 of our table.
-This segment will not hold important data for the system, or code that can be executed.
+This segment will not hold important data for the system or code that can be executed.
 If we want to load it into the `ds` we will set it to the offset of the structure in the table.
 
 _Each entry is 8 bytes long, index one will be at an offset of 8, which means we will set `ds=8`_
@@ -59,15 +59,15 @@ Our entry will look like this:
 
 But what are these fields?
 - **Base:** This is a 32-bit value, which is split on the entire entry and represents the address of where the segment begins.
-- **Limit:** this is a 20-bit value, which is split on the entire entry and represents the size of the segment.
-- **Access Byte:** flags that are relevant to the memory range of the segment,
+- **Limit:** This is a 20-bit value, which is split on the entire entry and represents the size of the segment.
+- **Access Byte:** Flags that are relevant to the memory range of the segment,
 like the access privileges of this segment.
-- **Flags:** general flags that are relevant for the entry fields.
+- **Flags:** General flags that are relevant for the entry fields.
 
 All of these fields will become a struct and together they represent a single entry in our GDT.
 
 
-Both the `AccessByte` and the `LimitFlags` and more structures throughout the book, are using one bit flags, which represent some inner settings of the CPU.
+Both the `AccessByte`, the `LimitFlags`, and more structures throughout the book, are using one bit flags, which represent some inner settings of the CPU.
 Although setting a one bit flag is easy, and can be done with `1 << bit_number` to set the nth bit, we would like abstractions such as `set_<flag_name>`, which are more readable and less prone to errors.
 But, if we would do that to every flag, it will be **A LOT** of boilerplate code.
 For this reason, Rust provides us with an amazing macro system.
@@ -85,11 +85,13 @@ This macro was used to define those exactly 1 bit flags. But as it will turn out
 
 </blockquote>
 
-The problem that this macro had, is that the generated bit flag functions were defined to a struct that simply wrapped an integer type instead of having fields for each bit flag.  At first glance this seems almost the same. But, because the macro is run for each individual flag instead of all of them, it cannot generate the [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait automatically when we want to print and look at the flags.
+The problem with this macro is that it had to be called for each bit flag. Because it did not take multiple flags, the macro did not have enough context to generate a [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait implementation that shows bit flag names.
+
+is it created one bit flag function for a struct that simply wrapped an integer type instead of having fields for each bit flag.  At first glance this seems almost the same. But, because the macro is run for each individual flag instead of all of them, it cannot generate the [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait automatically when we want to print and look at the flags.
 
 _More problems that I was having, but not a direct outcome of the initial design, is that flags sometimes contain more than 1 bit, and may contain n bits, also, certain n bit flags may have a specific set of values that are valid, and we may want to name them in an enum._
 
-The current design of the macros looks like this:
+The current design of the macro looks like this:
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L6
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", AccessByte)]
@@ -97,11 +99,11 @@ The current design of the macros looks like this:
 
 As you can see, we have the macro attribute at the top of our struct, which is called `bitfields`.
 
-- Each field in this struct, is a flag, and as you can see, the highlighter is smart and can expand our macro, so the color of the fields are the same as a function.
+- Each field in this struct is a flag, and as you can see, the highlighter is smart and can expand our macro, so the color of the fields are the same as a function.
 
 - The type of each field represents the flag width in bits. B1 is one bit and B20 is 20 bits.
 
-- Some flags may have their own attribute such as `r` and `w` which create a read function and a write function, respectively. When they are undefined, both functions are created.
+- Some flags may have their own attribute such as `r` and `w` which create a read function and a write function, respectively. When they are not defined, both functions are created.
 
 - Flags may also contain types, which are mostly enums that contains the valid values, or even all the values but gives them a readable name.
 
@@ -122,7 +124,7 @@ To see what this macro generated, we can use the amazing [`cargo-expand`](https:
 
 If this macro seems really cool and complicated, that's great! because it will be fully explained and implemented in later chapters.
 
-_We will also define an enum that will include the protection level and the system segment type, so that it is clear._
+_We will also define an enum that will include the protection level and the system segment flags so that they have clear names._
 
 ```rust,fp=<repo>crates/common/src/enums/general.rs
 #![enum!("crates/common/src/enums/general.rs", ProtectionLevel)]
@@ -151,18 +153,18 @@ Together it will all look like this:
 ```
 
 If you noticed, all of the functions that we defined so far are marked with `const`. this is useful because we can create our Global Descriptor Table as a static variable, which will be in the binary.
-This is useful because it will initialize our global descriptor table during compile time.
+This is useful because it will initialize our Global Descriptor Table during compile time.
 
-So, the only thing left to do is to load the global descriptor table. This can be done with the `lgdt` instruction which loads the `Global Descriptor Table Register` with our table. This is a hidden register that includes information about our global descriptor table, like it's size and address in memory.
+So, the only thing left to do is to load the Global Descriptor Table. This can be done with the `lgdt` instruction which loads the `Global Descriptor Table Register` with our table. This is a hidden register that includes information about our Global Descriptor Table, like it's size and address in memory.
 
-We will create a `load` function that will create this register structure, and load it to the CPU.
+We will create a `load` function that will create this register structure and load it to the CPU.
 
 ```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L312
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableRegister)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::load)]
 ```
 
-Now, to apply all of the created functionality, enable protected mode. To jump to the next stage, we need to add the following code to our entry function.
+Now, to apply all of the created functionality, enable protected mode, and finally jump to the next stage, we need to add the following code to our entry function.
 
 But just before that, when we jump to the next stage, we need to specify the offset in the GDT of the relevant section we want to jump to, which will load the `cs` segment register with that value. In that case it is the `kernel_code` section that will allow us to run code on ring0. For an easy way to specify the section, we will create an enum.
 
