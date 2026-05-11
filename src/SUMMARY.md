@@ -7,13 +7,14 @@
 # Chapters of The Book
 
 - [Getting Started](./ch01-00-getting-started.md)
-    - [Making a Stand Alone Binary [OS]](./ch01-01-making-stand-alone-binary.md)
+    - [Making a Stand Alone Binary [OS] [RUST]](./ch01-01-making-stand-alone-binary.md)
     - [Booting Our Binary [OS]](./ch01-02-booting-our-binary.md)
     - [Debugging Tips](./ch01-03-debugging-methods.md)
 
 - [A Minimal Bootloader](./ch02-00-a-minimal-bootloader.md)
     - [Legacy Legacy Legacy [OS]](./ch02-01-legacy-legacy-legacy.md)
     - [Entering Protected Mode [OS]](./ch02-02-entering-protected-mode.md)
+    - [Implementing the Bitfields Proc-Macro [RUST]](./ch02-03-implementing-the-bitfields-proc-macro.md)
     - [What is Memory Paging? [OS]](./ch02-03-what-is-memory-paging.md)
     - [Booting the Kernel [OS]](./ch02-04-booting-the-kernel.md)
 
