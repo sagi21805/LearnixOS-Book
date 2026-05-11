@@ -87,8 +87,6 @@ This macro was used to define those exactly 1 bit flags. But as it will turn out
 
 The problem with this macro is that it had to be called for each bit flag. Because it did not take multiple flags, the macro did not have enough context to generate a [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait implementation that shows bit flag names.
 
-is it created one bit flag function for a struct that simply wrapped an integer type instead of having fields for each bit flag.  At first glance this seems almost the same. But, because the macro is run for each individual flag instead of all of them, it cannot generate the [Debug](https://doc.rust-lang.org/std/fmt/trait.Debug.html) trait automatically when we want to print and look at the flags.
-
 _More problems that I was having, but not a direct outcome of the initial design, is that flags sometimes contain more than 1 bit, and may contain n bits, also, certain n bit flags may have a specific set of values that are valid, and we may want to name them in an enum._
 
 The current design of the macro looks like this:
