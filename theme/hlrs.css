@@ -1,4 +1,5 @@
-.hlrs-function {
+.hlrs-function,
+.proc_macro {
     color: #61afef;
 }
 
@@ -22,6 +23,7 @@
 }
 
 .hlrs-macro,
+.macro_bang,
 .hlrs-litnum {
     color: #d19a66;
 }
