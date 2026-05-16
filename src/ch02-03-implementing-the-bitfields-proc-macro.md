@@ -4,6 +4,9 @@ As you may recall from the previous chapter, we used a proc-macro that was calle
 
 > Another great resource for this subject is the great video [Comprehending Proc Macros](https://www.youtube.com/watch?v=SMCRQj9Hbx8) by Logan Smith
 
+
+_If you are familer with procedural macros, with `syn` and `quote`, and want to go stright to the macro implemention, click [here](#defining-our-macro)_
+
 ## A Little Introduction to Proceadural Macros
 
 Macros are not a new idea in programming languages, and most of them have macros in some shape or form. But what even is a macro?
@@ -472,9 +475,9 @@ As you can see, it seems like we write Rust code, but actually under the hood, i
 
 Another great quality that this macro have, is that it supports entering variables into the quoted expression. Let's look at an example, where we change a name of a function, inside an attribute macro.
 
-```rust
+```
 #[proc_macro_attribute]
-pub fn macro_test(_attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn change_name(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut item_fn = syn::parse_macro_input!(input as ItemFn);
 
     item_fn.sig.ident = Ident::new(
@@ -489,6 +492,14 @@ pub fn macro_test(_attr: TokenStream, input: TokenStream) -> TokenStream {
 As you can see, we parsed the input with `syn` into a function item. Then, we changed the name of the function, and transferred it to the `quote!` macro with the `#` so that it would convert the variable into a `TokenStream`.
 
 But how quote knows to convert the variable into a `TokenStream`? This is where the `ToTokens` trait comes in.
+
+```rust
+#![trait!("<crateio>/quote-1.0.45/src/to_tokens.rs", ToTokens)]
+```
+
+In this trait, the `to_tokens` method is defined, which gets a `&mut TokenStream` and appends the tokenized representation of the variable to it.
+
+The types that are defined in `syn` already implement this trait, so they can be used with `quote!` without any additional work like in the example above that the `ItemFn` became a function definition.
 
 ## Defining our Macro 
 
