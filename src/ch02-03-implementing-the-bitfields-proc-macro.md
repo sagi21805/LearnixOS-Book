@@ -36,6 +36,47 @@ Well, the main reason we are even discussing this, is that we want to manipulate
 #![enum!("<rustc>/lib/rustlib/src/rust/library/proc_macro/src/lib.rs", TokenTree)]
 ```
 
+To see this more visibly, we can print our TokenStream, because it implement the `Debug` trait. Which for a simple struct would look like this: 
+
+```text
+TokenStream [
+    Ident {
+        ident: "struct",
+        span: #0 bytes(43..49),
+    },
+    Ident {
+        ident: "Example",
+        span: #0 bytes(50..57),
+    },
+    Group {
+        delimiter: Brace,
+        stream: TokenStream [
+            Ident {
+                ident: "a",
+                span: #0 bytes(64..65),
+            },
+            Punct {
+                ch: ':',
+                spacing: Alone,
+                span: #0 bytes(65..66),
+            },
+            Ident {
+                ident: "i32",
+                span: #0 bytes(67..70),
+            },
+            Punct {
+                ch: ',',
+                spacing: Alone,
+                span: #0 bytes(70..71),
+            },
+        ],
+        span: #0 bytes(58..73),
+    },
+]
+```
+
+_Can you understand what is the name of the struct and its fields?_
+
 ## How Macros are Executed
 
 As you may have noticed, macros does not behave exactly like regular functions. Another difference that they have is that they are evaluated at compile time. 
@@ -271,9 +312,183 @@ _This type of macro replaces the macro invocation and the input item with the ge
 
 ## Introduction to Syn and Quote
 
-syn => Token! macro, custom keyword, typical types and enums, like Exper, Item, File. The Parse trait, Tokenstream. AST etc.
+Remembering our goal to write the `bitfield` macro from earlier chapter, you can already guess that we want to write an `attribute` macro. But, parsing the TokenStream we saw above is really hard, because it will require us to understand Rusts syntax tree, which can be quite complex.
 
-quote => ToTokens trait, quote! macro
+Luckyly for us, the `syn` crate, written by `David Tolnay` provides a way to parse Rust syntax tree into a structured AST (Abstract Syntax Tree), which makes it easier to work with Rust source code.
+
+### What are Abstract Syntax Trees
+ 
+As the name suggests, this a tree like structure, that represents the syntax of a certain programming language (in our case, Rust).
+Before diving right into the implementation of `syn` on Rust syntax, let's first understand what an AST is. 
+
+We will look at a really simple program, that is writting in Python.
+
+```python
+current = 0
+for item in items:
+    if item > current:
+        current = item
+```
+
+A simplified syntax tree for a simple program like this might look like this:
+
+<figure style="margin: 0; text-align: center">
+  <img src="assets/ast.svg"></img>
+  <figcaption><strong>Figure 3-1: </strong>simplified syntax tree</figcaption>
+</figure>
+
+As you can see, in a tree like this we can have types that help us represent the syntax in our language. For example the `Assign` statement which contains a `left` and `right` side. Or the `For` loop which contains item that is being iterated over, the collection name, and the body of the loop. Then, when we want to operate on the syntax it self, for example, create the same if statement, but change the name of the item. We can simply copy the type, and change the item ident to a new one.
+
+As you may have gussed, `syn` does the exact same thing we did with our small program, but with all the complexity of a real language. So lets see what types does it offer.
+
+_There are a lot of types on the `syn` crate, and we will only cover some of them. Once you get the hang of it, all the other will be easy to understand._
+
+The top level type for the AST is `syn::File`, which represents a complete Rust source file.
+
+```rust
+#![source_file!("<crateio>/syn-2.0.117/src/file.rs", 6:86)]
+```
+
+Ok, we can see that `syn::File` is made out of a list of `syn::Attribute` and `syn::Item`. But this doesn't tell us much, so let's also explore them.
+
+```rust
+#![source_file!("<crateio>/syn-2.0.117/src/attr.rs", 23:183)]
+```
+
+So we can see an attribute, like `#[derive(Debug)]`, is represented by `syn::Attribute`. Currently, we will not dive deeper into `Attribute` but we will cover more of it, when we will use it in our macro implementation.
+
+Now let's see `syn::Item`.
+
+```rust
+#![source_file!("<crateio>/syn-2.0.117/src/item.rs", 22:101)]
+```
+
+As you can see, we have a lot of items, and I hope that you can start and recognize some of them, as an example, let's cover `ItemConst`.
+
+```rust
+#![source_file!("<crateio>/syn-2.0.117/src/item.rs", 103:118)]
+```
+
+If you have noticed closely, the order of the fields in the struct definition is the same as the order in the source code. This makes it really easy to map the AST back to the source code.
+
+Also, as a side note, keywords like `const`, `struct` and punctuation like `:` and `=` does have types, but `syn` also provides a `Token!` macro that maps the literal token to its corresponding type.
+
+The last type that we are going to cover is `syn::Expr`, which represents an expression from the source code. Because most of Rusts syntax is represented as expressions, `syn::Expr` is a very large type.
+
+```rust
+#![source_file!("<crateio>/syn-2.0.117/src/expr.rs", 37:269)]
+```
+
+These types are very powerfull, and help us express the language is a structured way. As a quick example, let's see how `syn::ItemStruct` is represented in the AST. In this example, we have the exact same struct, that we showed its `TokenStream` representation.
+
+```
+ItemStruct {
+    attrs: [],
+    vis: Visibility::Inherited,
+    struct_token: Struct,
+    ident: Ident {
+        ident: "Example",
+        span: #0 bytes(50..57),
+    },
+    generics: Generics {
+        lt_token: None,
+        params: [],
+        gt_token: None,
+        where_clause: None,
+    },
+    fields: Fields::Named {
+        brace_token: Brace,
+        named: [
+            Field {
+                attrs: [],
+                vis: Visibility::Inherited,
+                mutability: FieldMutability::None,
+                ident: Some(
+                    Ident {
+                        ident: "a",
+                        span: #0 bytes(64..65),
+                    },
+                ),
+                colon_token: Some(
+                    Colon,
+                ),
+                ty: Type::Path {
+                    qself: None,
+                    path: Path {
+                        leading_colon: None,
+                        segments: [
+                            PathSegment {
+                                ident: Ident {
+                                    ident: "i32",
+                                    span: #0 bytes(67..70),
+                                },
+                                arguments: PathArguments::None,
+                            },
+                        ],
+                    },
+                },
+            },
+            Comma,
+        ],
+    },
+    semi_token: None,
+}
+```
+_Can you see the name of the struct, and the type of the field in the AST?_
+
+As you can see, what was before a list of punctionations, and idents, now have become a structured representation that is easier to work with. 
+
+The most important thing about syn, is that we can use the types that if offers, to create new, custom types, that are not bounded to the language's AST. 
+
+But how would syn know to parse our custom syntax into the AST types it offers? This is where the `Parse` trait comes in. When syn wants to parse our custom syntax, it will call the `parse` method from the `Parse` trait, and pass in the token stream to parse.
+
+```rust
+#![trait!("<crateio>/syn-2.0.117/src/parse.rs", Parse)]
+```
+
+We will go deepr into this, when we will create our own custom `Parse` implementation. One important thing to understand is that all of syn's types implement `Parse` themselves, so most of the time, implementing `Parse` for types that are built from syn's AST types is easy.
+
+Up until now, we learned how to parse our source code, into a meaningful AST representation. This representation will help us to work with the syntax, and to implement our macro's logic. But, after we parsed the source code, and processed it to our needs, we need to return it back into a `TokenStream`. This is where the `quote` crate comes in.
+
+Quoting is a term that is borrowed from lisp, and it means that we write things that looks like code, but they will actually convert into a data under the hood, or in our case the `TokenStream` type.
+
+The `quote` crate provides a `quote!` macro that allows us to write quoted expressions.
+
+For example, let's define a simple quoted expression that represents a struct definition:
+
+```
+quote! {
+    struct Foo {
+       bar: () 
+    }
+
+    fn main() {
+        
+    }
+}
+```
+
+As you can see, it seems like we write Rust code, but actually under the hood, it is converted into a `TokenStream`.
+
+Another great quality that this macro have, is that it supports entering variables into the quoted expression. Let's look at an example, where we change a name of a function, inside an attribute macro.
+
+```rust
+#[proc_macro_attribute]
+pub fn macro_test(_attr: TokenStream, input: TokenStream) -> TokenStream {
+    let mut item_fn = syn::parse_macro_input!(input as ItemFn);
+
+    item_fn.sig.ident = Ident::new(
+        &format!("with_change_{}", item_fn.sig.ident),
+        item_fn.sig.ident.span(),
+    );
+
+    quote::quote! { #item_fn }.into()
+}
+```
+
+As you can see, we parsed the input with `syn` into a function item. Then, we changed the name of the function, and transferred it to the `quote!` macro with the `#` so that it would convert the variable into a `TokenStream`.
+
+But how quote knows to convert the variable into a `TokenStream`? This is where the `ToTokens` trait comes in.
 
 ## Defining our Macro 
 
