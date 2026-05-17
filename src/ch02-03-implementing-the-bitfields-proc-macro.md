@@ -503,6 +503,56 @@ The types that are defined in `syn` already implement this trait, so they can be
 
 ## Defining our Macro 
 
+In my opinion, the most important thing to do before we even start to code (even not specifically for macros), is to the define what we want from our program.
+
+The main thing we wanted in the first place, is to represent a number, e.g u8, u16, u32 etc, as flags. To see a clear example look at the drawing below.
+
+<figure style="margin: 0; text-align: center">
+  <img src="assets/bitflag.svg"></img>
+  <figcaption><strong>Figure 3-1: </strong>bitflag struct example</figcaption>
+</figure>
+
+
+In this drawing we can see six different flags. Each takes a different part inside our u16 number. 
+1. Flag A is between bits 00-02
+2. Flag B is between bits 02-07
+3. Flag C is between bits 07-10
+4. Flag D is between bits 10-12
+5. Flag E is between bits 12-15
+6. Flag F is between bits 15-16
+
+For each flag, we would like to have multiple functions. 
+
+- A getter, which return the value of the flag.
+- A setter, which sets the the value of the flag.
+- Clear function, which writen a clear value if defined directly to the flag. (Will be necesarry in the future)
+
+Because we need multiple functions defined, the best Rust item suited for the job is a `struct`. Also, because a struct will wrap the entire definition, the macro will have in it's context all of the definitions of all the flags, which means we could also implement the `Debug` trait on it to print all of the flags.
+
+Some flags will need different functions, and may also have `types`. For example think about the protection level field in the previous section. While we can just leave it as a number, most of the time, it is more convenient to have an enum, that represents the valid values. Also, some flags may not need all the functionalities of get, set and clear. For that, we want to have the ability to control which functions will be generated.
+
+And for the last caveat, some flags will be written as absolute values on their setter function, and will return absolute value on thier getter. What does that mean? Take as an example flag `E` on the example above. The span of this flag is between bits 12-15. In most of our flag cases, we would want to write to this value numbers between the 0-7, because it is 3 bits wide. When we will set the don't shift attribute, we would want absolute value for this flag, which means the lowest value (besides from 0) will be `1 << 12` (The first bit of the flag) and highest value will be `1 << 14` where the jumps between each value will be `1 << 12`
+
+This design for this macro, with insperation from [Proceadural Macro Workshop](https://github.com/dtolnay/proc-macro-workshop#attribute-macro-bitfield) will be a regular Rust struct, with helper attributes.
+
+For example, this struct will represent the flags in the example above (with example helper attributes).
+
+```
+#[bitfields]
+struct MyFlags {
+  #[flag(r)]
+  a: B2,
+  b: B5,
+  #[flag(rwc(30))]
+  c: B3,
+  #[flag(flag_type = ProtectionLevel)]
+  d: B2,
+  #[flag(r, dont_shift)]
+  e: B3,
+  f: B1,
+}
+```
+
 ## Implementing the Macro
 
 ### Struct Definition
