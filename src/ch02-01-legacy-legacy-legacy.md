@@ -122,7 +122,7 @@ With that information, we can understand that the disk uses a 3D coordinate syst
 <figure style="width: 60%; text-align: center;">
     <img src="assets/Cylinder_Head_Sector.svg"
        style="background-color: aliceblue; width: 80%; height: auto;">
-    </img>
+    
   <figcaption><strong>Figure 2-0:</strong> Cylinder Head Sector Diagram</figcaption>
 
 </figure>

@@ -52,7 +52,7 @@ If you gussed something that is similar to this, you are mostly correct!
 
 Our entry will look like this:
 <figure style="margin: 0; text-align: center">
-  <img src="assets/gdt_struct.svg"></img>
+  <img src="assets/gdt_struct.svg">
   <figcaption><strong>Figure 2-1:</strong> global descriptor table entry structure</figcaption>
 </figure>
 

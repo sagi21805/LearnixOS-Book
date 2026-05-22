@@ -122,7 +122,8 @@ An example usage, could be an OK message of what we already initialized!
 ```rust
 #![function!("snippets/src/book/print_example.rs", _start)]
 ```
-<figure><img src="assets/vga_print.png" alt=""><figcaption></figcaption></figure>
+
+<pre><figure><img src="assets/vga_print.png" alt=""><figcaption></figcaption></figure></pre>
 
 ## Exercise
 

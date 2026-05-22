@@ -21,7 +21,7 @@ So why do we need another system for managing memory?
 Let's draw a scenario, we will have three processes, A and B, and we will look at our memory, for convenience, we will manage memory at multiplications of 0x100.
 
 <figure style="margin: 0; text-align: center">
-  <img src="assets/fragmentation_example.svg"></img>
+  <img src="assets/fragmentation_example.svg">
   <figcaption><strong>Figure 2-1: </strong>simple memory layout with segmentation</figcaption>
 </figure>
 
@@ -61,7 +61,7 @@ In the figure bellow we can see this mapping.
 _for simplification, I changed the block size to 0x100 instead of 0x1000 (4096 bytes) but the principles are still the same._
 
 <figure style="margin: 0; text-align: center">
-  <img src="assets/paging_example.svg"></img>
+  <img src="assets/paging_example.svg">
   <figcaption><strong>Figure 2-2: </strong>simple process memory layout using paging</figcaption>
 </figure>
 
@@ -112,10 +112,12 @@ To translate an address, a special hardware on the CPU, which is called the MMU 
 
 To understand how the MMU works, lets look at an example translation, with the following address:
 
+<pre>
 <figure style="margin: 0 auto; text-align: center">
-<img src="assets/address.svg"></img>
-<figcaption><strong>Figure 2-3: </strong>Walking the page tables</figcaption>
+    <img src="assets/address.svg">
+    <figcaption><strong>Figure 2-3: </strong>Walking the page tables</figcaption>
 </figure>
+</pre>
 
 The first thing the the MMU is doing, is to check if this page was already translated and cached. If it was, it returns the cached value.
 
@@ -128,27 +130,33 @@ If the page was not cached, the MMU splits our address into multiple parts.
 - **Bits 40-47:** 4th table index
 - **Bits 48-63:** Sign extension
 
+<pre>
 <figure style="margin: 0; text-align: center">
-  <img src="assets/split_address.svg"></img>
+  <img src="assets/split_address.svg">
   <figcaption><strong>Figure 2-4: </strong>Split Address</figcaption>
 </figure>
+</pre>
 
 Each index will help us obtain the location of the next table, until we reach the final physical page. Then we can use the offset to obtain the specific byte in that page.
 
 After that, the MMU reads the CR3 Register from the CPU to find the address of the 4th page table.
 
+<pre>
 <figure style="margin: 0; text-align: center">
-  <img src="assets/cr3-pml4.svg"></img>
+  <img src="assets/cr3-pml4.svg">
   <figcaption><strong>Figure 2-5: </strong>CR3 Register and the 4th Page Table</figcaption>
 </figure>
+</pre>
 
 
 Then, we walk the tables, using the indices from our address to obtain the location of the next table, until we reach the final physical page.
 
+<pre>
 <figure style="margin: 0; text-align: center">
-  <img src="assets/table-walking.svg"></img>
+  <img src="assets/table-walking.svg">
   <figcaption><strong>Figure 2-6: </strong>Walking the page tables</figcaption>
 </figure>
+</pre>
 
 After we found our physical page, we use the offset within our page, to locate the specific byte that the address points to resulting in the final physical address.
 
