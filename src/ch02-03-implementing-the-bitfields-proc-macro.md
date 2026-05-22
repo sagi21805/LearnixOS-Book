@@ -174,7 +174,7 @@ Just before we dive into procedural macros, lets cover up the type of macro that
 
 > All the syntax information about how macros are structured are taken directly from the [Offical Rust Reference](https://doc.rust-lang.org/reference/macros.html).
 
-#### Declarative Macros
+### Declarative Macros
 
 Declarative macros are the simplest type of macro, and they are the ones that we used in the examples above. They are mainly used to generate mainly simple syntax extensions, which are commonly called "macros by example".
 
@@ -336,7 +336,7 @@ for item in items:
 A simplified syntax tree for a simple program like this might look like this:
 
 <figure style="margin: 0; text-align: center">
-  <img src="assets/ast.svg"></img>
+  <img src="assets/ast.svg">
   <figcaption><strong>Figure 3-1: </strong>simplified syntax tree</figcaption>
 </figure>
 
@@ -508,7 +508,7 @@ In my opinion, the most important thing to do before we even start to code (even
 The main thing we wanted in the first place, is to represent a number, e.g u8, u16, u32 etc, as flags. To see a clear example look at the drawing below.
 
 <figure style="margin: 0; text-align: center">
-  <img src="assets/bitflag.svg"></img>
+  <img src="assets/bitflag.svg">
   <figcaption><strong>Figure 3-1: </strong>bitflag struct example</figcaption>
 </figure>
 
@@ -554,6 +554,50 @@ struct MyFlags {
 ```
 
 ## Implementing the Macro
+
+The first thing that I like to do when creating a macro, is to create a simple input for the macro, and generate the key functions output by hand.
+This way, I could have a mental model of what is suppose to do, and I can generalize on that.
+
+So, for starters, let's create a really simple input and output for our macro.
+
+```
+struct SimpleFlags {
+  a: B2,
+  b: B1
+}
+```
+
+Just before we are creating our functions, what will our struct type will be? In this case we have a two bit field and a one bit field, but there is no type that is three bits wide. Instead, we are going to pick the closest uint type that is large enough to hold our fields. In this case a u8.
+
+```
+struct SimpleFlags(u8);
+```
+
+Now for our functions. The problem that we need to solve, is how to get and set the value of the bits, that are stored in the underlying `u8` field.
+
+_This part assumes familiarity with bitwise operations like right and left shifts, and simple gates like AND, OR and NOT. For those of you who are not familiar with these operations, I really recommend the seeing this [video](https://www.youtube.com/watch?v=vqpfrSIyojo) by BitLemon._.
+
+<figure style="margin: 0; text-align: center">
+  <img src="assets/simple_flags_ex.svg">
+  <figcaption><strong>Figure 3-2: </strong>SimpleFlags layout</figcaption>
+</figure>
+
+We will start with reading the value for the `b` flag. There are multiple combinations of bitwise operations that can achive this. The one that we will use is to first, zero out the entire content of the `u8` except from our `b` flag, and then shift it to the right to the right and read it.
+
+So first, let's think about how can we zero out the entire content of the `u8` except from our `b` flag. We can do this by using the `&` operator to perform a bitwise AND operation between our `u8` value and a mask[^2] that has all bits set to 1 except from our `b` flag. By hand, this mask will look like this `0b11111011`. But this ofcourse does not help us much, because we need to automatically generate this mask for each bitfield. 
+
+To generate this mask, we will think of a much simpler case, how can we put a sequence of ones at the start of our mask? Before I will give the answer, let's think what a sequence of ones means. A sequence of ones is always a number, that when we will add 1 to it, will become a perfect power of 2 on the bit after the sequence. For example `0b00000111` (7) will become `0b00001000` (8) when we add 1 to it.
+
+You may have also noticed that the nubmer of bits that were set to 1 before we added 1 is equel to the power of 2 of the number after we added 1. For example `0b00000111` (7) has 3 bits set to 1, and 8 is exactly `2^3`. 
+
+> If I were you I wouldn't accept this fact, go try it for youself with more examples to see that it is true
+
+To generaly create a mask with the first `n` bits set, we can use our formula: `2^n - 1`. Because we are speaking only on powers of two, we will use `(1 << n) - 1` to create the mask. Which is the same thing.
+
+> [!NOTE]
+test
+
+[^2]: The sequence of bits that will be used along our value in a logic gate.
 
 ### Struct Definition
 ### Single Bitfield
