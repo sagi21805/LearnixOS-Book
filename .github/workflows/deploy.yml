@@ -27,14 +27,14 @@ jobs:
       - name: Install mdBook and mdbook-linkcheck (cached by action)
         uses: taiki-e/install-action@v2
         with:
-          tool: mdbook@0.4.52,mdbook-linkcheck,mdbook-utils,mdbook-webinclude
+          tool: mdbook@0.5.3,mdbook-linkcheck,mdbook-utils,mdbook-webinclude
 
       - name: Create sitemap
         run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml
 
       - name: Build the book
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mdbook build
 
       - name: Setup Pages
@@ -43,7 +43,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'book'
+          path: "book"
 
       - name: Deploy to GitHub Pages
         id: deployment
