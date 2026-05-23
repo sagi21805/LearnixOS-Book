@@ -555,6 +555,8 @@ struct MyFlags {
 
 ## Implementing the Macro
 
+### Sketching the Idea
+
 The first thing that I like to do when creating a macro, is to create a simple input for the macro, and generate the key functions output by hand.
 This way, I could have a mental model of what is suppose to do, and I can generalize on that.
 
@@ -579,12 +581,12 @@ _This part assumes familiarity with bitwise operations like right and left shift
 
 <figure style="margin: 0; text-align: center">
   <img src="assets/simple_flags_ex.svg">
-  <figcaption><strong>Figure 3-2: </strong>SimpleFlags layout</figcaption>
+  <figcaption><strong>figure 3-2: </strong>simpleflags layout</figcaption>
 </figure>
 
 We will start with reading the value for the `b` flag. There are multiple combinations of bitwise operations that can achive this. The one that we will use is to first, zero out the entire content of the `u8` except from our `b` flag, and then shift it to the right to the right and read it.
 
-So first, let's think about how can we zero out the entire content of the `u8` except from our `b` flag. We can do this by using the `&` operator to perform a bitwise AND operation between our `u8` value and a mask[^2] that has all bits set to 1 except from our `b` flag. By hand, this mask will look like this `0b11111011`. But this ofcourse does not help us much, because we need to automatically generate this mask for each bitfield. 
+So first, let's think about how can we zero out the entire content of the `u8` except from our `b` flag. We can do this by using the `&` operator to perform a bitwise AND operation between our `u8` value and a mask[^2] that has all bits set to 0 except from our `b` flag which will be all 1s. By hand, this mask will look like this `0b00000100`. But this ofcourse does not help us much, because we need to automatically generate this mask for each bitfield and it may also have multiple 1 bits, and not only one, like in this case. 
 
 To generate this mask, we will think of a much simpler case, how can we put a sequence of ones at the start of our mask? Before I will give the answer, let's think what a sequence of ones means. A sequence of ones is always a number, that when we will add 1 to it, will become a perfect power of 2 on the bit after the sequence. For example `0b00000111` (7) will become `0b00001000` (8) when we add 1 to it.
 
@@ -594,11 +596,202 @@ You may have also noticed that the nubmer of bits that were set to 1 before we a
 
 To generaly create a mask with the first `n` bits set, we can use our formula: `2^n - 1`. Because we are speaking only on powers of two, we will use `(1 << n) - 1` to create the mask. Which is the same thing.
 
-> [!NOTE]
-test
-
 [^2]: The sequence of bits that will be used along our value in a logic gate.
 
+```
+fn generate_mask(n: u32) -> u32 {
+    (1 << n) - 1
+}
+
+fn main() {
+    let mask = generate_mask(3);
+    println!("{:b}", mask);
+}
+```
+
+The next thing that we are going to do, is to relocate the position of the bits in our mask to the flag position in our u8.
+
+This could easly be done using the left shift operator `<<` with the offset of our flag. For example, if the starting bit of our flag is at position 2, we can shift our mask to the left by 2 bits: `mask << 2`. Which makes our final mask generation function look like this:
+```
+fn generate_mask(n: u32, offset: u32) -> u32 {
+    ((1 << n) - 1) << offset
+}
+
+fn main() {
+    let mask = generate_mask(3);
+    println!("{:b}", mask);
+}
+```
+
+The to read the value, we just need to apply an AND gate with the mask, and then shift the result to the right by the offset to normalize it.
+
+```
+fn read_flag(value: u8, offset: u32, width: u32) -> u32 {
+    let mask = generate_mask(width, offset);
+
+    ((value & mask) >> offset) as u32
+}
+
+// add main
+```
+
+To write to our value, you may be tempted to use the left shift operation on the new value to put it in the correct position and then OR it with the original value. While your intuition is good, this approach will not work. This is because the OR gate only change bits from 0 to 1, but cannot change bits from 1 to 0. So our approach will be to first clear the bits we want to change, and then OR it with the new value.
+
+To clear the flag, we can use and gate, where all the flag bits are set to 1, and the rest are 0. This will leave the flag bits unchanged, and the rest will be cleared. So our clear mask looks like this `0b11111011`.
+
+You may have notice that this is the exact inverse of the mask we used to read the flag. So we will use the same approach to generate it, and use the NOT gate with the `!` operator to invert all the bits. After that, we can OR it with the new value shifted to the correct position.
+
+```
+fn write_flag(value: u8, offset: u32, width: u32, new_value: u8) -> u8 {
+    let mask = !generate_mask(width, offset);
+    let cleared = value & mask;
+    let shifted = (new_value as u8) << offset;
+    cleared | shifted
+}
+
+// add main
+```
+
 ### Struct Definition
+
+When starting to implement any piece of code, it is always a good idea to first sketch out the types that we are going to use.
+
+Borrowing again the definition of our macro, these are the types that come to mind.
+
+```
+#[bitfields]
+struct MyFlags {
+  #[flag(r)]
+  a: B2,
+  b: B5,
+  #[flag(rwc(30))]
+  c: B3,
+  #[flag(flag_type = ProtectionLevel)]
+  d: B2,
+  #[flag(r, dont_shift)]
+  e: B3,
+  f: B1,
+}
+```
+
+- BitFields
+  - FlagAttribute (i.e `#[flag(r, dont_shift, flag_type = ProtectionLevel)]`)
+    - Permissions
+    - FlagType
+    - DontShift
+  - Single Bitfield (i.e `a: B2`)
+    - FlagMeta (i.e `width: 2, type: u8`) 
+
+### FlagAttributes
+
+Our `FlagAttribute` struct will simply store the permissions, flag type, and `dont_shift` flag of a flag.
+
+```rust
+#![struct!("crates/macros/src/bitfields/flag_attr.rs", FlagAttribute)]
+```
+
+#### Permissions
+
+For our permission attribute, we want to store if it has read, write or clear, and the clear value. You may be tempted to use one number here and encode it in the bits of it to have good performance on it. But, this will not be a good idea because macros are expanded at compile time, and the expansion between compilations are cached. So the performance increase doesn't really matter.
+
+```rust
+#![struct!("crates/macros/src/bitfields/flag_attr.rs", FlagPermission)]
+#![trait_impl!("crates/macros/src/bitfields/flag_attr.rs", Default for FlagPermission)]
+```
+
+#### DontShift
+
+For some of our flags, and especially the `dont_shift` flag, we want to parse custom idents, in this example the literal `dont_shift` keyword.
+
+Instead of parsing ident's by our own logic, `syn` provides a cool `custom_keyword!` macro that allows us to parse custom idents easily.
+
+```rust
+#![source_file!("crates/macros/src/bitfields/flag_attr.rs", 7:11)]
+```
+#### FlagType
+
+For our final type on the attribute, we want to parse the sequence `flag_type = some_type`. To represent this, we will use the following struct.
+
+For our type, we will use syn's [`TypePath`](https://docs.rs/syn/latest/syn/struct.TypePath.html) struct, which represents a path to a type, such as `std::ffi::CString`.
+
+```rust
+#![struct!("crates/macros/src/bitfields/flag_attr.rs", FlagType)]
+```
+
 ### Single Bitfield
-###
+
+For single field, we would want to include our attribute we just defined, the comments, visibility and name of the field to use on the generated functions, and the size and offset of the field, for our read and write functions.
+
+```rust
+#![struct!("crates/macros/src/bitfields/bitfield.rs", BitField)]
+```
+
+> [!NOTE]
+> We use references on some of the fields because this structure will be created from the [`syn::Field`](https://docs.rs/syn/latest/syn/struct.Field.html) struct, so instead of cloning the values, we use references to avoid unnecessary allocations.
+
+
+#### FlagMeta
+
+For our `FlagMeta` struct, we will want to store the width of the field, but also the type that will represent it. So `B3` would have width `3` and type `u8`.
+
+```rust
+#![struct!("crates/macros/src/bitfields/utils.rs", FlagMeta)]
+```
+
+### Parsing the Attribute
+
+We will start off easy, by parsing the `FlagType` attribute. Because every element in this attribute already implements the `Parse` trait, we can call it's parse function on the currect order.
+
+```rust
+#![trait_impl!("crates/macros/src/bitfields/flag_attr.rs", Parse for FlagType)]
+```
+
+If you were wandering why are we calling the `parse` fucntion on the input instead of on the type itself. It is because the `ParseStream` implements this very convenient `parse` function that allows us to parse a single token of from the stream at a time.
+
+```rust
+#![impl_method!("<crateio>/syn-2.0.117/src/parse.rs", ParseBuffer::parse)]
+```
+
+Next, let's parse something that takes a little more effort, our `FlagPermission`.
+
+```rust
+#![trait_impl!("crates/macros/src/bitfields/flag_attr.rs", Parse for FlagPermission)]
+```
+
+For the `dont_shift` keyword, the parsing is implemented automatically because we used the `custom_keyword!` macro to define it.
+
+And now for the parsing of the entire attribute. While we can define a strict order for the attribute, and then call parse on each field. We will not do that because it will be annoying to use the macro. Instead we will `fork` the stream and try to parse it as each of our fields. If the parsing will succeed, we will save the parsed item, and keep forking and parsing until we reach the end of the stream.
+
+But what is forking? and why do we need it?
+
+Imagine our stream as a really large linked list, that contains all of our tokens. When we parse the stream, we are moving our position through the list by `consuming` the tokens as we parse them. The problem with what we are trying to do, is that if we start parsing an item, and it fails, by we already parsed some of the tokens of the item, we have no way of coming back to the exact position we were at before the failure.
+
+This is where forking comes in. When we fork the stream, we create another pointer to the position on the list, which is independent from the original position we had. Then, we can try and parse the stream with the fork. If it fails, we can simply discard the fork, and if it succeeds, we can advance the original position to the fork's position.
+
+<figure style="margin: 0; text-align: center">
+  <img src="assets/parse_stream.svg">
+  <figcaption><strong>figure 3-3: </strong>parse stream with fork</figcaption>
+</figure>
+
+The last thing we want to keep in mind, is that we want to avoid duplicates in our attributes. So we will keep for each attribute a variable that stores if we already seen that attribute before.
+
+```rust
+#![trait_impl!("crates/macros/src/bitfields/flag_attr.rs", Parse for FlagAttribute)]
+```
+
+And now for the `try_parse` function, where we basically want to fork the stream and try to parse the item, if we succeed, we advance the original position to the fork's position, otherwise we discard the fork and increment the error_counter.
+
+```rust
+#![function!("crates/macros/src/bitfields/flag_attr.rs", try_parse)]
+```
+
+### Parsing the Struct
+
+Instead of parsing the struct directly, we will instead parse a regular `syn::ItemStruct` and then implement the `TryFrom` trait to convert between types in the regular `syn::ItemStruct` and our custom `BitFields` type.
+
+Again, we will start of easy, by converting the type of the struct field into our custom `FlagMeta` type.
+
+```rust
+#![trait_impl!("crates/macros/src/bitfields/utils.rs", TryFrom for FlagMeta)]
+```
+## Generating the Code
