@@ -792,6 +792,17 @@ Instead of parsing the struct directly, we will instead parse a regular `syn::It
 Again, we will start of easy, by converting the type of the struct field into our custom `FlagMeta` type.
 
 ```rust
-#![trait_impl!("crates/macros/src/bitfields/utils.rs", TryFrom for FlagMeta)]
+// #![trait_impl!("crates/macros/src/bitfields/utils.rs", TryFrom for FlagMeta)]
 ```
+
+To turn the width number of the type to the type that will represent it, we will use the following function.
+
+```rust
+#![function!("crates/macros/src/bitfields/utils.rs", type_from_size)]
+```
+
+For each field on our struct, we are going to initialy extract all the attributes on it and divide them into document attributes and our flag attributes.
+
+This can be easily done, becuase Rust doesn't store our comments 
+
 ## Generating the Code
