@@ -592,7 +592,10 @@ To generate this mask, we will think of a much simpler case, how can we put a se
 
 You may have also noticed that the nubmer of bits that were set to 1 before we added 1 is equel to the power of 2 of the number after we added 1. For example `0b00000111` (7) has 3 bits set to 1, and 8 is exactly `2^3`. 
 
+> ![NOTE]
 > If I were you I wouldn't accept this fact, go try it for youself with more examples to see that it is true
+
+## ADD THE EXPLANATION ABOUT THE BETTER MASK CREATING USING type::MAX and type::BITS
 
 To generaly create a mask with the first `n` bits set, we can use our formula: `2^n - 1`. Because we are speaking only on powers of two, we will use `(1 << n) - 1` to create the mask. Which is the same thing.
 
@@ -706,7 +709,7 @@ For some of our flags, and especially the `dont_shift` flag, we want to parse cu
 Instead of parsing ident's by our own logic, `syn` provides a cool `custom_keyword!` macro that allows us to parse custom idents easily.
 
 ```rust
-#![source_file!("crates/macros/src/bitfields/flag_attr.rs", 7:11)]
+#![source_file!("crates/macros/src/bitfields/flag_attr.rs", 6:11)]
 ```
 #### FlagType
 
@@ -785,6 +788,19 @@ And now for the `try_parse` function, where we basically want to fork the stream
 #![function!("crates/macros/src/bitfields/flag_attr.rs", try_parse)]
 ```
 
+Although we implemented `Parse` for `FlagAttribute`, we are not going to create it from raw tokens. Because, if you noticed, we only parsed the inside of the attribute, but not the `#[flag()]` part.
+For that we are going to use the `Meta` part of our `syn::Attribute`.
+
+```rust
+#![source_file!("<crateio>/syn-2.0.117/src/attr.rs", 455:486)]
+```
+
+In our case, we are going to have a `Meta::List`, which contains a `TokenStream` of the attribute's contents, hence the implementation of the `Parse` trait.
+
+```rust
+#![trait_impl!("crates/macros/src/bitfields/flag_attr.rs", TryFrom for FlagAttribute)]
+```
+
 ### Parsing the Struct
 
 Instead of parsing the struct directly, we will instead parse a regular `syn::ItemStruct` and then implement the `TryFrom` trait to convert between types in the regular `syn::ItemStruct` and our custom `BitFields` type.
@@ -792,7 +808,7 @@ Instead of parsing the struct directly, we will instead parse a regular `syn::It
 Again, we will start of easy, by converting the type of the struct field into our custom `FlagMeta` type.
 
 ```rust
-// #![trait_impl!("crates/macros/src/bitfields/utils.rs", TryFrom for FlagMeta)]
+#![trait_impl!("crates/macros/src/bitfields/utils.rs", TryFrom for FlagMeta)]
 ```
 
 To turn the width number of the type to the type that will represent it, we will use the following function.
@@ -803,6 +819,37 @@ To turn the width number of the type to the type that will represent it, we will
 
 For each field on our struct, we are going to initialy extract all the attributes on it and divide them into document attributes and our flag attributes.
 
-This can be easily done, becuase Rust doesn't store our comments 
+This can be easily done, becuase Rust doesn't store our comments as a string starting with `///` but as a `#[doc(some_comment)]` attribute. This makes our comments actually a `syn::Attribute` token which we already know how to work with.
+
+```rust
+#![function!("crates/macros/src/bitfields/bitfield.rs", extract_attributes)]
+```
+
+After that, we are going to create our field from the `syn::Field` token. But, the field itself is not enough, because from it we can't known the offset of the field in the struct. We are going to give as a parameter in the `new` function that will create our `BitField` instance. We can do that because when we will create our fields one by one, we will add each time thier size to an offset, that will ofcourse start at 0.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields/bitfield.rs", BitField::new)]
+```
+
+Finally, after all that parsing, we can turn the parsed `syn::ItemStruct` into our `BitFields` instance. 
+
+```rust
+#![trait_impl!("crates/macros/src/bitfields.rs", TryFrom for BitFields)]
+```
 
 ## Generating the Code
+
+With all of our types set up, we can now generate the code for our functions from them.
+
+Our first function will be a utility function, that will provide us some checks on our input value. This check will be used to check that the input value is within the valid range for the field, and it will be guarded by a `debug_assert!` macro, so in release builds it will be optimized out.
+
+### REFORMAT
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::checks)]
+```
+
+For each of our functions, we are going to use three main types. The first is the type of the variable that we are getting, the second, is going to be the type that represents the type of the variable we are getting, and the third is the type of the entire struct. For example, we might have a field `#[flag(flag_type = Bar)] foo: B6`. The type of our variable in this case will be `Bar`, the type that represents the field is `u8` becuse it is only 6 bits wide, and the type of the entire struct depends also on the other fields and thier sizes, but it will also follow the rules of the `type_from_size`.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::types)]
+```
