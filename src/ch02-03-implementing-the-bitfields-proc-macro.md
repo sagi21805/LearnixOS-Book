@@ -866,8 +866,16 @@ Our first function will be a utility function, that will provide us some checks 
 #![impl_method!("crates/macros/src/bitfields.rs", BitFields::checks)]
 ```
 
-For each of our functions, we are going to use three main types. The first is the type of the variable that we are getting, the second, is going to be the type that represents the type of the variable we are getting, and the third is the type of the entire struct. For example, we might have a field `#[flag(flag_type = Bar)] foo: B6`. The type of our variable in this case will be `Bar`, the type that represents the field is `u8` becuse it is only 6 bits wide, and the type of the entire struct depends also on the other fields and thier sizes, but it will also follow the rules of the `type_from_size`.
+For each of our functions, we are going to use three main types. The first is the type of the variable that we are getting, the second, is going to be the type that represents the type of the variable we are getting, and the third is the type of the entire struct. For example, we might have a field `#[flag(flag_type = Bar)] foo: B6`. The type of our variable in this case will be `Bar`, the type that represents the field is `u8` becuse it is only 6 bits wide, and the type of the entire struct depends also on the other fields and thier sizes, but it will also follow the rules of the `type_from_size` function.
+
+To store all of these types we are going to use a struct.
 
 ```rust
-#![impl_method!("crates/macros/src/bitfields.rs", BitFields::types)]
+#![struct!("crates/macros/src/bitfields.rs", FieldTypes)]
+```
+
+Then, to create it from our field, so it can be used in other functions, we are going to use the following function.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::field_types)]
 ```
