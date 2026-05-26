@@ -595,14 +595,12 @@ You may have also noticed that the nubmer of bits that were set to 1 before we a
 > ![NOTE]
 > If I were you I wouldn't accept this fact, go try it for youself with more examples to see that it is true
 
-## ADD THE EXPLANATION ABOUT THE BETTER MASK CREATING USING type::MAX and type::BITS
-
 To generaly create a mask with the first `n` bits set, we can use our formula: `2^n - 1`. Because we are speaking only on powers of two, we will use `(1 << n) - 1` to create the mask. Which is the same thing.
 
 [^2]: The sequence of bits that will be used along our value in a logic gate.
 
 ```
-fn generate_mask(n: u32) -> u32 {
+fn generate_mask(n: u8) -> u8 {
     (1 << n) - 1
 }
 
@@ -612,12 +610,32 @@ fn main() {
 }
 ```
 
+If played with this example in the demo, you may have found, that in one perticualr case this formula does not work as expected. (If you didn't find it, I urge you to try it yourself).
+
+When our `(1 << n) - 1` will result in an all 1, it means that `1 << n` was bigger then our underlying type. For example, `(1 << 8) - 1` which should generate the `0b11111111` mask, will instead generate `0`, because `1 << 8` is `256`, which is bigger then `u8` can hold. While we can use bigger types, for the maximum size type, it will not work.
+
+The alternative method that we are going to use is instead of increasing the number of 1 bits in our mask each time, and starting from 0, we are going to start with an all 1 mask, and reduce the number of 1 bits each time. This won't have the gap at an all 1 mask, becasuse it is the starting value.
+
+To achive it, we are going to start with our type maximum mask, and then shift it to the right by the total number of bits in our type, minus our width. For example, if our type is `u8`, and our width is `3`, our mask will be `0b11111111 >> (8 - 3) = 0b00000111`. 
+
+```
+fn generate_mask(n: u8) -> u8 {
+    u8::MAX >> (u8::BITS - n)
+}
+
+fn main() {
+    let mask = generate_mask(3);
+    println!("{:b}", mask);
+}
+```
+
+
 The next thing that we are going to do, is to relocate the position of the bits in our mask to the flag position in our u8.
 
 This could easly be done using the left shift operator `<<` with the offset of our flag. For example, if the starting bit of our flag is at position 2, we can shift our mask to the left by 2 bits: `mask << 2`. Which makes our final mask generation function look like this:
 ```
-fn generate_mask(n: u32, offset: u32) -> u32 {
-    ((1 << n) - 1) << offset
+fn generate_mask(n: u8, offset: u8) -> u8 {
+    (u8::MAX >> (u8::BITS - n)) << offset
 }
 
 fn main() {
@@ -629,10 +647,10 @@ fn main() {
 The to read the value, we just need to apply an AND gate with the mask, and then shift the result to the right by the offset to normalize it.
 
 ```
-fn read_flag(value: u8, offset: u32, width: u32) -> u32 {
+fn read_flag(value: u8, offset: u8, width: u8) -> u8 {
     let mask = generate_mask(width, offset);
 
-    ((value & mask) >> offset) as u32
+    ((value & mask) >> offset) as u8
 }
 
 // add main
@@ -645,7 +663,7 @@ To clear the flag, we can use and gate, where all the flag bits are set to 1, an
 You may have notice that this is the exact inverse of the mask we used to read the flag. So we will use the same approach to generate it, and use the NOT gate with the `!` operator to invert all the bits. After that, we can OR it with the new value shifted to the correct position.
 
 ```
-fn write_flag(value: u8, offset: u32, width: u32, new_value: u8) -> u8 {
+fn write_flag(value: u8, offset: u8, width: u8, new_value: u8) -> u8 {
     let mask = !generate_mask(width, offset);
     let cleared = value & mask;
     let shifted = (new_value as u8) << offset;
