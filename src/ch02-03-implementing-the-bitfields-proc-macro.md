@@ -592,7 +592,7 @@ To generate this mask, we will think of a much simpler case, how can we put a se
 
 You may have also noticed that the nubmer of bits that were set to 1 before we added 1 is equel to the power of 2 of the number after we added 1. For example `0b00000111` (7) has 3 bits set to 1, and 8 is exactly `2^3`. 
 
-> [!NOTE]
+> [!TIP]
 > If I were you I wouldn't accept this fact, go try it for youself with more examples to see that it is true
 
 To generaly create a mask with the first `n` bits set, we can use our formula: `2^n - 1`. Because we are speaking only on powers of two, we will use `(1 << n) - 1` to create the mask. Which is the same thing.
@@ -898,7 +898,7 @@ For our `read_shift` function we need to know if to shift the value or not per t
 ```
 
 
-> [!NOTE]
+> [!IMPORTANT]
 > You may have noticed that when we use functions from the `core` library, I am refrening them as `::core` with a leading `::`. And that for example when I use the `try_from` method from the `TryFrom` trait, I call the trait function with the object instead of `object.try_from(T)`
 >
 > When writing a macro, we don't want to insert `use` statement to the codebase of the person that is using our macros, and, we can't assume (although most of the time unlikely) that he or she didn't implement functions with similar names as in our example `try_into`, that are doing an entirely different thing.
@@ -909,4 +909,64 @@ When implementing our write and clear functions, we are going to use almost the 
 
 ```rust
 #![impl_method!("crates/macros/src/bitfields.rs", BitFields::volatile_write)]
+```
+
+Which makes this our write function.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::fn_write)]
+```
+
+Our `v_to_repr` function will be used to convert our value `v` from the type of the flag, to it's representation type by using the `try_from` function.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::v_to_repr)]
+```
+
+Therefore, we can use this value `v` that it defines in the `volatile_write` function, because it can `as` cast into the struct type.
+
+For the final function, which is our clear function, we are going to use the same logic as the write function, but instead of operating on a value `v`, we are going to operate on the clear value, which is already a usize.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::fn_clear)]
+```
+
+As a little bonus function, that is mainly used for convenience, we will create a build function, that is meant to operate on an empty struct, and define multiple flags on it's creation (e.g `let flags = Flags::new().flag1(2).flag2(3)`).
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::fn_build)]
+```
+
+Because we know we are operating on an empty flag, instead of clearing the flag and then writing, we can simply use the OR gate to write our value, because we know nothing is set in the flag yet.
+
+The last things that we want to generate is the `Debug` trait implementation, and the `From` trait from the flags into the struct repr, and from the struct repr into the flags.
+
+The latter is really easy, to trasnalte into the underlying type, we just return the inner type. And to construct from the inner type, we simply call the constructor.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::conversion_impls)]
+```
+
+To implement the `Debug` trait, we need to first create the formatter debug struct builder, and then add each of our fields to it.
+Because we can have multiple fields, we need to insert some sort of repetition. Luckily, the `quote!` macro provides us a way to do it.
+If we have a vector, or an iterator, of things that implement `ToTokens`, we can insert them all using the `#(#..)` syntax. 
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::debug_impl)]
+```
+
+> [!WARNING]
+> The debug trait implementation makes our binary larger, and adds additional compilation time. In the correct version of the macro, the `Debug` trait implementation is not guarded by a feature, but in the future it will be generated only if the main struct will include `#[derive(Debug)]`.
+> As a cool exercise, you can try to add that feature to the macro yourself.
+
+And for the grand finale, the implementation of the `ToTokens` trait for our macro.
+
+```rust
+#![trait_impl!("crates/macros/src/bitfields.rs", ToTokens for BitFields)]
+```
+
+And for the macro itself, we need to parse a struct from the input, and convert it into a `BitFields` struct. Then just turn it into tokens or raise the error in parsing, depending on the result.
+
+```rust
+#![function!("crates/macros/src/lib.rs", bitfields)]
 ```
