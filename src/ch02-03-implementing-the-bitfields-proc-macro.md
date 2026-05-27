@@ -592,7 +592,7 @@ To generate this mask, we will think of a much simpler case, how can we put a se
 
 You may have also noticed that the nubmer of bits that were set to 1 before we added 1 is equel to the power of 2 of the number after we added 1. For example `0b00000111` (7) has 3 bits set to 1, and 8 is exactly `2^3`. 
 
-> ![NOTE]
+> [!NOTE]
 > If I were you I wouldn't accept this fact, go try it for youself with more examples to see that it is true
 
 To generaly create a mask with the first `n` bits set, we can use our formula: `2^n - 1`. Because we are speaking only on powers of two, we will use `(1 << n) - 1` to create the mask. Which is the same thing.
@@ -861,7 +861,6 @@ With all of our types set up, we can now generate the code for our functions fro
 
 Our first function will be a utility function, that will provide us some checks on our input value. This check will be used to check that the input value is within the valid range for the field, and it will be guarded by a `debug_assert!` macro, so in release builds it will be optimized out.
 
-### REFORMAT
 ```rust
 #![impl_method!("crates/macros/src/bitfields.rs", BitFields::checks)]
 ```
@@ -878,4 +877,36 @@ Then, to create it from our field, so it can be used in other functions, we are 
 
 ```rust
 #![impl_method!("crates/macros/src/bitfields.rs", BitFields::field_types)]
+```
+
+Without further diving into our utility functions, let's look on our read function.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::fn_read)]
+```
+
+As explained above, the first thing we do, is to extract the types that we are going to use inside this function. Then, we are going to get the function name, for the rest of our functions, we are not going to have a function like this, but for the read function, I personally wanted for my convenienve that if the type of the item was `bool` so that it would change to `is_<flag_name>` instead of `get_<flag_name>`
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::read_fn_name)]
+```
+
+For our `read_shift` function we need to know if to shift the value or not per the `dont_shift` attribute, and in which direction. For write operations we need a left shift, to change from the the absolute value we get the it's relative value on the flag, and for read operations we need a right shift, to convert from the relative value on the flag to it's absolute value. When the `dont_shift` attribute is present, we don't need any of this, because the values are always absoluteo.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::read_shift, write_shift)]
+```
+
+
+> [!NOTE]
+> You may have noticed that when we use functions from the `core` library, I am refrening them as `::core` with a leading `::`. And that for example when I use the `try_from` method from the `TryFrom` trait, I call the trait function with the object instead of `object.try_from(T)`
+>
+> When writing a macro, we don't want to insert `use` statement to the codebase of the person that is using our macros, and, we can't assume (although most of the time unlikely) that he or she didn't implement functions with similar names as in our example `try_into`, that are doing an entirely different thing.
+>
+> Because of that, the safest when to to call fucntions from libaraies, and trait methods, is to use theier fully qualified name. So we use `::` before core, to refenrece the compiler's core libarary (in case they have a core.rs module) and the fully trait name to call it's functions.
+
+When implementing our write and clear functions, we are going to use almost the exact same code for the writing logic. Because of that, we are going to exract this piece of code to a general `volatile_write` function.
+
+```rust
+#![impl_method!("crates/macros/src/bitfields.rs", BitFields::volatile_write)]
 ```
