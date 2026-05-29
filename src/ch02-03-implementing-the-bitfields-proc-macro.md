@@ -2,10 +2,10 @@
 
 As you may recall from the previous chapter, we used a proc-macro that was called `bitfields`. In this chapter, we are going to learn about Rusts proceadural macros, and even implement this macro ourselves.
 
-> Another great resource for this subject is the great video [Comprehending Proc Macros](https://www.youtube.com/watch?v=SMCRQj9Hbx8) by Logan Smith
+> Another great resource for this subject is the great video [Comprehending Proc Macros](https://youtu.be/SMCRQj9Hbx8?si=p-JUX0rLronBG_Nz) by Logan Smith
 
 
-_If you are familer with procedural macros, with `syn` and `quote`, and want to go stright to the macro implemention, click [here](#defining-our-macro)_
+_If you are familer with procedural macros, `syn` and `quote`, and want to go stright to the macro implemention, click [here](#defining-our-macro)_
 
 ## A Little Introduction to Proceadural Macros
 
@@ -88,14 +88,15 @@ This thinking can also be used on regular functions, but not from our point of v
 
 For example, this function: 
 
-```
-#[unsafe(no_mangle)]
-pub fn square(num: i32) -> i32 {
-    num * num
-}
+```rust
+#![function!("snippets/src/book/ch02_03/general.rs", square)]
 ```
 
 would map to the following ASM code:
+
+> [!TIP]
+> Look it yourself at [compiler explorer](https://godbolt.org/z/7vTzbs6e9)
+
 ```x86asm,icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png
 square:
   mov     eax, edi
@@ -106,62 +107,29 @@ square:
 From this point of view, macros are not so different, but instead of a target language, they are mapped to the same language.
 So this macro:
 
-```
-macro_rules! square {
-    ($num:expr) => {
-        $num * $num
-    };
-}
+```rust
+#![source_file!("snippets/src/book/ch02_03/general.rs", 8:12)]
 
-fn foo() -> u32 {
-  let x = 42;
-  square!(x)
-}
+#![function!("snippets/src/book/ch02_03/general.rs", foo)]
 ```
 
 Would map to this literal Rust code:
 
-```
-fn foo() -> u32 {
-  let x = 42;
-  x * x
-}
+```rust
+#![function!("snippets/src/book/ch02_03/general.rs", foo_expanded)]
 ```
 
 The fact that macros operate on our source code, means that we can abstract certain logics, that regular functions cannot. For example, take a look at this macro:
 
-```
-macro_rules! unwrap_or_break {
-    ($e:expr) => {
-        match $e {
-            Some(v) => v,
-            None => break,
-        }
-    };
-}
-
-fn main() {
-    let data = vec![Some(1), Some(2), None, Some(4)];
-    let mut iter = data.into_iter();
-
-    loop {
-        let val = unwrap_or_break!(iter.next());  // breaks the loop on None
-        println!("{}", val);
-    }
-
-    println!("done");
-}
+```rust
+#![source_file!("snippets/src/book/ch02_03/general.rs", 24:31)]
+#![function!("snippets/src/book/ch02_03/general.rs", main)]
 ```
 
 It works, because it injects the `break` expression into the code at the call site, which is something that a function just can't do.
 
-```
-fn unwrap_or_break<T>(e: Option<T>) -> T {
-    match e {
-        Some(v) => v,
-        None => break,  // ERROR: `break` outside of a loop
-    }
-}
+```rust
+#![function!("snippets/src/book/ch02_03/general.rs", unwrap_or_break)]
 ```
 
 At this time, I hope you understand the great power of macros, and the great [code generation](https://en.wikipedia.org/wiki/Code_generation) capabilities that they enable. But, you might think rightfully think that in the examples above, we didn't have the option to insert 'coding' logic into the macro expansion. This is where procedural macros come in.
@@ -182,25 +150,8 @@ Each macro is defined by a set of rules that specify how the macro should expand
 
 Lets analyze the syntax of a declarative macro rule from the earlier examples.
 
-```
-/// Macros are defined using the `macro_rules!` macro, 
-/// followed by the name of the macro.
-macro_rules! unwrap_or_break {
-
-    /// Each rule is defined with the "() => {}" syntax, 
-    /// in the parentheses we provide the pattern to match, 
-    /// which uses `Metavariables` to capture parts of the input.
-
-    ($e:expr) => {
-
-        /// Then, we can write 'regular' Rust code inside the macro body, 
-        /// which uses the metavariables to generate the expanded code.
-        match $e {
-            Some(v) => v,
-            None => break,
-        }
-    };
-}
+```rust
+#![source_file!("snippets/src/book/ch02_03/general.rs", 51:65)]
 ```
 
 We will go a bit deeper then necessary on the common types of metavariables that are available. This is because later in this chapter we are going to talk about the `syn` library, which will parse Rusts syntax into similar structres.
@@ -239,21 +190,14 @@ function like macros are very similar to declarative macros. They are invoked li
 
 This type of macro can be called anywhere in our code, even in global scope and is defined using the following syntax:
 
-```
-#[proc_macro]
-pub fn foo(_item: TokenStream) -> TokenStream {
-    "fn bar() -> u32 { 42 }".parse().unwrap()
-}
+```rust
+#![function!("snippets/src/lib.rs", foo)]
 ```
 
 Then it can be called like a regular function, which will create a fuction that is called `bar` which could be used in our code.
 
-```
-foo!();
-
-fn main() {
-    println!("{}", bar());
-}
+```rust
+#![source_file!("snippets/src/book/ch02_03/invoke.rs", 1:99)]
 ```
 
 _This type of macro replaces the macro invocation with the generated code, so the macro invocation is effectively replaced with the generated code._
@@ -266,20 +210,14 @@ Derives may also include helper attributes, which are used to customize the gene
 
 This type of macro can be called only from structs, enums or unions.
 
-```
-#[proc_macro_derive(WithHelperAttr, attributes(helper))]
-pub fn derive_with_helper_attr(_item: TokenStream) -> TokenStream {
-    TokenStream::new()
-}
+```rust
+#![function!("snippets/src/lib.rs", derive_with_helper_attr)]
 ```
 
 And is used on a structure like this: 
 
-```
-#[derive(WithHelperAttr)]
-struct Foo {
-  #[helper] bar: ()
-}
+```rust
+#![struct!("snippets/src/book/ch02_03/general.rs", Foo)]
 ```
 
 _This type of macro does not replace the macro invocation or the input item with the generated code, and the generated TokenStream is appended to the input TokenStream._
@@ -290,25 +228,15 @@ Attributes are used to annotate items with. They are placed before the item they
 
 Attributes may also include input variables, which can be used to pass 'configuration' to the macro.
 
-```
-// The `_attr` parameter is the attribute's input variables, and the `item` parameter is the item the attribute is applied to.
-
-#[proc_macro_attribute]
-pub fn return_as_is(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    item
-}
+```rust
+#![function!("snippets/src/lib.rs", return_as_is)]
 ```
 
 And is used on a structure like this:
 
-```
-#[return_as_is]
-struct Foo {
-  bar: ()
-}
-
-#[return_as_is]
-fn bar() { }
+```rust
+#![struct!("snippets/src/book/ch02_03/general.rs", Bar)]
+#![function!("snippets/src/book/ch02_03/general.rs", bar)]
 ```
 
 _This type of macro replaces the macro invocation and the input item with the generated code._
@@ -459,34 +387,16 @@ The `quote` crate provides a `quote!` macro that allows us to write quoted expre
 
 For example, let's define a simple quoted expression that represents a struct definition:
 
-```
-quote! {
-    struct Foo {
-       bar: () 
-    }
-
-    fn main() {
-        
-    }
-}
+```rust
+#![source_file!("snippets/src/book/ch02_03/general.rs", 81:90)]
 ```
 
 As you can see, it seems like we write Rust code, but actually under the hood, it is converted into a `TokenStream`.
 
 Another great quality that this macro have, is that it supports entering variables into the quoted expression. Let's look at an example, where we change a name of a function, inside an attribute macro.
 
-```
-#[proc_macro_attribute]
-pub fn change_name(_attr: TokenStream, input: TokenStream) -> TokenStream {
-    let mut item_fn = syn::parse_macro_input!(input as ItemFn);
-
-    item_fn.sig.ident = Ident::new(
-        &format!("with_change_{}", item_fn.sig.ident),
-        item_fn.sig.ident.span(),
-    );
-
-    quote::quote! { #item_fn }.into()
-}
+```rust
+#![function!("snippets/src/lib.rs", change_name)]
 ```
 
 As you can see, we parsed the input with `syn` into a function item. Then, we changed the name of the function, and transferred it to the `quote!` macro with the `#` so that it would convert the variable into a `TokenStream`.
@@ -537,20 +447,8 @@ This design for this macro, with insperation from [Proceadural Macro Workshop](h
 
 For example, this struct will represent the flags in the example above (with example helper attributes).
 
-```
-#[bitfields]
-struct MyFlags {
-  #[flag(r)]
-  a: B2,
-  b: B5,
-  #[flag(rwc(30))]
-  c: B3,
-  #[flag(flag_type = ProtectionLevel)]
-  d: B2,
-  #[flag(r, dont_shift)]
-  e: B3,
-  f: B1,
-}
+```rust
+#![struct!("snippets/src/book/ch02_03/general.rs", MyFlags)]
 ```
 
 ## Implementing the Macro
@@ -562,17 +460,14 @@ This way, I could have a mental model of what is suppose to do, and I can genera
 
 So, for starters, let's create a really simple input and output for our macro.
 
-```
-struct SimpleFlags {
-  a: B2,
-  b: B1
-}
+```rust
+#![struct!("snippets/src/book/ch02_03/general.rs", SimpleFlags)]
 ```
 
 Just before we are creating our functions, what will our struct type will be? In this case we have a two bit field and a one bit field, but there is no type that is three bits wide. Instead, we are going to pick the closest uint type that is large enough to hold our fields. In this case a u8.
 
-```
-struct SimpleFlags(u8);
+```rust
+#![struct!("snippets/src/book/ch02_03/general.rs", SimpleFlagsType)]
 ```
 
 Now for our functions. The problem that we need to solve, is how to get and set the value of the bits, that are stored in the underlying `u8` field.
@@ -599,15 +494,10 @@ To generaly create a mask with the first `n` bits set, we can use our formula: `
 
 [^2]: The sequence of bits that will be used along our value in a logic gate.
 
-```
-fn generate_mask(n: u8) -> u8 {
-    (1 << n) - 1
-}
+```rust,playground
+#![function!("snippets/src/book/ch02_03/mask.rs", generate_mask_1)]
 
-fn main() {
-    let mask = generate_mask(3);
-    println!("{:b}", mask);
-}
+#![function!("snippets/src/book/ch02_03/mask.rs", main)]
 ```
 
 If played with this example in the demo, you may have found, that in one perticualr case this formula does not work as expected. (If you didn't find it, I urge you to try it yourself).
@@ -618,42 +508,31 @@ The alternative method that we are going to use is instead of increasing the num
 
 To achive it, we are going to start with our type maximum mask, and then shift it to the right by the total number of bits in our type, minus our width. For example, if our type is `u8`, and our width is `3`, our mask will be `0b11111111 >> (8 - 3) = 0b00000111`. 
 
-```
-fn generate_mask(n: u8) -> u8 {
-    u8::MAX >> (u8::BITS - n)
-}
+```rust,playground
+#![function!("snippets/src/book/ch02_03/mask.rs", generate_mask_2)]
 
-fn main() {
-    let mask = generate_mask(3);
-    println!("{:b}", mask);
-}
+#![function!("snippets/src/book/ch02_03/mask.rs", main)]
 ```
 
 
 The next thing that we are going to do, is to relocate the position of the bits in our mask to the flag position in our u8.
 
 This could easly be done using the left shift operator `<<` with the offset of our flag. For example, if the starting bit of our flag is at position 2, we can shift our mask to the left by 2 bits: `mask << 2`. Which makes our final mask generation function look like this:
-```
-fn generate_mask(n: u8, offset: u8) -> u8 {
-    (u8::MAX >> (u8::BITS - n)) << offset
-}
 
-fn main() {
-    let mask = generate_mask(3);
-    println!("{:b}", mask);
-}
+```rust,playground
+#![function!("snippets/src/book/ch02_03/mask.rs", generate_mask_3)]
+
+#![function!("snippets/src/book/ch02_03/mask.rs", main)]
 ```
 
 The to read the value, we just need to apply an AND gate with the mask, and then shift the result to the right by the offset to normalize it.
 
-```
-fn read_flag(value: u8, offset: u8, width: u8) -> u8 {
-    let mask = generate_mask(width, offset);
+```rust,playground
+#![function!("snippets/src/book/ch02_03/mask.rs", generate_mask_3)]
 
-    ((value & mask) >> offset) as u8
-}
+#![function!("snippets/src/book/ch02_03/read.rs", read_flag)]
 
-// add main
+#![function!("snippets/src/book/ch02_03/read.rs", main)]
 ```
 
 To write to our value, you may be tempted to use the left shift operation on the new value to put it in the correct position and then OR it with the original value. While your intuition is good, this approach will not work. This is because the OR gate only change bits from 0 to 1, but cannot change bits from 1 to 0. So our approach will be to first clear the bits we want to change, and then OR it with the new value.
@@ -662,15 +541,12 @@ To clear the flag, we can use and gate, where all the flag bits are set to 1, an
 
 You may have notice that this is the exact inverse of the mask we used to read the flag. So we will use the same approach to generate it, and use the NOT gate with the `!` operator to invert all the bits. After that, we can OR it with the new value shifted to the correct position.
 
-```
-fn write_flag(value: u8, offset: u8, width: u8, new_value: u8) -> u8 {
-    let mask = !generate_mask(width, offset);
-    let cleared = value & mask;
-    let shifted = (new_value as u8) << offset;
-    cleared | shifted
-}
+```rust,playground
+#![function!("snippets/src/book/ch02_03/mask.rs", generate_mask_3)]
 
-// add main
+#![function!("snippets/src/book/ch02_03/write.rs", write_flag)]
+
+#![function!("snippets/src/book/ch02_03/write.rs", main)]
 ```
 
 ### Struct Definition
