@@ -91,7 +91,7 @@ _More problems that are I was having, but are not a direct outcome of the initia
 
 The current design of this macros, looks like this:
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L6
+```rust
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", AccessByte)]
 ```
 
@@ -124,7 +124,7 @@ If this macro seems really cool and complicated, that's great! because it will b
 
 _We will also define an enum that will include the protection level and the system segment type, so it would be more clear_
 
-```rust,fp=<repo>crates/common/src/enums/general.rs
+```rust
 #![enum!("crates/common/src/enums/general.rs", ProtectionLevel)]
 #![enum!("crates/common/src/enums/global_descriptor_table.rs", SegmentDescriptorType)]
 ```
@@ -132,7 +132,7 @@ _We will also define an enum that will include the protection level and the syst
 
 Now, just before creating a `new` function to our entry, we don't want each time to specify the base in three parts and the limit in two parts, instead we want the `new` function to abstract it from us.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L39
+```rust
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32::new)]
 ```
@@ -145,7 +145,7 @@ Each table must have at least three entries, an initial `null` entry that is fil
 
 Together it will all look like this:
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L244
+```rust
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::default)]
 ```
@@ -157,7 +157,7 @@ So, the only thing left to do is to load the global descriptor table. This can b
 
 We will create a `load` function that will create this register structure, and will load it to the cpu.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L312
+```rust
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableRegister)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::load)]
 ```
@@ -168,11 +168,11 @@ But just before that, when we jump to the next stage, we need to specify the off
 
 _Notice that this also contains segments of other GDT that we will use in the future_
 
-```rust,fp=<repo>crates/common/src/enums/global_descriptor_table.rs#L8
+```rust
 #![enum!("crates/common/src/enums/global_descriptor_table.rs", Sections)]
 ```
 
-```rust,fp=<repo>bootloader/first_stage/src/main.rs#L93
+```rust
 #![static!("bootloader/first_stage/src/main.rs", GLOBAL_DESCRIPTOR_TABLE)]
 #![function!("bootloader/first_stage/src/main.rs", enter_protected_mode)]
 ```

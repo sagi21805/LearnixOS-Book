@@ -38,7 +38,7 @@ But how should we set our initial table? This is where problem 2 guides us. Beca
 
 So firstly, let's initialize our page tables.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L15
+```rust
 #![const!("crates/common/src/constants/addresses.rs", IDENTITY_PAGE_TABLE_L4_OFFSET)]
 #![const!("crates/common/src/constants/addresses.rs", IDENTITY_PAGE_TABLE_L3_OFFSET)]
 #![const!("crates/common/src/constants/addresses.rs", IDENTITY_PAGE_TABLE_L2_OFFSET)]
@@ -58,14 +58,14 @@ Instead of creating multiple tables, and wasting precious memory, we can flag th
 Just before we will toggle paging on our CPU, we should enter protected mode, to do that, we need to toggle 2 things, the first is called the `physical address extension` (PAE) which is an extension for protected mode paging, which allows 32bit paging entries to be 64bit, which results in a way to access addresses above 32bit because the page table walker can access the 64bit address on the entries. This extension must be activated to access long mode, which also allows us to have 64bit instructions.
 
 To activate PAE and Long mode, we can use this inline assembly.
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L108
+```rust
 #![function!("crates/arch/x86/src/structures/paging/init.rs", set_pae_long_mode)]
 ```
 
 After that, we can finally turn on paging!
 
 Like the previous features, this also is guarded by a control register, and toggled via inline assembly
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/init.rs#L133
+```rust
 #![function!("crates/arch/x86/src/structures/paging/init.rs", toggle_paging)]
 ```
 
@@ -76,7 +76,7 @@ _For now ignore the tss entry, it will be relevant on later chapters_
 
 So after the changes the table will look like this:
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L277
+```rust
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableLong::default)]
 ```
 
@@ -88,7 +88,7 @@ All that is left to do is to call the `enable` function which calls all the func
 
 This can be done with the following code: 
 
-```rust,fp=<repo>bootloader/second_stage/src/main.rs#L23
+```rust
 #![function!("bootloader/second_stage/src/main.rs", second_stage)]
 ```
 

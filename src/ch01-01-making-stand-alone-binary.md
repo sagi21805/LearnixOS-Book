@@ -51,7 +51,7 @@ If you have done everything correct, your project should look like this:
 
 And the main file, should look something like this:
 
-```rust,fp=main.rs
+```rust
 #![function!("snippets/src/book/init.rs", main)]
 ```
 
@@ -121,7 +121,7 @@ def failing_function(x: str):
 ```
 
 Instead, Rust provides us with the `panic!` macro, which will call the `Panic Handler`. This function is very important and it will be called every time the `panic!` macro is invoked, for example:
-```rust,fp=main.rs
+```rust
 #![function!("snippets/src/book/panic.rs", main)]
 ```
 Normally, the Standard Library provides us with an implementation of the Panic Handler, which will typically print the line number and file in which the error occurred. However, because we are now not using the Standard Library, we need to define the implementation of the function ourselves.
@@ -144,7 +144,7 @@ This means that it wants our function to receive a reference to a structure call
 But what is this struct? and what is this weird type?
 
 The `PanicInfo` struct includes basic information about our panic such as the location, and message. Its definition can be found in the Core library:
-```rust,fp=<rust-doc>core/panic/panic_info.rs
+```rust
 #![struct!("snippets/src/book/panic.rs", PanicInfo)]
 ```
 
@@ -153,7 +153,7 @@ In a normal operating system, this is not a problem; just print the panic messag
 
 So at the end, this is the minimal definition of our handler, which results in the following code
 
-```rust,fp=main.rs
+```rust
 #![function!("snippets/src/book/no_std.rs", main)]
 
 #![function!("snippets/src/book/no_std.rs", panic_handler)]
@@ -249,7 +249,7 @@ This will set our entry point to main, and our output into a raw binary, which m
 [^5]: Operating systems have their own binary header so they can understand how to treat a binary. Some common ones are [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) and [PE](https://en.wikipedia.org/wiki/Portable_Executable)
 
 Then, to make our linker to use this script, we mainly have two options; one is to add some arguments to our build command, and the other one is to create a [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html). In this book, we use the following build script:
-```rust,fp=build.rs
+```rust
 #![source_file!("snippets/src/book/build.rs")]
 ```
 
@@ -269,7 +269,7 @@ A similar thing is happening to our `main` function, which makes its name not ex
 To fix it, we can add the `#[unsafe(no_mangle)]` attribute to our main function, which will make its name just 'main'.
 
 Which makes this, our final main.rs file!
-```rust,fp=main.rs
+```rust
 #![source_file!("snippets/src/book/minimal_main.rs")]
 ```
 

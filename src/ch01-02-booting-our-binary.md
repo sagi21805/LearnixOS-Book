@@ -212,7 +212,7 @@ To print "Hello, World!", we can utilize the BIOS [video interrupt](https://en.w
 
 _For now, don't worry about the code implementation and just use and play with it. This code piece, and a lot more will be explained in the next chapter._
 
-```rust,fp=main.rs
+```rust
 #![source_file!("snippets/src/book/print.rs")]
 ```
 
