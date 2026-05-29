@@ -76,7 +76,7 @@ For this reason, Rust provides us with an amazing macro system
 
 If you read through some previous version of this book, you may have seen the explanation of the [flag!](https://github.com/sagi21805/LearnixOS/blob/c6560ef225262a3cfea58d5a5eae716ddb082ff3/learnix-macros/src/lib.rs#L74) proc-macro, which was used like this:
 
-<pre><code><span class="hlrs-keyword">impl</span> <span class="hlrs-type">AccessByte</span> {
+<pre><code class="language-rust icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg hljs"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">AccessByte</span> {
     <span class="hlrs-macro">flag</span><span class="hlrs-macro">!</span>(<span class="hlrs-function">readable</span>, <span class="hlrs-litnum">1</span>);
 }
 </code></pre>
@@ -115,7 +115,7 @@ To see what this macro generated, we can use the amazing [`cargo-expand`](https:
 <summary>For example, the expansion of the call above</summary>
 
 ```rust
-#![source_file!("snippets/src/book/flag_macro_expand.rs")]
+#![source_file!("snippets/src/book/ch02_02/flag_macro_expand.rs", 1:999)]
 ```
 </details>
 </blockquote>

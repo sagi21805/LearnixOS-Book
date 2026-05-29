@@ -120,7 +120,7 @@ The only thing that is missing is to initialize the writer, and write a function
 An example usage, could be an OK message of what we already initialized!
 
 ```rust
-#![function!("snippets/src/book/print_example.rs", _start)]
+#![function!("snippets/src/book/ch03_00/print_example.rs", _start)]
 ```
 
 <pre><figure><img src="assets/vga_print.png" alt=""><figcaption></figcaption></figure></pre>

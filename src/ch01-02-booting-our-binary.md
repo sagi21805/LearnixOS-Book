@@ -213,7 +213,7 @@ To print "Hello, World!", we can utilize the BIOS [video interrupt](https://en.w
 _For now, don't worry about the code implementation and just use and play with it. This code piece, and a lot more will be explained in the next chapter._
 
 ```rust
-#![source_file!("snippets/src/book/print.rs")]
+#![source_file!("snippets/src/book/ch01_02/print.rs", 1:99)]
 ```
 
 When we try to compile and run our code, we can see that it's indeed booting, but we don't see any message.
@@ -225,24 +225,30 @@ When we do that, we can notice that it seems that code was added, but at the end
 <blockquote>
 
 - **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
+
 ```rust,banner=no
-#![source_file!("snippets/src/book/func.rs")] 
-#![source_file!("")]
+#![function!("snippets/src/book/ch01_02/general.rs", some_function)] 
+#![]
 ```
+
+
 - **.data** - Includes the initialized data of our program, like static variables.
+
 ```rust,banner=no
-#![source_file!("snippets/src/book/static_var.rs")] 
-#![source_file!("")]
+#![static!("snippets/src/book/ch01_02/general.rs", MESSAGE)] 
+#![]
 ```
 - **.bss** - Includes the uninitialized data of our program
+
 ```rust,banner=no
-#![source_file!("snippets/src/book/static_uninit.rs")] 
-#![source_file!("")]
+#![static!("snippets/src/book/ch01_02/general.rs", UNINIT)] 
+#![]
 ```
 - **.rodata** - Includes the read-only data of our program
+
 ```rust,banner=no
-#![source_file!("snippets/src/book/static_str.rs")] 
-#![source_file!("")]
+#![static!("snippets/src/book/ch01_02/general.rs", VAR)] 
+#![]
 ```
 - **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
 </blockquote>

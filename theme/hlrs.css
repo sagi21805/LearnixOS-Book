@@ -23,12 +23,14 @@
 }
 
 .none.ra-mod-macro,
+.proc_macro,
 .hlrs-macro,
 .macro_bang,
 .hlrs-litnum {
     color: #d19a66;
 }
 
+.union,
 .hlrs-segment,
 .hlrs-returnType,
 .hlrs-fntype,
