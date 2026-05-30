@@ -24,10 +24,43 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Install mdBook and mdbook-linkcheck (cached by action)
+      - name: Cache Rust toolchain & registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.rustup
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: rust-toolchain-${{ runner.os }}-v1
+
+      - name: Cache compiled binaries
+        id: cache-bins
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: mdbook-bins-${{ runner.os }}-mdbook-0.5.3-v1
+
+      - name: Install mdBook and plugins
+        if: steps.cache-bins.outputs.cache-hit != 'true'
         uses: taiki-e/install-action@v2
         with:
           tool: mdbook@0.5.3,mdbook-linkcheck,mdbook-utils,mdbook-webinclude
+
+      - name: Cache build target
+        if: steps.cache-bins.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: cargo-target-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-target-${{ runner.os }}-
+
+      - name: Compile custom preprocessors
+        if: steps.cache-bins.outputs.cache-hit != 'true'
+        run: |
+          cargo build --release
+          cp target/release/mdbook-* ~/.cargo/bin/
+          chmod +x ~/.cargo/bin/mdbook-*
 
       - name: Create sitemap
         run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml
@@ -37,14 +70,34 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mdbook build
 
+      - name: Deploy preview
+        if: github.ref_name != 'master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./book
+          destination_dir: preview/${{ github.ref_name }}
+          keep_files: true
+
+      - name: Print preview URL
+        if: github.ref_name != 'master'
+        run: |
+          echo "=========================================="
+          echo " Preview URL:"
+          echo " https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/preview/${{ github.ref_name }}"
+          echo "=========================================="
+
       - name: Setup Pages
+        if: github.ref_name == 'master'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: github.ref_name == 'master'
         uses: actions/upload-pages-artifact@v3
         with:
           path: "book"
 
       - name: Deploy to GitHub Pages
+        if: github.ref_name == 'master'
         id: deployment
         uses: actions/deploy-pages@v4
