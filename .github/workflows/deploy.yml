@@ -40,14 +40,7 @@ jobs:
           path: ~/.cargo/bin
           key: mdbook-bins-${{ runner.os }}-mdbook-0.5.3-v1
 
-      - name: Install mdBook and plugins
-        if: steps.cache-bins.outputs.cache-hit != 'true'
-        uses: taiki-e/install-action@v2
-        with:
-          tool: mdbook@0.5.3,mdbook-linkcheck,mdbook-utils,mdbook-webinclude
-
       - name: Cache build target
-        if: steps.cache-bins.outputs.cache-hit != 'true'
         uses: actions/cache@v4
         with:
           path: target
@@ -55,12 +48,21 @@ jobs:
           restore-keys: |
             cargo-target-${{ runner.os }}-
 
-      - name: Compile custom preprocessors
+      - name: Cache preprocessor build targets
+        uses: actions/cache@v4
+        with:
+          path: |
+            mdbook-rust-analyzer-highlight/target
+            mdbook-gh-issue-preview/target
+          key: cargo-preprocessors-${{ runner.os }}-${{ hashFiles('mdbook-rust-analyzer-highlight/Cargo.lock', 'mdbook-gh-issue-preview/Cargo.lock') }}
+          restore-keys: |
+            cargo-preprocessors-${{ runner.os }}-
+
+      - name: Install mdBook and plugins
         if: steps.cache-bins.outputs.cache-hit != 'true'
-        run: |
-          cargo build --release
-          cp target/release/mdbook-* ~/.cargo/bin/
-          chmod +x ~/.cargo/bin/mdbook-*
+        uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook@0.5.3,mdbook-utils
 
       - name: Create sitemap
         run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml
