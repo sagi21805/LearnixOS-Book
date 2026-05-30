@@ -1,0 +1,65 @@
+.hlrs-function,
+.proc_macro {
+    color: #61afef;
+}
+
+.hlrs-litstr,
+.hlrs-string {
+    color: #98c379;
+}
+
+.parenthesis,
+.operator,
+.brace,
+.semicolon,
+.punctuation,
+.angle {
+    color: rgb(200, 200, 200);
+}
+
+.hlrs-selftoken,
+.hlrs-keyword {
+    color: #c678dd;
+}
+
+.none.ra-mod-macro,
+.proc_macro,
+.hlrs-macro,
+.macro_bang,
+.hlrs-litnum {
+    color: #d19a66;
+}
+
+.union,
+.hlrs-segment,
+.hlrs-returnType,
+.hlrs-fntype,
+.hlrs-type {
+    color: #e5c07b;
+}
+
+.hlrs-variable,
+.reg {
+    color: #e06c75;
+}
+
+.inlay-hint {
+    color: #8895a1;
+}
+
+.hlrs-comment {
+    color: #5c6370;
+    font-style: italic;
+}
+
+.hlrs-lifetime {
+    color: #a9cee7;
+}
+
+.hlrs-enum {
+    color: #56b6c2;
+}
+
+.hlrs-attribute {
+    color: #abb2bf;
+}

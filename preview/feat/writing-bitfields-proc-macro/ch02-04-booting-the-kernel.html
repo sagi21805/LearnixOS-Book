@@ -1,0 +1,518 @@
+<!DOCTYPE HTML>
+<html lang="en" class="navy sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Booting the Kernel [OS] - The LearnixOS Book</title>
+
+
+        <!-- Custom HTML head -->
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q6WJBYSC2E"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-Q6WJBYSC2E');
+        </script>
+        
+        <!-- Microsoft Clarity -->
+        <script type="text/javascript">
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "woazwfwtq9");
+        </script>
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/whichlang-1516096e.css">
+        <link rel="stylesheet" href="theme/hlrs-34616bb2.css">
+        <link rel="stylesheet" href="theme/gh-issue-1d418845.css">
+        <link rel="stylesheet" href="theme/tags-3d530a36.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "navy";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-295dc51a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-712dd4bf.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The LearnixOS Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/sagi21805/LearnixOS" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="booting-the-kernel"><a class="header" href="#booting-the-kernel">Booting the Kernel</a></h1>
+<p><em>“A small thing. Yet it holds everything together.” - J.R.R. Tolkien, paraphrased</em></p>
+<hr>
+<p>In the previous section we talked about memory paging, what it is, and how to initialize page tables. So, logically the only thing that is left to do, is to toggle on paging.</p>
+<p>After that we can also toggle <a href="https://en.wikipedia.org/wiki/Long_mode"><code>long mode</code></a>, which is another mode in the CPU, just like <code>protected mode</code> which will let us run 64-bit instructions.</p>
+<h2 id="initializing-paging"><a class="header" href="#initializing-paging">Initializing Paging</a></h2>
+<details><summary><span style="font-style: italic; font-size: 1.15em;">The code below assumes the following target and linker script</span></summary>
+<pre><code class="language-linker fp=&lt;repo&gt;bootloader/second_stage/32bit.ld">OUTPUT_FORMAT(binary)
+ENTRY(second_stage)
+
+SECTIONS {
+    . = 0x7c00 + 512;
+
+    .start : { *(.start) }
+
+    .text : { *(.text .text.*) }
+    .bss : { *(.bss .bss.*) }
+    .rodata : { *(.rodata .rodata.*) }
+    .data : { *(.data .data.*) }
+    .eh_frame : { *(.eh_frame .eh_frame.*) }
+    .eh_frame_hdr : { *(.eh_frame_hdr .eh_frame_hdr.*) }
+
+    .fill_32 : {
+        FILL(0)
+        . = 0x10000;
+    }
+}
+</code></pre>
+<p><em>I leave the starting address of the next stage as an exercise for the reader (There is a really good reason to use that address).</em></p>
+<blockquote>
+<p><strong><em>Note:</em></strong> The code for using the linker script in the build script is the same as in stage one.</p>
+</blockquote>
+<pre><code class="language-json fp=&lt;repo&gt;bootloader/second_stage/32bit_target.json">{
+  "arch": "x86",
+  "cpu": "i686",
+  "data-layout": "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-i128:128-f64:32:64-f80:32-n8:16:32-S128",
+  "dynamic-linking": false,
+  "executables": true,
+  "linker-flavor": "ld.lld",
+  "linker": "rust-lld",
+  "llvm-target": "i686-unknown-none",
+  "max-atomic-width": 64,
+  "position-independent-executables": false,
+  "disable-redzone": true,
+  "target-c-int-width": 32,
+  "target-pointer-width": 32,
+  "target-endian": "little",
+  "panic-strategy": "abort",
+  "os": "none",
+  "vendor": "unknown",
+  "relocation-model": "static",
+  "features": "+soft-float,-sse,-mmx",
+  "rustc-abi": "x86-softfloat"
+}
+</code></pre>
+</details>
+<p>Toggling paging is just like toggling every other CPU feature, we just need to flip some bits on some control registers. But, in this case if we were to just toggle paging, our computer will crash instantly because of the following reasons:</p>
+<blockquote>
+<ol>
+<li>
+<p>Our CR3 register doesn’t hold a meaningful address of a valid page table.</p>
+</li>
+<li>
+<p>Our current addressing assumes addresses are physical, continuous and starting at 0.</p>
+</li>
+<li>
+<p>We didn’t set up any of our page tables.</p>
+</li>
+</ol>
+</blockquote>
+<p>Problems 1 and 3 are almost the same, because after we set up a page table, we can just set cr3 to hold it’s address.
+But how should we set our initial table? This is where problem 2 guides us. Because until now we used physical address, we want to continue doing that at least until we can create processes. So, with that said, we want to map the start of our virtual address space to the start of the physical address space, thus creating what is called <a href="https://wiki.osdev.org/Identity_Paging"><code>identity paging</code></a>.</p>
+<p>So firstly, let’s initialize our page tables.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/constants/addresses.rs#L9 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">IDENTITY_PAGE_TABLE_L4_OFFSET</span><span class="colon">:</span> <span class="hlrs-type">usize</span> <span class="operator">=</span> <span class="hlrs-litnum">0xb000</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">IDENTITY_PAGE_TABLE_L3_OFFSET</span><span class="colon">:</span> <span class="hlrs-type">usize</span> <span class="operator">=</span> <span class="hlrs-litnum">0xc000</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">IDENTITY_PAGE_TABLE_L2_OFFSET</span><span class="colon">:</span> <span class="hlrs-type">usize</span> <span class="operator">=</span> <span class="hlrs-litnum">0xd000</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">fn</span> <span class="hlrs-function">init_identity_tables</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">Option</span><span class="angle">&lt;</span><span class="punctuation">&amp;</span><span class="hlrs-lifetime">'static</span> <span class="hlrs-keyword">mut</span> <span class="hlrs-type">PageTable</span><span class="angle">&gt;</span> <span class="brace">{</span>
+    <span class="hlrs-comment">// These tables will hold the initial identity mapping</span>
+    <span class="hlrs-keyword">let</span> <span class="hlrs-variable">identity_page_table_l4</span><span class="inlay-hint">: &amp;mut PageTable</span> <span class="operator">=</span> <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+        <span class="hlrs-type">PageTable</span><span class="operator">::</span><span class="hlrs-function">empty_from_ptr</span><span class="parenthesis">(</span><span class="inlay-hint">page_table_ptr:</span> <span class="hlrs-variable">IDENTITY_PAGE_TABLE_L4_OFFSET</span><span class="operator">.</span><span class="hlrs-function">into</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="operator">?</span> <span class="inlay-hint">NonNull&lt;PageTable&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">as_mut</span><span class="parenthesis">(</span><span class="parenthesis">)</span>
+    <span class="brace">}</span><span class="semicolon">;</span>
+    <span class="hlrs-keyword">let</span> <span class="hlrs-variable">identity_page_table_l3</span><span class="inlay-hint">: &amp;mut PageTable</span> <span class="operator">=</span> <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+        <span class="hlrs-type">PageTable</span><span class="operator">::</span><span class="hlrs-function">empty_from_ptr</span><span class="parenthesis">(</span><span class="inlay-hint">page_table_ptr:</span> <span class="hlrs-variable">IDENTITY_PAGE_TABLE_L3_OFFSET</span><span class="operator">.</span><span class="hlrs-function">into</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="operator">?</span> <span class="inlay-hint">NonNull&lt;PageTable&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">as_mut</span><span class="parenthesis">(</span><span class="parenthesis">)</span>
+    <span class="brace">}</span><span class="semicolon">;</span>
+    <span class="hlrs-keyword">let</span> <span class="hlrs-variable">identity_page_table_l2</span><span class="inlay-hint">: &amp;mut PageTable</span> <span class="operator">=</span> <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+        <span class="hlrs-type">PageTable</span><span class="operator">::</span><span class="hlrs-function">empty_from_ptr</span><span class="parenthesis">(</span><span class="inlay-hint">page_table_ptr:</span> <span class="hlrs-variable">IDENTITY_PAGE_TABLE_L2_OFFSET</span><span class="operator">.</span><span class="hlrs-function">into</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="operator">?</span> <span class="inlay-hint">NonNull&lt;PageTable&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">as_mut</span><span class="parenthesis">(</span><span class="parenthesis">)</span>
+    <span class="brace">}</span><span class="semicolon">;</span>
+
+    <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+        <span class="hlrs-comment">// Setup identity paging Mapping address virtual addresses</span>
+        <span class="hlrs-comment">// 0x000000-0x1fffff to the same physical addresses.</span>
+        <span class="hlrs-variable">identity_page_table_l4</span><span class="operator">.</span><span class="hlrs-variable">entries</span><span class="bracket">[</span><span class="hlrs-litnum">0</span><span class="bracket">]</span><span class="operator">.</span><span class="hlrs-function">map_unchecked</span><span class="parenthesis">(</span>
+            <span class="inlay-hint">frame:</span> <span class="hlrs-type">PhysicalAddress</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="inlay-hint">address:</span> <span class="hlrs-variable">IDENTITY_PAGE_TABLE_L3_OFFSET</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="inlay-hint">flags:</span> <span class="hlrs-type">PageEntryFlags</span><span class="operator">::</span><span class="hlrs-function">table_flags</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+        <span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-variable">identity_page_table_l3</span><span class="operator">.</span><span class="hlrs-variable">entries</span><span class="bracket">[</span><span class="hlrs-litnum">0</span><span class="bracket">]</span><span class="operator">.</span><span class="hlrs-function">map_unchecked</span><span class="parenthesis">(</span>
+            <span class="inlay-hint">frame:</span> <span class="hlrs-type">PhysicalAddress</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="inlay-hint">address:</span> <span class="hlrs-variable">IDENTITY_PAGE_TABLE_L2_OFFSET</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="inlay-hint">flags:</span> <span class="hlrs-type">PageEntryFlags</span><span class="operator">::</span><span class="hlrs-function">table_flags</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+        <span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-variable">identity_page_table_l2</span><span class="operator">.</span><span class="hlrs-variable">entries</span><span class="bracket">[</span><span class="hlrs-litnum">0</span><span class="bracket">]</span><span class="operator">.</span><span class="hlrs-function">map_unchecked</span><span class="parenthesis">(</span>
+            <span class="inlay-hint">frame:</span> <span class="hlrs-type">PhysicalAddress</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="inlay-hint">address:</span> <span class="hlrs-litnum">0</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="inlay-hint">flags:</span> <span class="hlrs-type">PageEntryFlags</span><span class="operator">::</span><span class="hlrs-function">huge_page_flags</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+        <span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="brace">}</span>
+
+    <span class="hlrs-enum">Some</span><span class="parenthesis">(</span><span class="hlrs-variable">identity_page_table_l4</span><span class="parenthesis">)</span>
+<span class="brace">}</span> <span class="inlay-hint">fn init_identity_tables</span></code></pre>
+
+<p>After we initialize the table, notice we set the L2 table to hold <code>huge page</code> offset for address 0.</p>
+<p>Huge page means it is bigger than the normal 4Kib size, and it is used in the case that we want to map the entire level below this table contiguously (eg map 0-&gt;0, 4096-&gt;4096, 8192-&gt;8192 etc..)</p>
+<p>Instead of creating multiple tables, and wasting precious memory, we can flag the entry as <code>huge page</code>. which says to the MMU <em>“This entry points to a contiguous memory block and not to a table”</em>.</p>
+<blockquote>
+<p>+&gt; This flag can only be set on an L2 or L3 table, and it is not supported on older CPUs. On an L2 table, the resulting page size is 2 MiB (4 KiB × 512 entries), and on an L3 table it is 1 GiB (2 MiB × 512 entries).</p>
+</blockquote>
+<h2 id="what-is-long-mode"><a class="header" href="#what-is-long-mode">What is Long Mode?</a></h2>
+<p>Just before we will toggle paging on our CPU, we should enter protected mode, to do that, we need to toggle 2 things, the first is called the <code>physical address extension</code> (PAE) which is an extension for protected mode paging, which allows 32bit paging entries to be 64bit, which results in a way to access addresses above 32bit because the page table walker can access the 64bit address on the entries. This extension must be activated to access long mode, which also allows us to have 64bit instructions.</p>
+<p>To activate PAE and Long mode, we can use this inline assembly.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/paging/init.rs#L106 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">fn</span> <span class="hlrs-function">set_pae_long_mode</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+        <span class="hlrs-macro">asm</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+            <span class="hlrs-comment">// Enable Physical Address Extension (number 5) in cr4</span>
+            <span class="hlrs-litstr">"mov eax, cr4"</span><span class="comma">,</span>
+            <span class="hlrs-litstr">"or eax, 1 &lt;&lt; 5"</span><span class="comma">,</span>
+            <span class="hlrs-litstr">"mov cr4, eax"</span><span class="comma">,</span>
+        <span class="parenthesis">)</span><span class="semicolon">;</span>
+
+        <span class="hlrs-macro">asm</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+            <span class="hlrs-comment">// set long mode bit (number 8) in the Extended Feature</span>
+            <span class="hlrs-comment">// Enable Register Model Specific Register</span>
+            <span class="hlrs-comment">// (EFER MSR) This register became</span>
+            <span class="hlrs-comment">// architectural from amd64 and also adopted by</span>
+            <span class="hlrs-comment">// intel, it's number is 0xC0000080</span>
+            <span class="hlrs-litstr">"mov ecx, 0xC0000080"</span><span class="comma">,</span>
+            <span class="hlrs-comment">// read the MSR specified in ecx into eax</span>
+            <span class="hlrs-litstr">"rdmsr"</span><span class="comma">,</span>
+            <span class="hlrs-litstr">"or eax, 1 &lt;&lt; 8"</span><span class="comma">,</span>
+            <span class="hlrs-comment">// write what's in eax to the MSR specified in ecx</span>
+            <span class="hlrs-litstr">"wrmsr"</span><span class="comma">,</span>
+        <span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">fn set_pae_long_mode</span></code></pre>
+
+<p>After that, we can finally turn on paging!</p>
+<p>Like the previous features, this also is guarded by a control register, and toggled via inline assembly</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/paging/init.rs#L131 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">fn</span> <span class="hlrs-function">toggle_paging</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+        <span class="hlrs-comment">// Toggle the paging bit (number 31) in cr0</span>
+        <span class="hlrs-macro">asm</span><span class="macro_bang">!</span><span class="parenthesis">(</span><span class="hlrs-litstr">"mov eax, cr0"</span><span class="comma">,</span> <span class="hlrs-litstr">"or eax, 1 &lt;&lt; 31"</span><span class="comma">,</span> <span class="hlrs-litstr">"mov cr0, eax"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="brace">}</span>
+<span class="brace">}</span></code></pre>
+
+<p>Now, to go into long mode, we need to <code>far jump</code> just like in protected mode, with a special global descriptor table.
+This table will look almost the same as our previous table, the key differences are that the <code>long mode</code> flag replaces the <code>protected mode</code> flag, and that most of the flags are not used because in this mode they are irrelevant.</p>
+<p><em>For now ignore the tss entry, it will be relevant on later chapters</em></p>
+<p>So after the changes the table will look like this:</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/global_descriptor_table.rs#L272 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">GlobalDescriptorTableLong</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Creates default global descriptor table for long</span>
+    <span class="hlrs-comment">/// mode</span>
+    <span class="hlrs-comment">// ANCHOR: gdt_long_default</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+            <span class="hlrs-variable">null</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">kernel_code</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">base:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">limit:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">access_byte:</span> <span class="hlrs-type">AccessByte</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">segment_type</span><span class="parenthesis">(</span><span class="hlrs-type">SegmentDescriptorType</span><span class="operator">::</span><span class="hlrs-enum">CodeOrData</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">dpl</span><span class="parenthesis">(</span><span class="hlrs-type">ProtectionLevel</span><span class="operator">::</span><span class="hlrs-enum">Ring0</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">readable_writable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">executable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+                <span class="inlay-hint">flags:</span> <span class="hlrs-type">LimitFlags</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">long</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">kernel_data</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">base:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">limit:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">access_byte:</span> <span class="hlrs-type">AccessByte</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">segment_type</span><span class="parenthesis">(</span><span class="hlrs-type">SegmentDescriptorType</span><span class="operator">::</span><span class="hlrs-enum">CodeOrData</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">dpl</span><span class="parenthesis">(</span><span class="hlrs-type">ProtectionLevel</span><span class="operator">::</span><span class="hlrs-enum">Ring0</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">readable_writable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+                <span class="inlay-hint">flags:</span> <span class="hlrs-type">LimitFlags</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">user_code</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">base:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">limit:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">access_byte:</span> <span class="hlrs-type">AccessByte</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">segment_type</span><span class="parenthesis">(</span><span class="hlrs-type">SegmentDescriptorType</span><span class="operator">::</span><span class="hlrs-enum">CodeOrData</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">dpl</span><span class="parenthesis">(</span><span class="hlrs-type">ProtectionLevel</span><span class="operator">::</span><span class="hlrs-enum">Ring3</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">readable_writable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">executable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+                <span class="inlay-hint">flags:</span> <span class="hlrs-type">LimitFlags</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">long</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">user_data</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">base:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">limit:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">access_byte:</span> <span class="hlrs-type">AccessByte</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">segment_type</span><span class="parenthesis">(</span><span class="hlrs-type">SegmentDescriptorType</span><span class="operator">::</span><span class="hlrs-enum">CodeOrData</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">dpl</span><span class="parenthesis">(</span><span class="hlrs-type">ProtectionLevel</span><span class="operator">::</span><span class="hlrs-enum">Ring3</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">readable_writable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+                <span class="inlay-hint">flags:</span> <span class="hlrs-type">LimitFlags</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">tss</span><span class="colon">:</span> <span class="hlrs-type">SystemSegmentDescriptor64</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn default</span>
+<span class="brace">}</span> <span class="inlay-hint">impl GlobalDescriptorTableLong</span></code></pre>
+
+<h2 id="hello-kernel"><a class="header" href="#hello-kernel">Hello Kernel!</a></h2>
+<p>After all that initialization we can jump to our kernel main!</p>
+<p>All that is left to do is to call the <code>enable</code> function which calls all the functions above sequentially, create and enable paging, load the new long mode GDT, and jump to our kernel.</p>
+<p>This can be done with the following code:</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;bootloader/second_stage/src/main.rs#L19 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">unsafe</span><span class="parenthesis">(</span><span class="hlrs-attribute">no_mangle</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">unsafe</span><span class="parenthesis">(</span><span class="hlrs-attribute">link_section</span> <span class="operator">=</span> <span class="hlrs-litstr">".start"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">allow</span><span class="parenthesis">(</span><span class="none">unsafe_op_in_unsafe_fn</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">allow</span><span class="parenthesis">(</span><span class="none">clippy</span><span class="colon">:</span><span class="colon">:</span><span class="none">missing_safety_doc</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">extern</span> <span class="hlrs-litstr">"C"</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">second_stage</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">!</span> <span class="brace">{</span>
+    <span class="hlrs-comment">// Set data segment register</span>
+    <span class="hlrs-macro">asm</span><span class="macro_bang">!</span><span class="parenthesis">(</span><span class="hlrs-litstr">"mov eax, 0x10"</span><span class="comma">,</span> <span class="hlrs-litstr">"mov ds, eax"</span><span class="comma">,</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="hlrs-comment">// Enable paging and load page tables with an identity</span>
+    <span class="hlrs-comment">// mapping</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">cfg</span><span class="parenthesis">(</span>target_arch <span class="operator">=</span> <span class="hlrs-litstr">"x86"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-type">x86</span><span class="operator">::</span><span class="hlrs-type">structures</span><span class="operator">::</span><span class="hlrs-type">paging</span><span class="operator">::</span><span class="hlrs-function">enable</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="hlrs-comment">// Load the global descriptor table for long mode</span>
+    <span class="hlrs-variable">GLOBAL_DESCRIPTOR_TABLE_LONG_MODE</span><span class="operator">.</span><span class="hlrs-function">load</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="hlrs-comment">// Update global descriptor table to enable long mode</span>
+    <span class="hlrs-comment">// and jump to kernel code</span>
+    <span class="hlrs-macro">asm</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+        <span class="hlrs-litstr">"ljmp ${</span><span class="hlrs-variable">section</span><span class="hlrs-litstr">}, ${</span><span class="hlrs-variable">next_stage</span><span class="hlrs-litstr">}"</span><span class="comma">,</span>
+        <span class="hlrs-variable">section</span> <span class="operator">=</span> <span class="hlrs-keyword">const</span> <span class="hlrs-type">Sections</span><span class="operator">:</span><span class="operator">:</span><span class="hlrs-enum">KernelCode</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+        <span class="hlrs-variable">next_stage</span> <span class="operator">=</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">KERNEL_OFFSET</span><span class="comma">,</span>
+        <span class="hlrs-keyword">options</span><span class="parenthesis">(</span><span class="hlrs-keyword">att_syntax</span><span class="parenthesis">)</span>
+    <span class="parenthesis">)</span><span class="semicolon">;</span>
+
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">allow</span><span class="parenthesis">(</span><span class="none">clippy</span><span class="colon">:</span><span class="colon">:</span><span class="none">all</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">loop</span> <span class="brace">{</span><span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">unsafe fn second_stage</span></code></pre>
+
+<ul>
+<li><input disabled="" type="checkbox" checked=""> Enabling memory paging</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch02-03-what-is-memory-paging.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch03-00-printing-to-screen.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch02-03-what-is-memory-paging.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch03-00-printing-to-screen.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-10cebb93.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="theme/whichlang-ec4501dc.js"></script>
+        <script src="theme/filepath-links-477dc0d6.js"></script>
+        <script src="theme/giscuss-b9267189.js"></script>
+        <script src="theme/tags-157d81b3.js"></script>
+        <script src="theme/highlight-10cebb93.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

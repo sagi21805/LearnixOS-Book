@@ -1,0 +1,994 @@
+<!DOCTYPE HTML>
+<html lang="en" class="navy sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Entering Protected Mode [OS] - The LearnixOS Book</title>
+
+
+        <!-- Custom HTML head -->
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q6WJBYSC2E"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-Q6WJBYSC2E');
+        </script>
+        
+        <!-- Microsoft Clarity -->
+        <script type="text/javascript">
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "woazwfwtq9");
+        </script>
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/whichlang-1516096e.css">
+        <link rel="stylesheet" href="theme/hlrs-34616bb2.css">
+        <link rel="stylesheet" href="theme/gh-issue-1d418845.css">
+        <link rel="stylesheet" href="theme/tags-3d530a36.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "navy";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-295dc51a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-712dd4bf.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The LearnixOS Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/sagi21805/LearnixOS" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="entering-protected-mode"><a class="header" href="#entering-protected-mode">Entering Protected Mode</a></h1>
+<p><em>“With great power comes great responsibility.” - Voltaire / Spider-Man</em></p>
+<hr>
+<p>As you may recall from previous chapters, our BIOS only loads the first sector to RAM, which leaves about just shy of 512 bytes<sup class="footnote-reference" id="fr-1-1"><a href="#footnote-1">1</a></sup>.
+After we read from disk, it will enable us to write much more code, because we will not be limited to 512 bytes.
+But just before we do that, we don’t want to limit ourselves to only 16bit instructions.
+For that we need to enter <a href="https://en.wikipedia.org/wiki/Protected_mode"><code>protected mode</code></a> which will allow us to unlock some CPU features such as 32bit instructions.</p>
+<p>Entering protected mode requires us to initialize the <a href="https://wiki.osdev.org/Global_Descriptor_Table"><code>Global Descriptor Table</code></a> (GDT) which is a CPU structure that will be discussed in depth below, as well as toggling the protected mode bit in <a href="https://en.wikipedia.org/wiki/Control_register"><code>cr0</code></a>.</p>
+<h2 id="the-global-descriptor-table"><a class="header" href="#the-global-descriptor-table">The Global Descriptor Table</a></h2>
+<blockquote>
+<p><em>All the information about the Global Descriptor Table is taken from both the <a href="https://www.google.com/url?sa=t&amp;source=web&amp;rct=j&amp;opi=89978449&amp;url=https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf&amp;ved=2ahUKEwjK-duH0pOUAxXvhf0HHRkeN1sQFnoECA0QAQ&amp;usg=AOvVaw3xCH_sFKn73Bg5tPFbOzaC">Intel Manual Volume 3A</a> section 3.4.5, and the great <a href="https://wiki.osdev.org/GDT_Tutorial">osdev</a> website.</em></p>
+</blockquote>
+<p>This is a structure that is specific to the x86 CPU family, and it contains information about the different segments.
+In general, segments are used to divide memory into logical parts, and to translate addresses as we seen in real mode.</p>
+<p><em>Address translation with the GDT will not be wildly used in this chapter, because it will not be used throughout the OS. Instead, memory paging will be used and explained in the next chapter.</em>
+<em>For now, think of a memory segment as a fixed size blob of contiguous physical memory.</em></p>
+<p>In protected mode, the common way to organize memory is using these segments. Because segment registers<sup class="footnote-reference" id="fr-2-1"><a href="#footnote-2">2</a></sup> hold only one number,
+they can’t hold enough information for us. That is where the Global Descriptor Table comes in place.
+The Global Descriptor Table is an array of structures that include information about a segment.
+When we want to use our custom segment, we load its offset on the GDT to the segment register.
+For example, we can create a segment for user data at index 1 of our table.
+This segment will not hold important data for the system or code that can be executed.
+If we want to load it into the <code>ds</code> we will set it to the offset of the structure in the table.</p>
+<p><em>Each entry is 8 bytes long, index one will be at an offset of 8, which means we will set <code>ds=8</code></em></p>
+<blockquote>
+<p>Instead of just revealing the structure that is used for each segment, I want you to pause and ponder: what information should each segment include?</p>
+<p><em>Remember that some instructions assume segments, like mov, jmp etc. and we want segments for the kernel, users, data and code.</em></p>
+</blockquote>
+<p>When I asked myself this question, I came up with the following ideas:</p>
+<ul>
+<li>What is the initial address of the segment. i.e the start address in memory where the segment starts.</li>
+<li>What is the end address of the segment. i.e the end address in memory where the segment ends.</li>
+<li>What the segment includes. i.e data segment, code segment etc.</li>
+<li>What is the privilege level of the segment. i.e can anyone access it or only the kernel</li>
+<li>For a data segment, Is the data read only, or may I modify it?</li>
+<li>For a code segment, can I execute it or not yet.</li>
+</ul>
+<p>If you guessed something similar to this, you are mostly correct!</p>
+<p>Our entry will look like this:</p>
+<figure style="margin: 0; text-align: center">
+  <img src="assets/gdt_struct.svg">
+  <figcaption><strong>Figure 2-1:</strong> global descriptor table entry structure</figcaption>
+</figure>
+<p>But what are these fields?</p>
+<ul>
+<li><strong>Base:</strong> This is a 32-bit value, which is split on the entire entry and represents the address of where the segment begins.</li>
+<li><strong>Limit:</strong> This is a 20-bit value, which is split on the entire entry and represents the size of the segment.</li>
+<li><strong>Access Byte:</strong> Flags that are relevant to the memory range of the segment,
+like the access privileges of this segment.</li>
+<li><strong>Flags:</strong> General flags that are relevant for the entry fields.</li>
+</ul>
+<p>All of these fields will become a struct and together they represent a single entry in our GDT.</p>
+<p>Both the <code>AccessByte</code>, the <code>LimitFlags</code>, and more structures throughout the book, are using one bit flags, which represent some inner settings of the CPU.
+Although setting a one bit flag is easy, and can be done with <code>1 &lt;&lt; bit_number</code> to set the nth bit, we would like abstractions such as <code>set_&lt;flag_name&gt;</code>, which are more readable and less prone to errors.
+But, if we would do that to every flag, it will be <strong>A LOT</strong> of boilerplate code.
+For this reason, Rust provides us with an amazing macro system.</p>
+<blockquote>
+<p>If you read through some previous version of this book, you may have seen the explanation of the <a href="https://github.com/sagi21805/LearnixOS/blob/c6560ef225262a3cfea58d5a5eae716ddb082ff3/learnix-macros/src/lib.rs#L74">flag!</a> proc-macro, which was used like this:</p>
+<pre><code class="language-rust icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg hljs"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">AccessByte</span> {
+    <span class="hlrs-macro">flag</span><span class="hlrs-macro">!</span>(<span class="hlrs-function">readable</span>, <span class="hlrs-litnum">1</span>);
+}
+</code></pre>
+
+<p>This macro was used to define those exactly 1 bit flags. But as it will turn out, this is not enough, and more functionality will be needed.</p>
+</blockquote>
+
+<p>The problem with this macro is that it had to be called for each bit flag. Because it did not take multiple flags, the macro did not have enough context to generate a <a href="https://doc.rust-lang.org/std/fmt/trait.Debug.html">Debug</a> trait implementation that shows bit flag names.</p>
+<p><em>More problems that I was having, but not a direct outcome of the initial design, is that flags sometimes contain more than 1 bit, and may contain n bits, also, certain n bit flags may have a specific set of values that are valid, and we may want to name them in an enum.</em></p>
+<p>The current design of the macro looks like this:</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/global_descriptor_table.rs#L9 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">bitfields</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">AccessByte</span> <span class="brace">{</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-type">flag</span><span class="parenthesis">(</span><span class="none">r</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-function">accessed</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-function">readable_writable</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-function">direction_conforming</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-function">executable</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-type">flag</span><span class="parenthesis">(</span><span class="none">flag_type</span> <span class="operator">=</span> <span class="hlrs-type">SegmentDescriptorType</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-function">segment_type</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-type">flag</span><span class="parenthesis">(</span><span class="none">flag_type</span> <span class="operator">=</span> <span class="hlrs-type">ProtectionLevel</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-function">dpl</span><span class="colon">:</span> <span class="hlrs-type">B2</span><span class="comma">,</span>
+    <span class="hlrs-function">present</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<p>As you can see, we have the macro attribute at the top of our struct, which is called <code>bitfields</code>.</p>
+<ul>
+<li>
+<p>Each field in this struct is a flag, and as you can see, the highlighter is smart and can expand our macro, so the color of the fields are the same as a function.</p>
+</li>
+<li>
+<p>The type of each field represents the flag width in bits. B1 is one bit and B20 is 20 bits.</p>
+</li>
+<li>
+<p>Some flags may have their own attribute such as <code>r</code> and <code>w</code> which create a read function and a write function, respectively. When they are not defined, both functions are created.</p>
+</li>
+<li>
+<p>Flags may also contain types, which are mostly enums that contains the valid values, or even all the values but gives them a readable name.</p>
+</li>
+<li>
+<p>While this macro seems complex, it will just create the functions that will help us to set flags in a convenient way.</p>
+</li>
+</ul>
+<blockquote>
+<p>To see what this macro generated, we can use the amazing <a href="https://crates.io/crates/cargo-expand"><code>cargo-expand</code></a> tool created by <a href="https://github.com/dtolnay"><code>David Tolnay</code></a></p>
+<details>
+<summary>For example, the expansion of the call above.</summary>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;snippets/src/book/ch02_02/flag_macro_expand.rs#L1 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">!</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">feature</span><span class="parenthesis">(</span><span class="none">const_trait_impl</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+
+<span class="hlrs-keyword">use</span> <span class="hlrs-keyword">super</span><span class="operator">::</span><span class="hlrs-type">enums</span><span class="operator">::</span><span class="brace">{</span><span class="hlrs-type">ProtectionLevel</span><span class="comma">,</span> <span class="hlrs-type">SegmentDescriptorType</span><span class="brace">}</span><span class="semicolon">;</span>
+
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">transparent</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">AccessByte</span><span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">automatically_derived</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">impl</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">marker</span><span class="operator">::</span><span class="hlrs-type">Copy</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">AccessByte</span> <span class="brace">{</span><span class="brace">}</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">automatically_derived</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">doc</span><span class="parenthesis">(</span><span class="none">hidden</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">impl</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">clone</span><span class="operator">::</span><span class="hlrs-type">TrivialClone</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">AccessByte</span> <span class="brace">{</span><span class="brace">}</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">automatically_derived</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">impl</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">clone</span><span class="operator">::</span><span class="hlrs-type">Clone</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">AccessByte</span> <span class="brace">{</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">clone</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">AccessByte</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="punctuation">_</span><span class="colon">:</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">clone</span><span class="operator">::</span><span class="hlrs-type">AssertParamIsClone</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="semicolon">;</span>
+        <span class="operator">*</span><span class="hlrs-selftoken">self</span>
+    <span class="brace">}</span>
+<span class="brace">}</span>
+<span class="hlrs-keyword">impl</span> <span class="hlrs-type">AccessByte</span> <span class="brace">{</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span><span class="parenthesis">(</span><span class="hlrs-litnum">0</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">is_accessed</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">bool</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">0usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">bits</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="hlrs-variable">mask</span><span class="parenthesis">)</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">0usize</span><span class="semicolon">;</span>
+            <span class="angle">&lt;</span><span class="hlrs-type">bool</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">bits</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;bool, TryFromIntError&gt;</span>
+                <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Cannot convert bit representation into bool"</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">is_readable_writable</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">bool</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">1usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">bits</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="hlrs-variable">mask</span><span class="parenthesis">)</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">1usize</span><span class="semicolon">;</span>
+            <span class="angle">&lt;</span><span class="hlrs-type">bool</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">bits</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;bool, TryFromIntError&gt;</span>
+                <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Cannot convert bit representation into bool"</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">set_readable_writable</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">bool</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= bool</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (bool) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::set_readable_writable: value out of \
+                         range: must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">1usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">cleared</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="negation">!</span><span class="hlrs-variable">mask</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">new</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">cleared</span> <span class="bitwise">|</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">1usize</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">write_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">dst:</span> <span class="hlrs-variable">addr</span><span class="comma">,</span> <span class="inlay-hint">src:</span> <span class="hlrs-variable">new</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn set_readable_writable</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">readable_writable</span><span class="parenthesis">(</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">bool</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= bool</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (bool) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::readable_writable: value out of \
+                         range: must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">0</span> <span class="bitwise">|=</span> <span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">1usize</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn readable_writable</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">is_direction_conforming</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">bool</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">2usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">bits</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="hlrs-variable">mask</span><span class="parenthesis">)</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">2usize</span><span class="semicolon">;</span>
+            <span class="angle">&lt;</span><span class="hlrs-type">bool</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">bits</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;bool, TryFromIntError&gt;</span>
+                <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Cannot convert bit representation into bool"</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">set_direction_conforming</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">bool</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= bool</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (bool) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::set_direction_conforming: value out \
+                         of range: must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">2usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">cleared</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="negation">!</span><span class="hlrs-variable">mask</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">new</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">cleared</span> <span class="bitwise">|</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">2usize</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">write_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">dst:</span> <span class="hlrs-variable">addr</span><span class="comma">,</span> <span class="inlay-hint">src:</span> <span class="hlrs-variable">new</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn set_direction_conforming</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">direction_conforming</span><span class="parenthesis">(</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">bool</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= bool</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (bool) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::direction_conforming: value out of \
+                         range: must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">0</span> <span class="bitwise">|=</span> <span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">2usize</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn direction_conforming</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">is_executable</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">bool</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">3usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">bits</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="hlrs-variable">mask</span><span class="parenthesis">)</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">3usize</span><span class="semicolon">;</span>
+            <span class="angle">&lt;</span><span class="hlrs-type">bool</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">bits</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;bool, TryFromIntError&gt;</span>
+                <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Cannot convert bit representation into bool"</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">set_executable</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">bool</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= bool</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (bool) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::set_executable: value out of range: \
+                         must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">3usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">cleared</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="negation">!</span><span class="hlrs-variable">mask</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">new</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">cleared</span> <span class="bitwise">|</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">3usize</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">write_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">dst:</span> <span class="hlrs-variable">addr</span><span class="comma">,</span> <span class="inlay-hint">src:</span> <span class="hlrs-variable">new</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn set_executable</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">executable</span><span class="parenthesis">(</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">bool</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= bool</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (bool) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::executable: value out of range: \
+                         must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">0</span> <span class="bitwise">|=</span> <span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">3usize</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn executable</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">get_segment_type</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">SegmentDescriptorType</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">4usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">bits</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="hlrs-variable">mask</span><span class="parenthesis">)</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">4usize</span><span class="semicolon">;</span>
+            <span class="angle">&lt;</span><span class="hlrs-type">SegmentDescriptorType</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span>
+                        <span class="hlrs-type">u8</span><span class="comma">,</span>
+                    <span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">bits</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;SegmentDescriptorType, ConversionError&lt;u8&gt;&gt;</span>
+                        <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span>
+                            <span class="hlrs-litstr">"Cannot convert bit representation into SegmentDescriptorType"</span><span class="comma">,</span>
+                        <span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">set_segment_type</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">SegmentDescriptorType</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= SegmentDescriptorType</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span>
+                <span class="hlrs-litstr">"Can't convert value 'v' (SegmentDescriptorType) into u8"</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::set_segment_type: value out of \
+                         range: must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">4usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">cleared</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="negation">!</span><span class="hlrs-variable">mask</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">new</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">cleared</span> <span class="bitwise">|</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">4usize</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">write_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">dst:</span> <span class="hlrs-variable">addr</span><span class="comma">,</span> <span class="inlay-hint">src:</span> <span class="hlrs-variable">new</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn set_segment_type</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">segment_type</span><span class="parenthesis">(</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">SegmentDescriptorType</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= SegmentDescriptorType</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span>
+                <span class="hlrs-litstr">"Can't convert value 'v' (SegmentDescriptorType) into u8"</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::segment_type: value out of range: \
+                         must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">0</span> <span class="bitwise">|=</span> <span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">4usize</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn segment_type</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">get_dpl</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">ProtectionLevel</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">2usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">5usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">bits</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="hlrs-variable">mask</span><span class="parenthesis">)</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">5usize</span><span class="semicolon">;</span>
+            <span class="angle">&lt;</span><span class="hlrs-type">ProtectionLevel</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span>
+                <span class="hlrs-variable">bits</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+            <span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;ProtectionLevel, ConversionError&lt;u8&gt;&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span>
+                <span class="hlrs-litstr">"Cannot convert bit representation into ProtectionLevel"</span><span class="comma">,</span>
+            <span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">set_dpl</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">ProtectionLevel</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= ProtectionLevel</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (ProtectionLevel) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">3u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::set_dpl: value out of range: must \
+                         fit in 2 bits (max 0x3)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">2usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">5usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">cleared</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="negation">!</span><span class="hlrs-variable">mask</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">new</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">cleared</span> <span class="bitwise">|</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">5usize</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">write_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">dst:</span> <span class="hlrs-variable">addr</span><span class="comma">,</span> <span class="inlay-hint">src:</span> <span class="hlrs-variable">new</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn set_dpl</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">dpl</span><span class="parenthesis">(</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">ProtectionLevel</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= ProtectionLevel</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (ProtectionLevel) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">3u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::dpl: value out of range: must fit \
+                         in 2 bits (max 0x3)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">0</span> <span class="bitwise">|=</span> <span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">5usize</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn dpl</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">is_present</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">bool</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">7usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">bits</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="hlrs-variable">mask</span><span class="parenthesis">)</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">7usize</span><span class="semicolon">;</span>
+            <span class="angle">&lt;</span><span class="hlrs-type">bool</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">bits</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;bool, TryFromIntError&gt;</span>
+                <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Cannot convert bit representation into bool"</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">set_present</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">bool</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= bool</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (bool) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::set_present: value out of range: \
+                         must fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">addr</span><span class="inlay-hint">: *mut u8</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= AccessByte</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">val</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">addr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">mask</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">MAX</span> <span class="bitwise">&gt;&gt;</span> <span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1usize</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u32</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">7usize</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">cleared</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">val</span> <span class="bitwise">&amp;</span> <span class="negation">!</span><span class="hlrs-variable">mask</span><span class="semicolon">;</span>
+            <span class="hlrs-keyword">let</span> <span class="hlrs-variable">new</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">cleared</span> <span class="bitwise">|</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">7usize</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">write_volatile</span><span class="parenthesis">(</span><span class="inlay-hint">dst:</span> <span class="hlrs-variable">addr</span><span class="comma">,</span> <span class="inlay-hint">src:</span> <span class="hlrs-variable">new</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn set_present</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">track_caller</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">v</span><span class="colon">:</span> <span class="hlrs-type">bool</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">v</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="angle">&lt;</span><span class="hlrs-type">u8</span> <span class="hlrs-keyword">as</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">TryFrom</span><span class="angle">&lt;</span><span class="punctuation">_</span><span class="inlay-hint">= bool</span><span class="angle">&gt;</span><span class="angle">&gt;</span><span class="operator">::</span><span class="hlrs-function">try_from</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span><span class="parenthesis">)</span> <span class="inlay-hint">Result&lt;u8, Infallible&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">ok</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;u8&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Can't convert value 'v' (bool) into u8"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-litnum">true</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="comparison">&lt;=</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1u128</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                <span class="brace">{</span>
+                    <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">panicking</span><span class="operator">::</span><span class="hlrs-function">panic_fmt</span><span class="parenthesis">(</span><span class="hlrs-macro">format_args</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                        <span class="hlrs-litstr">"AccessByte::present: value out of range: must \
+                         fit in 1 bits (max 0x1)"</span><span class="comma">,</span>
+                    <span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">0</span> <span class="bitwise">|=</span> <span class="parenthesis">(</span><span class="hlrs-variable">v</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">7usize</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn present</span>
+<span class="brace">}</span> <span class="inlay-hint">impl AccessByte</span>
+<span class="hlrs-keyword">impl</span> <span class="hlrs-keyword">const</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">From</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">AccessByte</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">from</span><span class="parenthesis">(</span><span class="hlrs-variable">value</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-type">AccessByte</span><span class="parenthesis">(</span><span class="hlrs-variable">value</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+<span class="brace">}</span>
+<span class="hlrs-keyword">impl</span> <span class="hlrs-keyword">const</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">convert</span><span class="operator">::</span><span class="hlrs-type">From</span><span class="angle">&lt;</span><span class="hlrs-type">AccessByte</span><span class="angle">&gt;</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">u8</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">from</span><span class="parenthesis">(</span><span class="hlrs-variable">value</span><span class="colon">:</span> <span class="hlrs-type">AccessByte</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-variable">value</span><span class="operator">.</span><span class="hlrs-variable">0</span>
+    <span class="brace">}</span>
+<span class="brace">}</span>
+<span class="hlrs-keyword">impl</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">fmt</span><span class="operator">::</span><span class="hlrs-type">Debug</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">AccessByte</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">fmt</span><span class="parenthesis">(</span>
+        <span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="comma">,</span>
+        <span class="hlrs-variable">f</span><span class="colon">:</span> <span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">fmt</span><span class="operator">::</span><span class="hlrs-type">Formatter</span><span class="angle">&lt;</span><span class="inlay-hint">'a:</span><span class="hlrs-lifetime">'_</span><span class="angle">&gt;</span><span class="comma">,</span>
+    <span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="operator">::</span><span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">fmt</span><span class="operator">::</span><span class="hlrs-type">Result</span> <span class="brace">{</span>
+        <span class="hlrs-variable">f</span><span class="operator">.</span><span class="hlrs-function">debug_struct</span><span class="parenthesis">(</span><span class="inlay-hint">name:</span> <span class="hlrs-litstr">"AccessByte"</span><span class="parenthesis">)</span> <span class="inlay-hint">DebugStruct&lt;'_, '_&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">field</span><span class="parenthesis">(</span><span class="inlay-hint">name:</span> <span class="hlrs-litstr">"accessed"</span><span class="comma">,</span> <span class="inlay-hint">value:</span> <span class="operator">&amp;</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">is_accessed</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="inlay-hint">&amp;mut DebugStruct&lt;'_, '_&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">field</span><span class="parenthesis">(</span><span class="inlay-hint">name:</span> <span class="hlrs-litstr">"readable_writable"</span><span class="comma">,</span> <span class="inlay-hint">value:</span> <span class="operator">&amp;</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">is_readable_writable</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="inlay-hint">&amp;mut DebugStruct&lt;'_, '_&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">field</span><span class="parenthesis">(</span><span class="inlay-hint">name:</span> <span class="hlrs-litstr">"direction_conforming"</span><span class="comma">,</span> <span class="inlay-hint">value:</span> <span class="operator">&amp;</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">is_direction_conforming</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="inlay-hint">&amp;mut DebugStruct&lt;'_, '_&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">field</span><span class="parenthesis">(</span><span class="inlay-hint">name:</span> <span class="hlrs-litstr">"executable"</span><span class="comma">,</span> <span class="inlay-hint">value:</span> <span class="operator">&amp;</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">is_executable</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="inlay-hint">&amp;mut DebugStruct&lt;'_, '_&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">field</span><span class="parenthesis">(</span><span class="inlay-hint">name:</span> <span class="hlrs-litstr">"segment_type"</span><span class="comma">,</span> <span class="inlay-hint">value:</span> <span class="operator">&amp;</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">get_segment_type</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="inlay-hint">&amp;mut DebugStruct&lt;'_, '_&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">field</span><span class="parenthesis">(</span><span class="inlay-hint">name:</span> <span class="hlrs-litstr">"dpl"</span><span class="comma">,</span> <span class="inlay-hint">value:</span> <span class="operator">&amp;</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">get_dpl</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="inlay-hint">&amp;mut DebugStruct&lt;'_, '_&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">field</span><span class="parenthesis">(</span><span class="inlay-hint">name:</span> <span class="hlrs-litstr">"present"</span><span class="comma">,</span> <span class="inlay-hint">value:</span> <span class="operator">&amp;</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">is_present</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="inlay-hint">&amp;mut DebugStruct&lt;'_, '_&gt;</span>
+            <span class="operator">.</span><span class="hlrs-function">finish</span><span class="parenthesis">(</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl Debug for AccessByte</span></code></pre>
+
+</details>
+</blockquote>
+
+<p>If this macro seems really cool and complicated, that’s great! because it will be fully explained and implemented in <a href="./ch02-03-implementing-the-bitfields-proc-macro.html">later chapters</a>.</p>
+<p><em>We will also define an enum that will include the protection level and the system segment flags so that they have clear names.</em></p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/enums/general.rs#L5 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">u8</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span>
+    <span class="hlrs-attribute">Debug</span><span class="comma">,</span> <span class="hlrs-attribute">Clone</span><span class="comma">,</span> <span class="hlrs-attribute">Copy</span><span class="comma">,</span> <span class="hlrs-attribute">ConstTryFromPrimitive</span><span class="comma">,</span> <span class="hlrs-attribute">ConstIntoPrimitive</span><span class="comma">,</span>
+<span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="derive_helper">num_enum</span><span class="parenthesis">(</span><span class="none">error_type</span><span class="parenthesis">(</span><span class="none">name</span> <span class="operator">=</span> <span class="hlrs-type">ConversionError</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="comma">,</span> <span class="none">constructor</span> <span class="operator">=</span> <span class="hlrs-type">ConversionError</span><span class="operator">:</span><span class="operator">:</span><span class="hlrs-enum">CantConvertFrom</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">enum</span> <span class="hlrs-type">ProtectionLevel</span> <span class="brace">{</span>
+    <span class="hlrs-enum">Ring0</span> <span class="operator">=</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+    <span class="hlrs-enum">Ring1</span> <span class="operator">=</span> <span class="hlrs-litnum">1</span><span class="comma">,</span>
+    <span class="hlrs-enum">Ring2</span> <span class="operator">=</span> <span class="hlrs-litnum">2</span><span class="comma">,</span>
+    <span class="hlrs-enum">Ring3</span> <span class="operator">=</span> <span class="hlrs-litnum">3</span><span class="comma">,</span>
+<span class="brace">}</span>
+
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">u8</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span>
+    <span class="hlrs-attribute">Copy</span><span class="comma">,</span> <span class="hlrs-attribute">Clone</span><span class="comma">,</span> <span class="hlrs-attribute">Debug</span><span class="comma">,</span> <span class="hlrs-attribute">ConstTryFromPrimitive</span><span class="comma">,</span> <span class="hlrs-attribute">ConstIntoPrimitive</span><span class="comma">,</span>
+<span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="derive_helper">num_enum</span><span class="parenthesis">(</span><span class="none">error_type</span><span class="parenthesis">(</span><span class="none">name</span> <span class="operator">=</span> <span class="hlrs-type">ConversionError</span><span class="angle">&lt;</span><span class="hlrs-type">u8</span><span class="angle">&gt;</span><span class="comma">,</span> <span class="none">constructor</span> <span class="operator">=</span> <span class="hlrs-type">ConversionError</span><span class="operator">:</span><span class="operator">:</span><span class="hlrs-enum">CantConvertFrom</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">enum</span> <span class="hlrs-type">SegmentDescriptorType</span> <span class="brace">{</span>
+    <span class="hlrs-enum">System</span> <span class="operator">=</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+    <span class="hlrs-enum">CodeOrData</span> <span class="operator">=</span> <span class="hlrs-litnum">1</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<p>Now, just before creating a <code>new</code> function for our entry, we don’t want to specify the base in three parts and the limit in two parts every time. Instead, we want the <code>new</code> function to do that for us.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/global_descriptor_table.rs#L38 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">C</span><span class="comma">,</span> <span class="none">packed</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">struct</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span> <span class="brace">{</span>
+    <span class="hlrs-variable">limit_low</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+    <span class="hlrs-variable">base_low</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+    <span class="hlrs-variable">base_mid</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+    <span class="hlrs-variable">access_byte</span><span class="colon">:</span> <span class="hlrs-type">AccessByte</span><span class="comma">,</span>
+    <span class="hlrs-variable">limit_flags</span><span class="colon">:</span> <span class="hlrs-type">LimitFlags</span><span class="comma">,</span>
+    <span class="hlrs-variable">base_high</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+<span class="brace">}</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span> <span class="brace">{</span>
+<span class="boring">    <span class="hlrs-comment">/// Create a new entry</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// # Parameters</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `base`: The base address of the segment</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `limit`: The size of the segment</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `access_byte`: The type and access privileges of the entry</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `flags`: Configuration flags of the entry</span>
+</span><span class="boring">    <span class="hlrs-comment">// ANCHOR: gdt_entry32_new</span>
+</span>    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new</span><span class="parenthesis">(</span>
+        <span class="hlrs-variable">base</span><span class="colon">:</span> <span class="hlrs-type">u32</span><span class="comma">,</span>
+        <span class="hlrs-variable">limit</span><span class="colon">:</span> <span class="hlrs-type">u32</span><span class="comma">,</span>
+        <span class="hlrs-variable">access_byte</span><span class="colon">:</span> <span class="hlrs-type">AccessByte</span><span class="comma">,</span>
+        <span class="hlrs-variable">flags</span><span class="colon">:</span> <span class="hlrs-type">LimitFlags</span><span class="comma">,</span>
+    <span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span> <span class="brace">{</span>
+        <span class="hlrs-comment">// Split base into the appropriate parts</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">base_low</span><span class="inlay-hint">: u16</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">base</span> <span class="bitwise">&amp;</span> <span class="hlrs-litnum">0xffff</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u16</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">base_mid</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">base</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">0x10</span><span class="parenthesis">)</span> <span class="bitwise">&amp;</span> <span class="hlrs-litnum">0xff</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">base_high</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">base</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">0x18</span><span class="parenthesis">)</span> <span class="bitwise">&amp;</span> <span class="hlrs-litnum">0xff</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+        <span class="hlrs-comment">// Split limit into the appropriate parts</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">limit_low</span><span class="inlay-hint">: u16</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="hlrs-variable">limit</span> <span class="bitwise">&amp;</span> <span class="hlrs-litnum">0xffff</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u16</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">limit_high</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">limit</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">0x10</span><span class="parenthesis">)</span> <span class="bitwise">&amp;</span> <span class="hlrs-litnum">0xf</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="semicolon">;</span>
+        <span class="hlrs-comment">// Combine the part of the limit size with the flags</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">limit_flags</span><span class="inlay-hint">: u8</span> <span class="operator">=</span> <span class="hlrs-variable">flags</span><span class="operator">.</span><span class="hlrs-variable">0</span> <span class="bitwise">|</span> <span class="hlrs-variable">limit_high</span><span class="semicolon">;</span>
+        <span class="hlrs-type">GlobalDescriptorTableEntry32</span> <span class="brace">{</span>
+            <span class="hlrs-variable">limit_low</span><span class="comma">,</span>
+            <span class="hlrs-variable">base_low</span><span class="comma">,</span>
+            <span class="hlrs-variable">base_mid</span><span class="comma">,</span>
+            <span class="hlrs-variable">access_byte</span><span class="comma">,</span>
+            <span class="hlrs-variable">limit_flags</span><span class="colon">:</span> <span class="hlrs-type">LimitFlags</span><span class="parenthesis">(</span><span class="hlrs-variable">limit_flags</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">base_high</span><span class="comma">,</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn new</span>
+<span class="brace">}</span> <span class="inlay-hint">impl GlobalDescriptorTableEntry32</span></code></pre>
+
+<h2 id="jumping-to-the-next-stage"><a class="header" href="#jumping-to-the-next-stage">Jumping to the next stage!</a></h2>
+<p>Now, after understanding the Global Descriptor Table, we want to jump to the next stage.
+This will require us to create and load a temporary Global Descriptor Table.</p>
+<p>Each table must have at least three entries: an initial <code>null</code> entry that is filled with zeros, which is always required as the first entry; a <code>data</code> entry for the data segment, so we can read and write to memory; and a <code>code</code> entry, so we can execute code.</p>
+<p>Together it will all look like this:</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/global_descriptor_table.rs#L195 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-comment">/// Initial temporary GDT</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">C</span><span class="comma">,</span> <span class="none">packed</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">GlobalDescriptorTableProtected</span> <span class="brace">{</span>
+    <span class="hlrs-variable">null</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="comma">,</span>
+    <span class="hlrs-variable">code</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="comma">,</span>
+    <span class="hlrs-variable">data</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="comma">,</span>
+<span class="brace">}</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-type">GlobalDescriptorTableProtected</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Creates default global descriptor table for</span>
+    <span class="hlrs-comment">/// protected mode</span>
+    <span class="hlrs-comment">// ANCHOR: gdt_default</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+            <span class="hlrs-variable">null</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">code</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">base:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">limit:</span> <span class="hlrs-litnum">0xfffff</span><span class="comma">,</span>
+                <span class="inlay-hint">access_byte:</span> <span class="hlrs-type">AccessByte</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">dpl</span><span class="parenthesis">(</span><span class="hlrs-type">ProtectionLevel</span><span class="operator">::</span><span class="hlrs-enum">Ring0</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">segment_type</span><span class="parenthesis">(</span><span class="hlrs-type">SegmentDescriptorType</span><span class="operator">::</span><span class="hlrs-enum">CodeOrData</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">executable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">readable_writable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+                <span class="inlay-hint">flags:</span> <span class="hlrs-type">LimitFlags</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">granularity</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">protected</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">data</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableEntry32</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">base:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+                <span class="inlay-hint">limit:</span> <span class="hlrs-litnum">0xfffff</span><span class="comma">,</span>
+                <span class="inlay-hint">access_byte:</span> <span class="hlrs-type">AccessByte</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">dpl</span><span class="parenthesis">(</span><span class="hlrs-type">ProtectionLevel</span><span class="operator">::</span><span class="hlrs-enum">Ring0</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">segment_type</span><span class="parenthesis">(</span><span class="hlrs-type">SegmentDescriptorType</span><span class="operator">::</span><span class="hlrs-enum">CodeOrData</span><span class="parenthesis">)</span> <span class="inlay-hint">AccessByte</span>
+                    <span class="operator">.</span><span class="hlrs-function">readable_writable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+                <span class="inlay-hint">flags:</span> <span class="hlrs-type">LimitFlags</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">granularity</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">protected</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="comma">,</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">const fn default</span>
+<span class="brace">}</span> <span class="inlay-hint">impl GlobalDescriptorTableProtected</span></code></pre>
+
+<p>If you noticed, all of the functions that we defined so far are marked with <code>const</code>. this is useful because we can create our Global Descriptor Table as a static variable, which will be in the binary.
+This is useful because it will initialize our Global Descriptor Table during compile time.</p>
+<p>So, the only thing left to do is to load the Global Descriptor Table. This can be done with the <code>lgdt</code> instruction which loads the <code>Global Descriptor Table Register</code> with our table. This is a hidden register that includes information about our Global Descriptor Table, like it’s size and address in memory.</p>
+<p>We will create a <code>load</code> function that will create this register structure and load it to the CPU.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/global_descriptor_table.rs#L102 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">C</span><span class="comma">,</span> <span class="none">packed</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">GlobalDescriptorTableRegister</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-variable">limit</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-variable">base</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="comma">,</span>
+<span class="brace">}</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-type">GlobalDescriptorTableProtected</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Load the GDT with the `lgdt` instruction</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// # Safety</span>
+    <span class="hlrs-comment">/// This function doesn't check if a GDT already exists, and just</span>
+    <span class="hlrs-comment">/// overrides it.</span>
+    <span class="hlrs-comment">// ANCHOR: gdt_load</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">load</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-lifetime">'static</span> <span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">gdtr</span><span class="inlay-hint">: GlobalDescriptorTableRegister</span> <span class="operator">=</span> <span class="brace">{</span>
+            <span class="hlrs-type">GlobalDescriptorTableRegister</span> <span class="brace">{</span>
+                <span class="hlrs-variable">limit</span><span class="colon">:</span> <span class="parenthesis">(</span><span class="hlrs-function">size_of</span><span class="operator">::</span><span class="angle">&lt;</span><span class="hlrs-selftoken">Self</span><span class="angle">&gt;</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+                <span class="hlrs-variable">base</span><span class="colon">:</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="punctuation">_</span><span class="inlay-hint">= GlobalDescriptorTableProtected</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">usize</span><span class="comma">,</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-type">instructions</span><span class="operator">::</span><span class="hlrs-function">lgdt</span><span class="parenthesis">(</span><span class="operator">&amp;</span><span class="hlrs-variable">gdtr</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl GlobalDescriptorTableProtected</span></code></pre>
+
+<p>Now, to apply all of the created functionality, enable protected mode, and finally jump to the next stage, we need to add the following code to our entry function.</p>
+<p>But just before that, when we jump to the next stage, we need to specify the offset in the GDT of the relevant section we want to jump to, which will load the <code>cs</code> segment register with that value. In that case it is the <code>kernel_code</code> section that will allow us to run code on ring0. For an easy way to specify the section, we will create an enum.</p>
+<p><em>Notice that this also contains segments of another GDT that we will used in the following chapters.</em></p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/enums/global_descriptor_table.rs#L5 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">u16</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span>
+    <span class="hlrs-attribute">Copy</span><span class="comma">,</span> <span class="hlrs-attribute">Clone</span><span class="comma">,</span> <span class="hlrs-attribute">Debug</span><span class="comma">,</span> <span class="hlrs-attribute">ConstTryFromPrimitive</span><span class="comma">,</span> <span class="hlrs-attribute">ConstIntoPrimitive</span><span class="comma">,</span>
+<span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="derive_helper">num_enum</span><span class="parenthesis">(</span><span class="none">error_type</span><span class="parenthesis">(</span><span class="none">name</span> <span class="operator">=</span> <span class="hlrs-type">ConversionError</span><span class="angle">&lt;</span><span class="hlrs-type">u16</span><span class="angle">&gt;</span><span class="comma">,</span> <span class="none">constructor</span> <span class="operator">=</span> <span class="hlrs-type">ConversionError</span><span class="operator">:</span><span class="operator">:</span><span class="hlrs-enum">CantConvertFrom</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">enum</span> <span class="hlrs-type">Sections</span> <span class="brace">{</span>
+    <span class="hlrs-enum">Null</span> <span class="operator">=</span> <span class="hlrs-litnum">0x0</span><span class="comma">,</span>
+    <span class="hlrs-enum">KernelCode</span> <span class="operator">=</span> <span class="hlrs-litnum">0x8</span><span class="comma">,</span>
+    <span class="hlrs-enum">KernelData</span> <span class="operator">=</span> <span class="hlrs-litnum">0x10</span><span class="comma">,</span>
+    <span class="hlrs-enum">UserCode</span> <span class="operator">=</span> <span class="hlrs-litnum">0x18</span><span class="comma">,</span>
+    <span class="hlrs-enum">UserData</span> <span class="operator">=</span> <span class="hlrs-litnum">0x20</span><span class="comma">,</span>
+    <span class="hlrs-enum">TaskStateSegment</span> <span class="operator">=</span> <span class="hlrs-litnum">0x28</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;bootloader/first_stage/src/main.rs#L23 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">static</span> <span class="hlrs-variable">GLOBAL_DESCRIPTOR_TABLE</span><span class="colon">:</span> <span class="hlrs-type">GlobalDescriptorTableProtected</span> <span class="operator">=</span>
+    <span class="hlrs-type">GlobalDescriptorTableProtected</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">enter_protected_mode</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">{</span>
+    <span class="hlrs-comment">// Load Global Descriptor Table</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span> <span class="hlrs-variable">GLOBAL_DESCRIPTOR_TABLE</span><span class="operator">.</span><span class="hlrs-function">load</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">}</span><span class="semicolon">;</span>
+
+    <span class="hlrs-comment">// Set the Protected Mode bit and enter Protected Mode</span>
+    <span class="hlrs-macro">asm</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+        <span class="hlrs-litstr">"mov eax, cr0"</span><span class="comma">,</span>
+        <span class="hlrs-litstr">"or eax, 1"</span><span class="comma">,</span>
+        <span class="hlrs-litstr">"mov cr0, eax"</span><span class="comma">,</span>
+        <span class="hlrs-keyword">options</span><span class="parenthesis">(</span><span class="hlrs-keyword">readonly</span><span class="comma">,</span> <span class="hlrs-keyword">nostack</span><span class="comma">,</span> <span class="hlrs-keyword">preserves_flags</span><span class="parenthesis">)</span>
+    <span class="parenthesis">)</span><span class="semicolon">;</span>
+
+    <span class="hlrs-comment">// Jump to the next stage</span>
+    <span class="hlrs-comment">// The 'ljmp' instruction is required to because it updates the cpu</span>
+    <span class="hlrs-comment">// segment to the new ones from our GDT.</span>
+    <span class="hlrs-comment">//</span>
+    <span class="hlrs-comment">// The segment is the offset in the GDT.</span>
+    <span class="hlrs-comment">// (KernelCode = 0x8 which is the code segment)</span>
+    <span class="hlrs-macro">asm</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+        <span class="hlrs-litstr">"ljmp ${</span><span class="hlrs-variable">segment</span><span class="hlrs-litstr">}, ${</span><span class="hlrs-variable">next_stage_address</span><span class="hlrs-litstr">}"</span><span class="comma">,</span>
+        <span class="hlrs-variable">segment</span> <span class="operator">=</span> <span class="hlrs-keyword">const</span> <span class="hlrs-type">Sections</span><span class="operator">:</span><span class="operator">:</span><span class="hlrs-enum">KernelCode</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+        <span class="hlrs-variable">next_stage_address</span> <span class="operator">=</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">SECOND_STAGE_OFFSET</span><span class="comma">,</span>
+        <span class="hlrs-keyword">options</span><span class="parenthesis">(</span><span class="hlrs-keyword">att_syntax</span><span class="parenthesis">)</span>
+    <span class="parenthesis">)</span><span class="semicolon">;</span>
+<span class="brace">}</span> <span class="inlay-hint">unsafe fn enter_protected_mode</span></code></pre>
+
+<ul>
+<li><input disabled="" type="checkbox" checked=""> Load the global descriptor table</li>
+</ul>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-1">
+<p>446 bytes to be exact. This number is derived by removing the size of the partition table (64 bytes) and the size of the boot signature(2 bytes) from the sector size (512 bytes). <a href="#fr-1-1">↩</a></p>
+</li>
+<li id="footnote-2">
+<p>Registers like cs, ds, gs, fs, ss, etc. <a href="#fr-2-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch02-01-legacy-legacy-legacy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch02-03-implementing-the-bitfields-proc-macro.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch02-01-legacy-legacy-legacy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch02-03-implementing-the-bitfields-proc-macro.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-10cebb93.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="theme/whichlang-ec4501dc.js"></script>
+        <script src="theme/filepath-links-477dc0d6.js"></script>
+        <script src="theme/giscuss-b9267189.js"></script>
+        <script src="theme/tags-157d81b3.js"></script>
+        <script src="theme/highlight-10cebb93.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,754 @@
+<!DOCTYPE HTML>
+<html lang="en" class="navy sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>What is Memory Paging? [OS] - The LearnixOS Book</title>
+
+
+        <!-- Custom HTML head -->
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q6WJBYSC2E"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-Q6WJBYSC2E');
+        </script>
+        
+        <!-- Microsoft Clarity -->
+        <script type="text/javascript">
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "woazwfwtq9");
+        </script>
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/whichlang-1516096e.css">
+        <link rel="stylesheet" href="theme/hlrs-34616bb2.css">
+        <link rel="stylesheet" href="theme/gh-issue-1d418845.css">
+        <link rel="stylesheet" href="theme/tags-3d530a36.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "navy";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-295dc51a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-712dd4bf.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The LearnixOS Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/sagi21805/LearnixOS" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="what-is-memory-paging"><a class="header" href="#what-is-memory-paging">What is Memory Paging?</a></h1>
+<p><em>“The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise.” - Edsger W. Dijkstra</em></p>
+<hr>
+<p>In the previous section, we talked about the global descriptor table, and how segments are used to divide memory into logical parts so it is easier to manage.
+Although this system worked in older 32bit operating systems, it will not be good for our operating system, but why is that?</p>
+<h2 id="the-problem-in-memory-segmentation"><a class="header" href="#the-problem-in-memory-segmentation">The Problem in Memory Segmentation</a></h2>
+<p>Before we define paging, let’s understand what we want for our operating system memory management.
+For starters, I can think about the following things:</p>
+<ul>
+<li>Basic permissions (i.e read, write and execute)</li>
+<li>Kernel mode and user mode.</li>
+<li>Every process has it’s own address space.</li>
+</ul>
+<p>At first glance, we may see that all of this can be achieved via segmentation. This is because we can create multiple segments, one for each process code, data etc which creates the process separation. Also, each segment has a read, write and execute permissions, while also utilizing the CPU rings for kernel and user mode.
+So why do we need another system for managing memory?</p>
+<p>Let’s draw a scenario, we will have three processes, A and B, and we will look at our memory, for convenience, we will manage memory at multiplications of 0x100.</p>
+<figure style="margin: 0; text-align: center">
+  <img src="assets/fragmentation_example.svg">
+  <figcaption><strong>Figure 2-1: </strong>simple memory layout with segmentation</figcaption>
+</figure>
+<p>As we can see, every program has it’s own memory, additionally, we can define segments like coda_a, data_a, stack_a etc, so we have organization and permission control.
+But this picture demonstrates a major problem that there is with segmentation, can you spot it? if not that’s fine.</p>
+<p>Let’s now assume that process B wants more memory, it asks the operating system for another 0x100 bytes. Because the bytes that are <code>contiguous</code> to this process are free, this can be done without any problem and it can just be extended. But, process A is in a problem, and it now needs another buffer of 0x400 bytes, although we do have this amount of free memory, we can’t give it to him because it is not contiguous to it. This problem is called <a href="https://en.wikipedia.org/wiki/Fragmentation_(computing)"><code>fragmentation</code></a>.</p>
+<blockquote>
+<p>So now you might ask, how can we solve this problem?</p>
+<p>I suggest you to think how would you solve this fragmentation problem!</p>
+<p>As always, the explanation of the solution that is used today will be below</p>
+</blockquote>
+<h2 id="core-terms"><a class="header" href="#core-terms">Core Terms</a></h2>
+<p>Just before explaining how paging works, let’s define some core terms.</p>
+<ul>
+<li>
+<p><strong>Physical Memory</strong> - This is the actual memory that is used, and it has <code>absolute</code> addresses. This is the address space that our hardware talks.</p>
+</li>
+<li>
+<p><strong>Virtual Memory</strong> - This is the address space of our user and kernel processes, because we want to make an illusion that each process has it’s own address space, addresses are absolute only <code>inside the process</code>, For example, both process A and process B can use address number 0x100. But, on both of these processes the address will <code>translate</code> into a different <code>physical address</code> so we can read and write data to it.</p>
+</li>
+</ul>
+<blockquote>
+<p>The concept of virtual memory is not new to us. For example, when we discussed before about creating different segments for each process,
+we created a virtual memory space for each process in terms of accessing data or executing code.
+These addresses would then <code>translate</code> to a physical address as we defined in the global descriptor table</p>
+</blockquote>
+<h2 id="introduction-to-paging"><a class="header" href="#introduction-to-paging">Introduction to Paging</a></h2>
+<blockquote>
+<p>Just before explaining paging, I want you to know that there are <code>four paging modes</code><sup class="footnote-reference" id="fr-1-1"><a href="#footnote-1">1</a></sup> and they all cover the same concepts, and the key difference is the tables layout. We are going to talk about the third type, which is called <code>4-level paging</code> and is mostly used on modern computers.</p>
+</blockquote>
+<p>In memory paging we divide our physical memory into units that are called <code>pages</code>, which are blocks of contiguous memory of fixed size (4Kib, 2Mib or 1Gib). Then we create a <code>mapping</code> between the virtual address space, and the physical one. Each process holds a different mapping, hence a different virtual address space.</p>
+<p>In the figure bellow we can see this mapping.</p>
+<p><em>for simplification, I changed the block size to 0x100 instead of 0x1000 (4096 bytes) but the principles are still the same.</em></p>
+<figure style="margin: 0; text-align: center">
+  <img src="assets/paging_example.svg">
+  <figcaption><strong>Figure 2-2: </strong>simple process memory layout using paging</figcaption>
+</figure>
+<p>In this example we can see that even if process B wants more memory, it is not blocked by process A, and can just ask our operating system for more memory
+and it will map it just after process A thus solving the fragmentation problem. You may also notice that I marked some memory as “Used For Paging” this is because the mapping itself takes some memory and it is not a small portion.</p>
+<p><em>Although it solved our problem for most cases, it makes addresses easily <code>virtually contiguous</code> but we might still have fragmentation if we need our addresses <code>physically contiguous</code>. This case is mainly useful for hardware, and will be discussed on later chapters.</em></p>
+<h2 id="how-addresses-are-translated"><a class="header" href="#how-addresses-are-translated">How Addresses Are Translated</a></h2>
+<p>When we used segments we knew how to translate virtual address into a physical one. We would go to the appropriate entry in the global descriptor table, and we would take the base address of it, and add it to our virtual address, which would give us the physical address.
+In paging the address translation process is a bit more complicated, and it is done with four hierarchical tables.
+The official names for those tables are <code>Page-Map Level 4 (PML4)</code>, <code>Page Directory Pointer Table (PDPT)</code>, <code>Page Directory Table (PDT)</code> and <code>Page Table (PT)</code>.
+In this book I will not use these names because they are complicated, and I am just going to number each level, PML4 being the 4th level, and PT being the 1st level.</p>
+<h3 id="page-table--page-table-entry"><a class="header" href="#page-table--page-table-entry">Page Table &amp; Page Table Entry</a></h3>
+<p>The page table, just like the global descriptor table, is an array of 512 page table entries.
+Each entry contains a <code>physical address</code> aligned to 0x1000, that is pointing to a memory regions, and also flags represents configuration and permissions for the memory page mapped by the entry.</p>
+<p>On a typical entry, there are 8 flags that are used with an optional 12 flags in total, in our operating system we will configure some of the optional flags, but not all of them.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/paging/page_table.rs#L12 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">C</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">align</span><span class="parenthesis">(</span><span class="hlrs-litnum">4096</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span><span class="hlrs-attribute">Debug</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">PageTable</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-variable">entries</span><span class="colon">:</span> <span class="bracket">[</span><span class="hlrs-type">PageTableEntry</span><span class="semicolon">;</span> <span class="hlrs-variable">PAGE_DIRECTORY_ENTRIES</span><span class="bracket">]</span><span class="comma">,</span>
+<span class="brace">}</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-type">PageTable</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Create an empty page table</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">empty</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+            <span class="hlrs-variable">entries</span><span class="colon">:</span> <span class="brace">{</span> <span class="bracket">[</span><span class="hlrs-type">PageTableEntry</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span> <span class="hlrs-variable">PAGE_DIRECTORY_ENTRIES</span><span class="bracket">]</span> <span class="brace">}</span><span class="comma">,</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl PageTable</span></code></pre>
+
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/paging/entry_flags.rs#L4 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-comment">/// A wrapper for `PageTableEntry` flags for easier use</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">bitfields</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">PageEntryFlags</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">present</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">writable</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">usr_access</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">write_through_cache</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">disable_cache</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-type">flag</span><span class="parenthesis">(</span><span class="none">r</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">accessed</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-type">flag</span><span class="parenthesis">(</span><span class="none">r</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">dirty</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">huge_page</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">global</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">full</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">table</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-function">root_entry</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/paging/page_table_entry.rs#L12 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">bitfields</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">PageTableEntry</span> <span class="brace">{</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-type">flag</span><span class="parenthesis">(</span><span class="none">rwc</span><span class="parenthesis">(</span><span class="hlrs-litnum">0</span><span class="parenthesis">)</span><span class="comma">,</span> <span class="none">flag_type</span> <span class="operator">=</span> <span class="hlrs-type">PageEntryFlags</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-function">flags</span><span class="colon">:</span> <span class="hlrs-type">B12</span><span class="comma">,</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-type">flag</span><span class="parenthesis">(</span><span class="none">rw</span><span class="comma">,</span> <span class="none">flag_type</span> <span class="operator">=</span> <span class="hlrs-type">PhysicalAddress</span><span class="comma">,</span> <span class="none">dont_shift</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-function">address</span><span class="colon">:</span> <span class="hlrs-type">B51</span><span class="comma">,</span>
+    <span class="hlrs-function">not_executable</span><span class="colon">:</span> <span class="hlrs-type">B1</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<blockquote>
+<p>You may have noticed the <code>dont_shift</code> flag in our <code>PageTableEntry</code> address. This flags is used in our proc-macro to indicate that the value in the bit range of 12:63 should be given to us raw and not shifted, and also it will be set raw and not shifted.
+This is because the address that is saved in the entry is aligned to a page size (1 &lt;&lt; 12, or 4096 bytes.)</p>
+<p>As an example, on most flags we are interested on the value relative to the entry size, like with <code>ProtectionLevel</code> when we store a value between 1-4, and expected to get 1-4 in return no matter where it is on the struct. With the address we store the exact address value, and get it in return as we set it, thus the <code>dont_shift</code> flag.</p>
+</blockquote>
+<p>Because of how addresses are translated, addresses are actually capped by 48bits, which results in 256Tib of addressable memory, and if this is somehow not enough,
+new processors support a 5th table hierarchy, which support 57bit address space, or 128Pib of addressable memory.
+The address the entry points to, is between bits 12 and 48. Because the pointed address is always aligned to 0x1000, only the upper 36 bits of the pointed address are saved.
+In addition, when we use the top half of the address space, where the 47th bit is on, we must also set bits 63-48 to 1 because of something that is called the <a href="https://en.wikipedia.org/wiki/Sign_extension">sign extension</a>.</p>
+<h3 id="the-translation-process"><a class="header" href="#the-translation-process">The Translation Process</a></h3>
+<p>To translate an address, a special hardware on the CPU, which is called the MMU (Memory Management Unit) is used.</p>
+<p>To understand how the MMU works, lets look at an example translation, with the following address:</p>
+<pre>
+<figure style="margin: 0 auto; text-align: center">
+    <img src="assets/address.svg">
+    <figcaption><strong>Figure 2-3: </strong>Walking the page tables</figcaption>
+</figure>
+</pre>
+
+<p>The first thing the the MMU is doing, is to check if this page was already translated and cached. If it was, it returns the cached value.</p>
+<p>If the page was not cached, the MMU splits our address into multiple parts.</p>
+<ul>
+<li><strong>Bits 00-11:</strong> In page offset</li>
+<li><strong>Bits 12-20:</strong> 1st table index</li>
+<li><strong>Bits 21-30:</strong> 2nd table index</li>
+<li><strong>Bits 31-39:</strong> 3rd table index</li>
+<li><strong>Bits 40-47:</strong> 4th table index</li>
+<li><strong>Bits 48-63:</strong> Sign extension</li>
+</ul>
+<pre>
+<figure style="margin: 0; text-align: center">
+  <img src="assets/split_address.svg">
+  <figcaption><strong>Figure 2-4: </strong>Split Address</figcaption>
+</figure>
+</pre>
+
+<p>Each index will help us obtain the location of the next table, until we reach the final physical page. Then we can use the offset to obtain the specific byte in that page.</p>
+<p>After that, the MMU reads the CR3 Register from the CPU to find the address of the 4th page table.</p>
+<pre>
+<figure style="margin: 0; text-align: center">
+  <img src="assets/cr3-pml4.svg">
+  <figcaption><strong>Figure 2-5: </strong>CR3 Register and the 4th Page Table</figcaption>
+</figure>
+</pre>
+
+<p>Then, we walk the tables, using the indices from our address to obtain the location of the next table, until we reach the final physical page.</p>
+<pre>
+<figure style="margin: 0; text-align: center">
+  <img src="assets/table-walking.svg">
+  <figcaption><strong>Figure 2-6: </strong>Walking the page tables</figcaption>
+</figure>
+</pre>
+
+<p>After we found our physical page, we use the offset within our page, to locate the specific byte that the address points to resulting in the final physical address.</p>
+<p>This address is saved on the cache for later use, so we don’t have to walk the tables again for the same address.</p>
+<h2 id="implementing-paging"><a class="header" href="#implementing-paging">Implementing Paging</a></h2>
+<p>Just before we will implement the core functionality of paging, we will need to create some utility structs of <code>VirtualAddress</code> and <code>PhysicalAddress</code>.
+These will just be a wrapper struct of usize and will implement certain functions that are relevant on addresses.</p>
+<p>To implement all the simple and basic functionality, we will use a trait, so we won’t have much boilerplate. We will also use the great <a href="https://crates.io/crates/derive_more"><code>derive_more</code></a> crate, which will provide us basic derives for operator like deref, and mathematical operations.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/address_types.rs#L66 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span>
+    <span class="hlrs-attribute">Clone</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Debug</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Add</span><span class="comma">,</span>
+    <span class="hlrs-attribute">AddAssign</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Sub</span><span class="comma">,</span>
+    <span class="hlrs-attribute">SubAssign</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Mul</span><span class="comma">,</span>
+    <span class="hlrs-attribute">MulAssign</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Div</span><span class="comma">,</span>
+    <span class="hlrs-attribute">DivAssign</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Default</span><span class="comma">,</span>
+    <span class="hlrs-attribute">AsMut</span><span class="comma">,</span>
+    <span class="hlrs-attribute">AsRef</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Copy</span><span class="comma">,</span>
+    <span class="hlrs-attribute">PartialEq</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Eq</span><span class="comma">,</span>
+    <span class="hlrs-attribute">PartialOrd</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Ord</span><span class="comma">,</span>
+<span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">C</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">PhysicalAddress</span><span class="parenthesis">(</span><span class="hlrs-type">usize</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span>
+    <span class="hlrs-attribute">Clone</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Debug</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Add</span><span class="comma">,</span>
+    <span class="hlrs-attribute">AddAssign</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Sub</span><span class="comma">,</span>
+    <span class="hlrs-attribute">SubAssign</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Mul</span><span class="comma">,</span>
+    <span class="hlrs-attribute">MulAssign</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Div</span><span class="comma">,</span>
+    <span class="hlrs-attribute">DivAssign</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Default</span><span class="comma">,</span>
+    <span class="hlrs-attribute">AsMut</span><span class="comma">,</span>
+    <span class="hlrs-attribute">AsRef</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Copy</span><span class="comma">,</span>
+    <span class="hlrs-attribute">PartialEq</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Eq</span><span class="comma">,</span>
+    <span class="hlrs-attribute">PartialOrd</span><span class="comma">,</span>
+    <span class="hlrs-attribute">Ord</span><span class="comma">,</span>
+<span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">C</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">VirtualAddress</span><span class="parenthesis">(</span><span class="hlrs-type">usize</span><span class="parenthesis">)</span><span class="semicolon">;</span></code></pre>
+
+<p>Then, we can define all the functionality that we want for our address types, and implement the trait on them.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/address_types.rs#L12 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">trait</span> <span class="hlrs-type">Address</span><span class="colon">:</span> <span class="hlrs-type">Sized</span> <span class="punctuation">+</span> <span class="hlrs-type">Clone</span> <span class="punctuation">+</span> <span class="hlrs-type">Copy</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Create new instance without checking for address alignment.</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// # Safety</span>
+    <span class="hlrs-comment">/// This function should not check for sign extension.</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span><span class="semicolon">;</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">Option</span><span class="angle">&lt;</span><span class="hlrs-selftoken">Self</span><span class="angle">&gt;</span><span class="semicolon">;</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">usize</span><span class="semicolon">;</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">as_non_null</span><span class="angle">&lt;</span><span class="hlrs-type">T</span><span class="angle">&gt;</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-type">NonNull</span><span class="angle">&lt;</span><span class="hlrs-type">T</span><span class="angle">&gt;</span> <span class="brace">{</span>
+        <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-type">NonNull</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span>
+            <span class="inlay-hint">ptr:</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">with_exposed_provenance_mut</span><span class="operator">::</span><span class="angle">&lt;</span><span class="hlrs-type">T</span><span class="angle">&gt;</span><span class="parenthesis">(</span><span class="inlay-hint">addr:</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="comma">,</span>
+        <span class="parenthesis">)</span> <span class="inlay-hint">Option&lt;NonNull&lt;T&gt;&gt;</span>
+        <span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Tried to create NonNull from address, found null"</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">is_aligned</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">alignment</span><span class="colon">:</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-type">Alignment</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">bool</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="bitwise">&amp;</span> <span class="parenthesis">(</span><span class="hlrs-variable">alignment</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1</span><span class="parenthesis">)</span> <span class="comparison">==</span> <span class="hlrs-litnum">0</span>
+    <span class="brace">}</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">align_up</span><span class="parenthesis">(</span><span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">alignment</span><span class="colon">:</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-type">Alignment</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-selftoken">Self</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">address:</span> <span class="parenthesis">(</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="arithmetic">+</span> <span class="parenthesis">(</span><span class="hlrs-variable">alignment</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1</span><span class="parenthesis">)</span><span class="parenthesis">)</span>
+                    <span class="bitwise">&amp;</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="hlrs-variable">alignment</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">align_down</span><span class="parenthesis">(</span><span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">alignment</span><span class="colon">:</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-type">Alignment</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-selftoken">Self</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">address:</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="bitwise">&amp;</span> <span class="negation">!</span><span class="parenthesis">(</span><span class="hlrs-variable">alignment</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">alignment</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-type">Alignment</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">if</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="comparison">==</span> <span class="hlrs-litnum">0</span> <span class="brace">{</span>
+                <span class="hlrs-comment">// Address 0 is aligned to any alignment; return max</span>
+                <span class="hlrs-comment">// representable.</span>
+                <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-type">Alignment</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="inlay-hint">align:</span> <span class="hlrs-litnum">1</span> <span class="bitwise">&lt;&lt;</span> <span class="parenthesis">(</span><span class="hlrs-type">usize</span><span class="operator">::</span><span class="hlrs-variable">BITS</span> <span class="arithmetic">-</span> <span class="hlrs-litnum">1</span><span class="parenthesis">)</span><span class="parenthesis">)</span>
+            <span class="brace">}</span> <span class="hlrs-keyword">else</span> <span class="brace">{</span>
+                <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-type">Alignment</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span>
+                    <span class="inlay-hint">align:</span> <span class="hlrs-litnum">1</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">trailing_zeros</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+                <span class="parenthesis">)</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">trait Address</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-keyword">const</span> <span class="hlrs-type">Address</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">PhysicalAddress</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">Option</span><span class="angle">&lt;</span><span class="hlrs-selftoken">Self</span><span class="angle">&gt;</span> <span class="brace">{</span>
+        <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">cfg</span><span class="parenthesis">(</span>target_arch <span class="operator">=</span> <span class="hlrs-litstr">"x86_64"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-variable">address</span> <span class="comparison">&lt;</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">48</span><span class="parenthesis">)</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span> <span class="hlrs-enum">Some</span><span class="parenthesis">(</span><span class="hlrs-selftoken">Self</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="parenthesis">)</span><span class="parenthesis">)</span> <span class="brace">}</span>
+        <span class="brace">}</span> <span class="hlrs-keyword">else</span> <span class="brace">{</span>
+            <span class="hlrs-enum">None</span>
+        <span class="brace">}</span>
+
+        <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">cfg</span><span class="parenthesis">(</span>target_arch <span class="operator">=</span> <span class="hlrs-litstr">"x86"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-enum">Some</span><span class="parenthesis">(</span><span class="hlrs-selftoken">Self</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="parenthesis">)</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">usize</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">0</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl Address for PhysicalAddress</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-keyword">const</span> <span class="hlrs-type">Address</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">VirtualAddress</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">Option</span><span class="angle">&lt;</span><span class="hlrs-selftoken">Self</span><span class="angle">&gt;</span> <span class="brace">{</span>
+        <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">cfg</span><span class="parenthesis">(</span>target_arch <span class="operator">=</span> <span class="hlrs-litstr">"x86_64"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-variable">address</span> <span class="comparison">&lt;</span> <span class="parenthesis">(</span><span class="hlrs-litnum">1usize</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">48</span><span class="parenthesis">)</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">return</span> <span class="hlrs-enum">Some</span><span class="parenthesis">(</span><span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+                <span class="hlrs-selftoken">Self</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span>
+                    <span class="inlay-hint">address:</span> <span class="parenthesis">(</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">16</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">isize</span><span class="parenthesis">)</span> <span class="bitwise">&gt;&gt;</span> <span class="hlrs-litnum">16</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">usize</span><span class="comma">,</span>
+                <span class="parenthesis">)</span>
+            <span class="brace">}</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span> <span class="hlrs-keyword">else</span> <span class="brace">{</span>
+            <span class="hlrs-enum">None</span>
+        <span class="brace">}</span>
+
+        <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">cfg</span><span class="parenthesis">(</span>target_arch <span class="operator">=</span> <span class="hlrs-litstr">"x86"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-enum">Some</span><span class="parenthesis">(</span><span class="hlrs-selftoken">Self</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="hlrs-variable">address</span><span class="parenthesis">)</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn new</span>
+
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">as_usize</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">usize</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">0</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl Address for VirtualAddress</span></code></pre>
+
+<p>With these utility structs, we can now start implementing our paging logic. To avoid repetition, we will create some functions which will help us define some default flags, and also to apply custom flags onto our entry. For now, a default flags for an entry, will contain the present flags, which is must for the entry to be counted mapped, and also the writable flags, which will make our memory also writable so we could store data in it.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/paging/entry_flags.rs#L25 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">PageEntryFlags</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Default flags for entry that contains page table.</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">table_flags</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-type">PageEntryFlags</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="inlay-hint">PageEntryFlags</span>
+            <span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">PageEntryFlags</span>
+            <span class="operator">.</span><span class="hlrs-function">writable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span> <span class="inlay-hint">PageEntryFlags</span>
+            <span class="operator">.</span><span class="hlrs-function">table</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+    <span class="hlrs-comment">/// Default flags for entry that contains regular page.</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">regular_page_flags</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-type">PageEntryFlags</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">writable</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl PageEntryFlags</span></code></pre>
+
+<p>After that, we can create functions to map an address to an entry, this function should obtain the physical address that should be mapped, and also set the flags for the entry.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/constants/values.rs#L3 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">REGULAR_PAGE_SIZE</span><span class="colon">:</span> <span class="hlrs-type">usize</span> <span class="operator">=</span> <span class="hlrs-litnum">4096</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">REGULAR_PAGE_ALIGNMENT</span><span class="colon">:</span> <span class="hlrs-type">Alignment</span> <span class="operator">=</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span> <span class="hlrs-type">Alignment</span><span class="operator">::</span><span class="hlrs-function">new_unchecked</span><span class="parenthesis">(</span><span class="inlay-hint">align:</span> <span class="hlrs-variable">REGULAR_PAGE_SIZE</span><span class="parenthesis">)</span> <span class="brace">}</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-type">PageTableEntry</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Map new frame with the given with the given flags.</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// # Safety</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// This function doesn't check if address is properly aligned, and if</span>
+    <span class="hlrs-comment">/// the entry was already mapped.</span>
+    <span class="hlrs-comment">// ANCHOR: page_table_entry_map_unchecked</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">map_unchecked</span><span class="parenthesis">(</span>
+        <span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span>
+        <span class="hlrs-variable">frame</span><span class="colon">:</span> <span class="hlrs-type">PhysicalAddress</span><span class="comma">,</span>
+        <span class="hlrs-variable">flags</span><span class="colon">:</span> <span class="hlrs-type">PageEntryFlags</span><span class="comma">,</span>
+    <span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">set_flags</span><span class="parenthesis">(</span><span class="hlrs-variable">flags</span><span class="operator">.</span><span class="hlrs-function">present</span><span class="parenthesis">(</span><span class="hlrs-litnum">true</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">set_address</span><span class="parenthesis">(</span><span class="hlrs-variable">frame</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="brace">}</span>
+<span class="boring">    <span class="hlrs-comment">/// Map a frame to the page table entry while checking</span>
+</span><span class="boring">    <span class="hlrs-comment">/// flags and frame alignment but **not** the ownership</span>
+</span><span class="boring">    <span class="hlrs-comment">/// of the frame address This function **will** set</span>
+</span><span class="boring">    <span class="hlrs-comment">/// the entry as present even if it was not specified in</span>
+</span><span class="boring">    <span class="hlrs-comment">/// the flags.</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// # Parameters</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `frame`: The physical address of the mapped frame</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// # Interrupts</span>
+</span><span class="boring">    <span class="hlrs-comment">/// This function will raise a PAGE_FAULT if the entry</span>
+</span><span class="boring">    <span class="hlrs-comment">/// is already mapped</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// # Safety</span>
+</span><span class="boring">    <span class="hlrs-comment">/// The `frame` address should not be used by anyone</span>
+</span><span class="boring">    <span class="hlrs-comment">/// except the corresponding virtual address,</span>
+</span><span class="boring">    <span class="hlrs-comment">/// and should be marked owned by it in a memory</span>
+</span><span class="boring">    <span class="hlrs-comment">/// allocator</span>
+</span><span class="boring">    <span class="hlrs-comment">// ANCHOR: page_table_entry_map</span>
+</span>    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">map</span><span class="parenthesis">(</span>
+        <span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span>
+        <span class="hlrs-variable">frame</span><span class="colon">:</span> <span class="hlrs-type">PhysicalAddress</span><span class="comma">,</span>
+        <span class="hlrs-variable">flags</span><span class="colon">:</span> <span class="hlrs-type">PageEntryFlags</span><span class="comma">,</span>
+    <span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">get_flags</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">is_present</span><span class="parenthesis">(</span><span class="parenthesis">)</span>
+            <span class="logical">&amp;&amp;</span> <span class="hlrs-variable">frame</span><span class="operator">.</span><span class="hlrs-function">is_aligned</span><span class="parenthesis">(</span><span class="hlrs-variable">REGULAR_PAGE_ALIGNMENT</span><span class="parenthesis">)</span>
+        <span class="brace">{</span>
+            <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">map_unchecked</span><span class="parenthesis">(</span><span class="hlrs-variable">frame</span><span class="comma">,</span> <span class="hlrs-variable">flags</span><span class="parenthesis">)</span> <span class="brace">}</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl PageTableEntry</span></code></pre>
+
+<p>After mapping an address into an entry, we should also implement the other side of the coin, which is to read the address from the entry. We will implement two core logics, one will be to read the address as is, and return the physical address, the other is based on observation that tables only map memory blocks, or other page tables, so we might want instead of the address to get it as a pointer to a table.
+Just before we go to the implementation, what should we return in case there is no mapping, or in the case there is a mapping but it is not a table.</p>
+<p>For this exact reason, Rust has the <code>Result&lt;T, E&gt;</code> and <code>Option&lt;T&gt;</code> enum types which helps us express recoverable errors. In this case we will use <code>Result</code> with a custom error using the <a href="https://docs.rs/thiserror/latest/thiserror/">thiserror</a> crate by <code>David Tolnay</code>.</p>
+<blockquote>
+<p>If you are unfamiliar with the topic of Result, I would highly recommend <a href="https://www.youtube.com/watch?v=s5S2Ed5T-dc">A Simpler Way to See Results</a> by <code>Logan Smith</code></p>
+</blockquote>
+<p>Our custom error should currently include two cases, the first one is that there is no mapping, and the second that the mapping is not a table.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/error/paging.rs#L14 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span><span class="hlrs-attribute">Error</span><span class="comma">,</span> <span class="hlrs-attribute">Debug</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">enum</span> <span class="hlrs-type">EntryError</span> <span class="brace">{</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="derive_helper">error</span><span class="parenthesis">(</span><span class="hlrs-litstr">"There is no mapping to this entry"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-enum">NoMapping</span><span class="inlay-hint"> = 0</span><span class="comma">,</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="derive_helper">error</span><span class="parenthesis">(</span><span class="hlrs-litstr">"This entry contains memory block and not a table"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-enum">NotATable</span><span class="inlay-hint"> = 1</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/paging/page_table_entry.rs#L89 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">PageTableEntry</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Return the physical address that is mapped by this</span>
+    <span class="hlrs-comment">/// entry, if this entry is not mapped, return None.</span>
+    <span class="hlrs-comment">// ANCHOR: page_table_entry_mapped</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">mapped</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">Result</span><span class="angle">&lt;</span><span class="hlrs-type">PhysicalAddress</span><span class="comma">,</span> <span class="hlrs-type">EntryError</span><span class="angle">&gt;</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">get_flags</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">is_present</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">{</span>
+            <span class="hlrs-enum">Ok</span><span class="parenthesis">(</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">get_address</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span>
+        <span class="brace">}</span> <span class="hlrs-keyword">else</span> <span class="brace">{</span>
+            <span class="hlrs-enum">Err</span><span class="parenthesis">(</span><span class="hlrs-type">EntryError</span><span class="operator">::</span><span class="hlrs-enum">NoMapping</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+    <span class="hlrs-comment">/// Return the physical address mapped by this table as</span>
+    <span class="hlrs-comment">/// a reference into a page table.</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// This method assumes all page tables are identity</span>
+    <span class="hlrs-comment">/// mapped.</span>
+    <span class="hlrs-comment">// ANCHOR: page_table_entry_mapped_table</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">cfg</span><span class="parenthesis">(</span>target_arch <span class="operator">=</span> <span class="hlrs-litstr">"x86_64"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">mapped_table</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">Result</span><span class="angle">&lt;</span><span class="hlrs-type">NonNull</span><span class="angle">&lt;</span><span class="hlrs-type">PageTable</span><span class="angle">&gt;</span><span class="comma">,</span> <span class="hlrs-type">EntryError</span><span class="angle">&gt;</span> <span class="brace">{</span>
+        <span class="hlrs-comment">// first check if the entry is mapped.</span>
+
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">pt</span><span class="inlay-hint">: NonNull&lt;PageTable&gt;</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">mapped</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">?</span><span class="operator">.</span><span class="hlrs-function">translate</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">as_non_null</span><span class="operator">::</span><span class="angle">&lt;</span><span class="hlrs-type">PageTable</span><span class="angle">&gt;</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-comment">// then check if it is a table.</span>
+
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">flags</span><span class="inlay-hint">: PageEntryFlags</span> <span class="operator">=</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">get_flags</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="hlrs-variable">flags</span><span class="operator">.</span><span class="hlrs-function">is_huge_page</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="logical">&amp;&amp;</span> <span class="hlrs-variable">flags</span><span class="operator">.</span><span class="hlrs-function">is_table</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">{</span>
+            <span class="hlrs-enum">Ok</span><span class="parenthesis">(</span><span class="hlrs-variable">pt</span><span class="parenthesis">)</span>
+        <span class="brace">}</span> <span class="hlrs-keyword">else</span> <span class="brace">{</span>
+            <span class="hlrs-enum">Err</span><span class="parenthesis">(</span><span class="hlrs-type">EntryError</span><span class="operator">::</span><span class="hlrs-enum">NotATable</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl PageTableEntry</span></code></pre>
+
+<p>The sharp eyed people may notice that we used a function that we didn’t define before, the <code>translate</code> function. For now, don’t worry about it’s details, they will all be discussed on the next chapter. For now just understand that when we toggle paging, the processor assumes all addresses are virtual, so if we will return the physical address the processor will assume it is virtual and will try to translate it. And if we won’t have a one-to-one mapping, the translation will fail and we will have some undefined behavior. The purpose of the translate function it to turn this physical address into a virtual one so we can use it as a normal address. How does it do that? You will have to read the next chapter to find out :)</p>
+<p>The last functions that we need to implement, are functions that can create our PageTable on an address. So far we created a function that could create an empty on a variable or a static value, but when we will need to create a lot of tables, or we will need to dynamically create tables this function will not help us. For this reason, we will create a function that will receive a virtual address, and construct on it our page table.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/arch/x86/src/structures/paging/page_table.rs#L40 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">PageTable</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Create an empty page table at the given virtual address</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// # Safety</span>
+    <span class="hlrs-comment">/// This function works on every address, and will override the data at</span>
+    <span class="hlrs-comment">/// that address</span>
+    <span class="hlrs-comment">// ANCHOR: page_table_empty_from_ptr</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">inline</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">empty_from_ptr</span><span class="parenthesis">(</span>
+        <span class="hlrs-variable">page_table_ptr</span><span class="colon">:</span> <span class="hlrs-type">VirtualAddress</span><span class="comma">,</span>
+    <span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">Option</span><span class="angle">&lt;</span><span class="hlrs-type">NonNull</span><span class="angle">&lt;</span><span class="hlrs-type">PageTable</span><span class="angle">&gt;</span><span class="angle">&gt;</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="hlrs-variable">page_table_ptr</span><span class="operator">.</span><span class="hlrs-function">is_aligned</span><span class="parenthesis">(</span><span class="hlrs-variable">REGULAR_PAGE_ALIGNMENT</span><span class="parenthesis">)</span> <span class="brace">{</span>
+            <span class="hlrs-keyword">return</span> <span class="hlrs-enum">None</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">write_volatile</span><span class="parenthesis">(</span>
+                <span class="inlay-hint">dst:</span> <span class="hlrs-variable">page_table_ptr</span><span class="operator">.</span><span class="hlrs-function">as_non_null</span><span class="operator">::</span><span class="angle">&lt;</span><span class="hlrs-type">PageTable</span><span class="angle">&gt;</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">as_ptr</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+                <span class="inlay-hint">src:</span> <span class="hlrs-type">PageTable</span><span class="operator">::</span><span class="hlrs-function">empty</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="hlrs-enum">Some</span><span class="parenthesis">(</span><span class="hlrs-variable">page_table_ptr</span><span class="operator">.</span><span class="hlrs-function">as_non_null</span><span class="operator">::</span><span class="angle">&lt;</span><span class="hlrs-type">PageTable</span><span class="angle">&gt;</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl PageTable</span></code></pre>
+
+<h2 id="translation-lookaside-buffer"><a class="header" href="#translation-lookaside-buffer">Translation Lookaside Buffer</a></h2>
+<p>As a last note we will touch on a topic that is sometimes forgotten, which is the Translation Lookaside Buffer.</p>
+<p>The TLB is a cache that stores our most recent translations of virtual addresses into physical ones and it is part of the MMU. This is useful because walking the page tables is a task that could take tens or even hundreds of cpu cycles, but instead obtaining the same entry from the cache, which is also called <code>TLB hit</code>, could take as few as 1 cycle because it is just a cache read.
+This makes the TLB <em>really</em> useful, but it is not that simple, this is because we should know how to work with it. For example, switching page tables becomes a very expensive task<sup class="footnote-reference" id="fr-2-1"><a href="#footnote-2">2</a></sup>, because the buffer refreshes.
+Also, when we free up a page, we must call the <code>invlpg</code> instruction, which removes every page with the given address from the buffer. If we don’t flush the entry it will become stale, and the cpu will still be able to translate the address even if it is not mapped anymore. This could be a cause to <strong>a lot</strong> of bugs and some serious security vulnerabilities.</p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-1">
+<p>Once you know how one works, you know that for all the others as well. For more information about the four available paging modes you may look at <a href="https://www.google.com/url?sa=t&amp;source=web&amp;rct=j&amp;opi=89978449&amp;url=https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf&amp;ved=2ahUKEwjK-duH0pOUAxXvhf0HHRkeN1sQFnoECA0QAQ&amp;usg=AOvVaw3xCH_sFKn73Bg5tPFbOzaC">Intel Manual Volume 3</a> section 5.1.1 <a href="#fr-1-1">↩</a></p>
+</li>
+<li id="footnote-2">
+<p>On modern processors, this is not always the case because of the PCID (Process Context Identifier) feature. Which allows multiple processes to share the same TLB, but with different page tables, so when we switch tables only the current process’s entries are invalidated. <a href="#fr-2-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch02-03-implementing-the-bitfields-proc-macro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch02-04-booting-the-kernel.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch02-03-implementing-the-bitfields-proc-macro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch02-04-booting-the-kernel.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-10cebb93.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="theme/whichlang-ec4501dc.js"></script>
+        <script src="theme/filepath-links-477dc0d6.js"></script>
+        <script src="theme/giscuss-b9267189.js"></script>
+        <script src="theme/tags-157d81b3.js"></script>
+        <script src="theme/highlight-10cebb93.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

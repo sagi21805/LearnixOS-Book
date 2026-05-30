@@ -1,0 +1,684 @@
+<!DOCTYPE HTML>
+<html lang="en" class="navy sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Legacy Legacy Legacy [OS] - The LearnixOS Book</title>
+
+
+        <!-- Custom HTML head -->
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q6WJBYSC2E"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-Q6WJBYSC2E');
+        </script>
+        
+        <!-- Microsoft Clarity -->
+        <script type="text/javascript">
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "woazwfwtq9");
+        </script>
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/whichlang-1516096e.css">
+        <link rel="stylesheet" href="theme/hlrs-34616bb2.css">
+        <link rel="stylesheet" href="theme/gh-issue-1d418845.css">
+        <link rel="stylesheet" href="theme/tags-3d530a36.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "navy";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-295dc51a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-712dd4bf.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The LearnixOS Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/sagi21805/LearnixOS" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="legacy-legacy-legacy"><a class="header" href="#legacy-legacy-legacy">Legacy Legacy Legacy</a></h1>
+<p><em>“Compatibility means deliberately repeating other people’s mistakes.” - David Wheeler</em></p>
+<hr>
+<p>When writing our bootloader, and especially in the first stages, we encounter a lot of legacy that needs to be handled.
+This legacy may come in multiple shapes, like bios interrupts, magic numbers and things that need to be initialized. Most of this work will be covered in this chapter.</p>
+<blockquote>
+<p><strong>Note:</strong> From now on, each of the code blocks will be structured as they are in the real project,
+and every time a code file will have a path in it, that will be the same path in the real project.
+For example, our first stage will be located in the <u>bootloader/first_stage</u> directory.</p>
+<p>Our project structure will include the following directories:</p>
+<ul>
+<li>kernel -&gt; For the kernel code, and booting stages.</li>
+<li>shared -&gt; Shared crates that are relevant for multiple cases.</li>
+<li>build  -&gt; Build utilities, like targets, linker scripts and more.</li>
+</ul>
+<p>The <u>Cargo.toml</u> in the root of the project will include a <a href="https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html"><code>workspace</code></a> definition which will include all of the crates from our project.</p>
+</blockquote>
+<h2 id="basic-initialization"><a class="header" href="#basic-initialization">Basic Initialization</a></h2>
+<p>At the start of our code, we want to zero out all of the <a href="https://en.wikipedia.org/wiki/X86_memory_segmentation#Real_mode"><code>memory segments</code></a> in our machine, so all of the addresses that we will access will not be manipulated by the segments.
+This manipulation can happen if the segments are not zeroed out, because certain instructions of the CPU will assume segments.
+For example, the instruction <code>mov, eax [0x1000]</code> will assume address <code>0x1000</code> is prefixed by the <code>ds</code> register.
+In 16bit real mode, the translation is as follows:</p>
+<pre><code>Physical address = (Segment * 0x10) + Specified Address
+
+// For example, if we want to fetch data,
+// and the data segment is 0x1000 and we want data at address 0x2000.
+
+Final = 0x1000 * 0x10 + 0x2000
+
+Which will result in the address 0x12000 instead of 0x2000
+</code></pre>
+<p>This technique results in a 20bit maximum address space instead of 16bit, which is 1MiB.</p>
+<p>So, to zero down all the segments we will use the following code:</p>
+<pre><code class="language-x86asm fp=&lt;repo&gt;bootloader/first_stage/asm/boot.s#L1 icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png">//; This will define a boot section for this asm code,
+//; which we can put at the start of our binary.
+.section .boot, "awx"
+.global start
+.code16
+start:
+    //; Disable interrupts
+    cli
+    //; zero segment registers
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov fs, ax
+    mov gs, ax
+</code></pre>
+<p>Then, we want to initialize the stack and the direction flag.
+It is important to state the stack at a position that will not overwrite our code; if local variables are written to the same place as our code, it might cause a <code>push</code> instruction to overwrite an instruction that we need. because of this, we initialize the stack at <code>0x7c00 (31 KiB)</code> which will ensure it will not happen, because the stack only grows down.</p>
+<pre><code class="language-x86asm fp=&lt;repo&gt;bootloader/first_stage/asm/boot.s#L19 icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png">    //; clear the direction flag (e.g. go forward in memory when using
+    //; instructions like lodsb)
+    cld
+
+    //; initialize stack
+    mov sp, 0x7c00
+</code></pre>
+<ul>
+<li><input disabled="" type="checkbox" checked=""> Setup registers and stack</li>
+</ul>
+<h2 id="a20-line"><a class="header" href="#a20-line">A20 Line</a></h2>
+<p>The next step in our initialization is enabling the A20 line, which is a legacy <a href="https://aeb.win.tue.nl/linux/kbd/A20.html">pain</a> that we need to handle.
+This is the 21st address line in our <a href="https://simple.wikipedia.org/wiki/Address_bus">bus</a> which is disabled by default due to compatibility reasons.
+Right now it is not a problem because we can only access 1MiB of address space; however, later in our operating system we will want to be able to access all of the memory space we have, so we will need to enable this address line.</p>
+<p>There are a lot of ways to enable the A20 line; the code we will use is a fast A20 that is implemented mostly on new <a href="https://en.wikipedia.org/wiki/Chipset">chipsets</a>, this method is <strong>DANGEROUS</strong> and on some chipsets it may do something else, or even <strong>DAMAGE</strong> the computer, and because of that, at least for now, we run this operating system <strong>ONLY</strong> on a virtual machine because we are not handling all of the cases.</p>
+<p>Luckily, this method works on our QEMU virtual machine</p>
+<pre><code class="language-x86asm fp=&lt;repo&gt;bootloader/first_stage/asm/boot.s#L28 icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png">// ANCHOR: segment
+//; This will define a boot section for this asm code,
+//; which we can put at the start of our binary.
+.section .boot, "awx"
+.global start
+.code16
+start:
+    //; Disable interrupts
+    cli
+    //; zero segment registers
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov fs, ax
+    mov gs, ax
+// ANCHOR_END: segment
+
+// ANCHOR: stack
+    //; clear the direction flag (e.g. go forward in memory when using
+    //; instructions like lodsb)
+    cld
+
+    //; initialize stack
+    mov sp, 0x7c00
+// ANCHOR_END: stack
+
+// ANCHOR: A20
+//; Enable the A20 line via I/O Port 0x92
+//; This method might not work on all motherboards
+//; Use with care on real hardware!
+enable_a20:
+    //; Check if a20 is already enabled
+    in al, 0x92
+    test al, 2
+
+    //; If so, skip the enabling code
+    jnz enable_a20_after
+
+    //; Else, enable the a20 line
+    or al, 2
+    and al, 0xFE
+    out 0x92, al
+enable_a20_after:
+// ANCHOR_END: A20
+
+// ANCHOR: INT13
+check_int13h_extensions:
+
+    //; Set function constants `dl` already contains the driver
+    mov ah, 0x41
+    mov bx, 0x55aa
+    int 0x13
+    jnc .int13_pass
+    //; hlt system if there is no support
+    hlt
+.int13_pass:
+// ANCHOR_END: INT13
+
+// ANCHOR: disk
+//; push disk number into the stack will be at 0x7bfe 
+//; and call the first_stage function
+push dx
+call first_stage
+// ANCHOR_END: disk
+</code></pre>
+<ul>
+<li><input disabled="" type="checkbox" checked=""> Enable the A20 line</li>
+</ul>
+<p>Now, after enabling the A20 line, we want to load from the disk into memory the rest of the bootloader and of course, our kernel.
+This is not a trivial task, especially when we have less than 512 bytes of code to do so. But don’t worry, because the BIOS will come to our help.</p>
+<h2 id="bios-interrupts"><a class="header" href="#bios-interrupts">BIOS Interrupts</a></h2>
+<p><a href="https://en.wikipedia.org/wiki/BIOS_interrupt_call">BIOS Interrupts</a>, an interface that is provided by the BIOS, will allow us to perform numerous operations to our system with just a few assembly instructions.
+For now, you don’t have to understand how interrupts work, and this topic will have a deeper explanation <a href="./ch05-00-interrupts-and-exceptions.html">later</a>.
+What you do need to understand, is that each set of functions that the BIOS provides has a number.
+These sets are divided by topics, and the specific function in each set that we want to use will also have a number that we will put in the <code>a register</code>.</p>
+<p>For example, if we want to check our drive status, we will need interrupt number <code>0x13</code>, which is the set of function that correspond for disk operations,
+and we will need function that corresponds to the number 0x1. (This information can be found in <a href="https://en.wikipedia.org/wiki/BIOS_interrupt_call#Interrupt_table">this interrupt table</a>)
+Then, calling the function will look like this:</p>
+<pre><code class="language-x86asm icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png">
+; Set up registers per specification
+...
+
+; Set `ah` with the function code
+mov ah, 1
+
+; Call the relevant interrupt
+int 0x13
+
+; For this function, `ah` will contain the result, nonzero value means an error
+; So we can parse the value as follows
+test ah, ah
+jnz disk_has_a_problem
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> Most functions have a specification on the internet for what to put in each register, and in which register the output will be.
+the specification for the above function can be found <a href="https://en.wikipedia.org/wiki/INT_13H#INT_13h_AH=01h:_Get_Status_of_Last_Drive_Operation">here</a></p>
+</blockquote>
+<h2 id="reading-from-disk"><a class="header" href="#reading-from-disk">Reading From Disk</a></h2>
+<p>To read our kernel from the disk, we can utilize two functions that are provided by the BIOS, the first one is <code>int 0x13 ah=0x2</code> which is the <code>read sector</code> function; this is an older function that reads sectors from the disk into memory by taking the <code>cylinder</code>, <code>head</code>, and <code>sector</code> locations. The other function is the <code>int 0x13 ah=0x42</code> which is the <code>extended read</code> function, this is a newer function that reads from disk using the <code>disk packet</code> structure.
+Both of these functions will be explained, and at the end, we will use the newer one.</p>
+<h3 id="cylinder-head-and-sector"><a class="header" href="#cylinder-head-and-sector">Cylinder, Head and Sector</a></h3>
+<p>In today’s computers, there are multiple ways to store persistent information,
+<a href="https://en.wikipedia.org/wiki/Solid-state_drive">SSD</a> and <a href="https://en.wikipedia.org/wiki/NVM_Express">NVMe</a> which are newer storage hardware that provides fast access speeds to data and lower latency compared to <a href="https://en.wikipedia.org/wiki/Hard_disk_drive">HDD</a> which is an older technology that the BIOS works with.</p>
+<p>To read from a HDD, we first need to understand its geometry.
+Each disk contains multiple <code>platters</code> which are a magnetic disk that can store data, each platter can typically store information on both sides, so the number of <code>heads</code> is <code>2 * platters</code>.
+Each head of the disk is divided into inner circles which are called <code>tracks</code>, the set of aligned tracks on all of the heads is called a <code>cylinder</code>.
+Finally the <code>sector</code> is the arc on the track that actually holds our data. Sectors are commonly 512 bytes in size, but <a href="https://en.wikipedia.org/wiki/Advanced_Format">larger sizes</a> are possible.</p>
+<p>With that information, we can understand that the disk uses a 3D coordinate system, and in order to specify which sector we want to read, we need to specify a <code>cylinder</code> number that the sector is in, then, provide the <code>head</code> number, in order to specify the <code>track</code> the sector is in, and then we provide the sector number in the track to get the actual <code>sector</code> that holds our data. This can be demonstrated with this picture:</p>
+<figure style="width: 60%; text-align: center;">
+    <img src="assets/Cylinder_Head_Sector.svg" style="background-color: aliceblue; width: 80%; height: auto;">
+  <figcaption><strong>Figure 2-0:</strong> Cylinder Head Sector Diagram</figcaption>
+</figure>
+<blockquote>
+<p><strong>Note:</strong> To obtain how many cylinders, heads and sectors are on a disk we can use the BIOS <code>int 0x13 ah=0x8</code> function or the <code>int 0x13 ah=0x48</code> function.</p>
+</blockquote>
+<p>With that said, it is not a surprise that the simple, <code>read sector</code> BIOS function needs exactly this information.</p>
+<pre><code class="language-x86asm icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png">; Set data segment to 0
+xor ax, ax
+mov ds, ax
+
+; Number of sectors to read in `al`
+mov al, 63
+
+; Cylinder number in `ch`
+mov ch, 0
+
+; Sector number in cl
+; The first sector is already loaded to memory by the BIOS
+; And the sector count starts at 1 and not 0
+mov cl, 2
+
+; Head number in 'dh' 0
+mov dh, 0
+
+; `dl` should already contain the drive number from BIOS if not overrode.
+
+; The buffer to read to is es:bx.
+; Since BIOS loads 512 bytes at the start, the next empty address is 0x7e00
+; This address can be represented in multiple ways because of segmentation
+; For example es=0x7e0, bx=0 or es=0, bx=0x7e00
+xor bx, bx
+mov es, bx
+mov bx, 7e00h
+
+; Put function code in `ah`
+mov ah, 2
+
+; Call the function
+int 13h
+</code></pre>
+<h3 id="logical-block-addressing"><a class="header" href="#logical-block-addressing">Logical Block Addressing</a></h3>
+<p>Although the <code>Cylinder-Head-Sector</code> model is quite accurate and specific, it is harder to understand, and requires the knowledge of the disk geometry.
+Moreover, it is not compliant with other, newer disk hardware like SSD or NVMe.
+Because of that, a better addressing scheme was proposed which is called <a href="https://en.wikipedia.org/wiki/Logical_block_addressing"><code>Logical Block Addressing</code></a> or LBA for short.
+This is a linear address scheme, where each address is a sector, or so called <code>data block</code>.
+This, unlike the sector count scheme, is a zero-based address, which means the first block is at address 0, the second at address 1 and so on.</p>
+<p>This address scheme is compatible with CHS addressing, and a CHS address can be translated to an LBA with the following formula:</p>
+<p>$$ LBA = (C \times N_{Heads Per Cylinder} + H) \times K_{Sectors Per Track} + (S - 1) $$</p>
+<p>This address can translate backwards, so an LBA address can become a CHS tuple with these formulas:</p>
+<p>$$
+Cylinder = \text{LBA} \div ({N_{Heads Per Cylinder}} \times K_{Sectors Per Track}) \
+$$
+$$
+Head = (\text{LBA} \div K_{Sectors Per Track}) \bmod {N_{Heads Per Cylinder}} \
+$$
+$$
+Sector = (\text{LBA} \bmod K_{Sectors Per Track}) + 1
+$$</p>
+<h3 id="disk-address-packet"><a class="header" href="#disk-address-packet">Disk Address Packet</a></h3>
+<p>After learning about LBA, the only logical thing to think, is how to read data from the disk using LBA instead of CHS.
+This is where the <code>extended read</code> functions comes in; it expects a structure called the <code>disk address packet</code> which looks like this:</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;bootloader/first_stage/src/disk.rs#L4 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-comment">/// The `repr(C)` means that the layout in memory will be as</span>
+<span class="hlrs-comment">/// specified (like in C) because rust ABI doesn't state that</span>
+<span class="hlrs-comment">/// this is promised.</span>
+<span class="hlrs-comment">///</span>
+<span class="hlrs-comment">/// The `repr(packed) states that there will no padding due</span>
+<span class="hlrs-comment">/// to alignment</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">C</span><span class="comma">,</span> <span class="none">packed</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">DiskAddressPacket</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// The size of the packet</span>
+    <span class="hlrs-variable">packet_size</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+
+    <span class="hlrs-comment">/// Zero</span>
+    <span class="hlrs-variable">zero</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+
+    <span class="hlrs-comment">/// How many sectors to read</span>
+    <span class="hlrs-variable">num_of_sectors</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+
+    <span class="hlrs-comment">/// Which address in memory to save the data</span>
+    <span class="hlrs-variable">memory_address</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+
+    <span class="hlrs-comment">/// Memory segment for the address</span>
+    <span class="hlrs-variable">segment</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+
+    <span class="hlrs-comment">/// The LBA address of the first sector</span>
+    <span class="hlrs-variable">abs_block_num</span><span class="colon">:</span> <span class="hlrs-type">u64</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<p>But, just before we use it, we need to check if this extension is available on our disk. This can be done with <code>int 0x13 ah=0x41</code> which checks if all extended functions are available on our disk.
+The check can be done with the following code:</p>
+<pre><code class="language-x86asm fp=&lt;repo&gt;bootloader/first_stage/asm/boot.s#L47 icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png">check_int13h_extensions:
+
+    //; Set function constants `dl` already contains the driver
+    mov ah, 0x41
+    mov bx, 0x55aa
+    int 0x13
+    jnc .int13_pass
+    //; hlt system if there is no support
+    hlt
+.int13_pass:
+</code></pre>
+<p>Because we are all using the same emulator, it should pass the <code>hlt</code> instruction and continue execution. Now to read from disk we can implement a read function to our disk packet.
+This is quite straight forward, we will create a <code>new</code> function that will initialize our packet from basic inputs, create a <code>load</code> function that will call <code>int 0x13 ah=0x42</code> for us with the packet to the right disk.</p>
+<p>First, for organization, we will create some helpful enums:</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/enums/bios_interrupts.rs#L2 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">u8</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-comment">/// BIOS interrupts number for each interrupt type used in</span>
+<span class="hlrs-comment">/// the kernel.</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">enum</span> <span class="hlrs-type">BiosInterrupts</span> <span class="brace">{</span>
+    <span class="hlrs-enum">Video</span> <span class="operator">=</span> <span class="hlrs-litnum">0x10</span><span class="comma">,</span>
+    <span class="hlrs-enum">Disk</span> <span class="operator">=</span> <span class="hlrs-litnum">0x13</span><span class="comma">,</span>
+    <span class="hlrs-enum">Memory</span> <span class="operator">=</span> <span class="hlrs-litnum">0x15</span><span class="comma">,</span>
+<span class="brace">}</span>
+
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">u8</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-comment">/// Disk interrupt number for each function used in the</span>
+<span class="hlrs-comment">/// kernel.</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">enum</span> <span class="hlrs-type">DiskInterrupt</span> <span class="brace">{</span>
+    <span class="hlrs-enum">ExtendedRead</span> <span class="operator">=</span> <span class="hlrs-litnum">0x42</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<p>Then, we can create an initializer function for our <code>disk packet</code>:</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;bootloader/first_stage/src/disk.rs#L32 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">DiskAddressPacket</span> <span class="brace">{</span>
+<span class="boring">    <span class="hlrs-comment">/// Create a new Disk Packet</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// # Parameters</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `num_of_sectors`: The number of sectors to load (Max 128)</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `memory_address`: The starting memory address of the segment to</span>
+</span><span class="boring">    <span class="hlrs-comment">///   load the sectors to</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `segment`: The memory segment start address</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `abs_block_num`: The starting sector Logical Block Address (LBA)</span>
+</span><span class="boring">    <span class="hlrs-comment">// ANCHOR: new</span>
+</span>    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new</span><span class="parenthesis">(</span>
+        <span class="hlrs-variable">num_of_sectors</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+        <span class="hlrs-variable">memory_address</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+        <span class="hlrs-variable">segment</span><span class="colon">:</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+        <span class="hlrs-variable">abs_block_num</span><span class="colon">:</span> <span class="hlrs-type">u64</span><span class="comma">,</span>
+    <span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+            <span class="hlrs-comment">// The size of the packet</span>
+            <span class="hlrs-variable">packet_size</span><span class="colon">:</span> <span class="hlrs-function">size_of</span><span class="operator">::</span><span class="angle">&lt;</span><span class="hlrs-selftoken">Self</span><span class="angle">&gt;</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+            <span class="hlrs-comment">// zero</span>
+            <span class="hlrs-variable">zero</span><span class="colon">:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+            <span class="hlrs-comment">// Number of sectors to read, this can be a max of 128 sectors.</span>
+            <span class="hlrs-comment">// This is because the address increments every time we read a</span>
+            <span class="hlrs-comment">// sector. The largest number a register in this</span>
+            <span class="hlrs-comment">// mode can hold is 2^16 When divided by a sector</span>
+            <span class="hlrs-comment">// size, we get that we can read only 128 sectors.</span>
+            <span class="hlrs-variable">num_of_sectors</span><span class="colon">:</span> <span class="hlrs-variable">num_of_sectors</span><span class="operator">.</span><span class="hlrs-function">min</span><span class="parenthesis">(</span><span class="hlrs-litnum">128</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-comment">// The initial memory address</span>
+            <span class="hlrs-variable">memory_address</span><span class="comma">,</span>
+            <span class="hlrs-comment">// The segment the memory address is in</span>
+            <span class="hlrs-variable">segment</span><span class="comma">,</span>
+            <span class="hlrs-comment">// The starting LBA address to read from</span>
+            <span class="hlrs-variable">abs_block_num</span><span class="comma">,</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn new</span>
+<span class="brace">}</span> <span class="inlay-hint">impl DiskAddressPacket</span></code></pre>
+
+<p>And then, finally the function that will call the interrupt with our packet, and will read the disk content into memory.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;bootloader/first_stage/src/disk.rs#L69 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">DiskAddressPacket</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Load the sectors specified in the disk packet to the</span>
+    <span class="hlrs-comment">/// given memory segment</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// # Parameters</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// - `disk_number`: The disk number to read the sectors from</span>
+    <span class="hlrs-comment">// ANCHOR: load</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">load</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">disk_number</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+            <span class="hlrs-comment">// This is an inline assembly block</span>
+            <span class="hlrs-comment">// This block's assembly will be injected to the function.</span>
+            <span class="hlrs-macro">asm</span><span class="macro_bang">!</span><span class="parenthesis">(</span>
+                <span class="hlrs-comment">// si register is required for llvm it's content needs to be</span>
+                <span class="hlrs-comment">// saved</span>
+                <span class="hlrs-litstr">"push si"</span><span class="comma">,</span>
+                <span class="hlrs-comment">// Set the packet address in `si` and format it for a 16bit</span>
+                <span class="hlrs-comment">// register</span>
+                <span class="hlrs-litstr">"mov si, {</span><span class="hlrs-variable">0</span><span class="hlrs-litstr">:x}"</span><span class="comma">,</span>
+                <span class="hlrs-comment">// Put function code in `ah`</span>
+                <span class="hlrs-litstr">"mov ah, {</span><span class="hlrs-variable">1</span><span class="hlrs-litstr">}"</span><span class="comma">,</span>
+                <span class="hlrs-comment">// Put disk number in `dl`</span>
+                <span class="hlrs-litstr">"mov dl, {</span><span class="hlrs-variable">2</span><span class="hlrs-litstr">}"</span><span class="comma">,</span>
+                <span class="hlrs-comment">// Call the `disk interrupt`</span>
+                <span class="hlrs-litstr">"int {</span><span class="hlrs-variable">3</span><span class="hlrs-litstr">}"</span><span class="comma">,</span>
+                <span class="hlrs-comment">// Restore si for llvm internal use.</span>
+                <span class="hlrs-litstr">"pop si"</span><span class="comma">,</span>
+                <span class="hlrs-keyword">in</span><span class="parenthesis">(</span><span class="reg">reg</span><span class="parenthesis">)</span> <span class="hlrs-selftoken">self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="hlrs-selftoken">Self</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u16</span><span class="comma">,</span>
+                <span class="hlrs-keyword">const</span> <span class="hlrs-type">DiskInterrupt</span><span class="operator">:</span><span class="operator">:</span><span class="hlrs-enum">ExtendedRead</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+                <span class="hlrs-keyword">in</span><span class="parenthesis">(</span><span class="reg">reg_byte</span><span class="parenthesis">)</span> <span class="hlrs-variable">disk_number</span><span class="comma">,</span>
+                <span class="hlrs-keyword">const</span> <span class="hlrs-type">BiosInterrupts</span><span class="operator">:</span><span class="operator">:</span><span class="hlrs-enum">Disk</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+            <span class="parenthesis">)</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span> <span class="inlay-hint">unsafe fn load</span>
+<span class="brace">}</span> <span class="inlay-hint">impl DiskAddressPacket</span></code></pre>
+
+<h3 id="read-the-kernel"><a class="header" href="#read-the-kernel">Read The Kernel</a></h3>
+<p>Now, all that is left is to put it all together!</p>
+<p>We can create a disk packet in our entry function, and load it!</p>
+<p>But, just before we can do that, we need to somehow get the disk number we are in, and call our function.
+The disk number that we booted from as used in above examples is in the <code>dl</code> register, so we can push it to the stack.
+Then, use the <code>no_mangle</code> attribute on our function and call it by it’s name.
+Then, we can get the disk number from the stack, and load our packet.</p>
+<pre><code class="language-x86asm fp=&lt;repo&gt;bootloader/first_stage/asm/boot.s#L60 icon=@https://icons.veryicon.com/png/o/business/vscode-program-item-icon/assembly-7.png">//; push disk number into the stack will be at 0x7bfe 
+//; and call the first_stage function
+push dx
+call first_stage
+</code></pre>
+<p>And create a constant for the disk number memory address
+Then, in the first stage function</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/constants/addresses.rs#L4 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">DISK_NUMBER_OFFSET</span><span class="colon">:</span> <span class="hlrs-type">u16</span> <span class="operator">=</span> <span class="hlrs-litnum">0x7BFE</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">load_dap</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">{</span>
+    <span class="hlrs-comment">// Read the disk number the os was booted from</span>
+    <span class="hlrs-keyword">let</span> <span class="hlrs-variable">disk_number</span><span class="inlay-hint">: u8</span> <span class="operator">=</span>
+        <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">ptr</span><span class="operator">::</span><span class="hlrs-function">read</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">DISK_NUMBER_OFFSET</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">const</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="brace">}</span><span class="semicolon">;</span>
+
+    <span class="hlrs-comment">// Create a disk packet which will load 4 sectors (512 bytes each)</span>
+    <span class="hlrs-comment">// from the disk to memory address 0x7e00</span>
+    <span class="hlrs-comment">// The address 0x7e00 was chosen because it is exactly one sector</span>
+    <span class="hlrs-comment">//  after the initial address 0x7c00.</span>
+    <span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="tool_module">rustfmt</span><span class="operator">::</span><span class="tool_module">skip</span><span class="attribute_bracket">]</span>
+    <span class="hlrs-keyword">let</span> <span class="hlrs-variable">dap</span><span class="inlay-hint">: DiskAddressPacket</span> <span class="operator">=</span> <span class="hlrs-type">DiskAddressPacket</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span>
+        <span class="inlay-hint">num_of_sectors:</span> <span class="hlrs-litnum">4</span><span class="comma">,</span>
+        <span class="inlay-hint">memory_address:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+        <span class="inlay-hint">segment:</span> <span class="hlrs-litnum">0x7e0</span><span class="comma">,</span>
+        <span class="inlay-hint">abs_block_num:</span> <span class="hlrs-litnum">1</span>
+    <span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span> <span class="hlrs-variable">dap</span><span class="operator">.</span><span class="hlrs-function">load</span><span class="parenthesis">(</span><span class="hlrs-variable">disk_number</span><span class="parenthesis">)</span> <span class="brace">}</span><span class="semicolon">;</span>
+<span class="brace">}</span> <span class="inlay-hint">unsafe fn load_dap</span></code></pre>
+
+<ul>
+<li><input disabled="" type="checkbox" checked=""> Read kernel from disk</li>
+</ul>
+<p>Although everything seems correct, and data from the disk should now be in memory, it will still not compile and boot properly.
+But I will leave it as a challenge for you!</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch02-00-a-minimal-bootloader.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch02-02-entering-protected-mode.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch02-00-a-minimal-bootloader.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch02-02-entering-protected-mode.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-10cebb93.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="theme/whichlang-ec4501dc.js"></script>
+        <script src="theme/filepath-links-477dc0d6.js"></script>
+        <script src="theme/giscuss-b9267189.js"></script>
+        <script src="theme/tags-157d81b3.js"></script>
+        <script src="theme/highlight-10cebb93.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

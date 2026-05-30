@@ -1,0 +1,552 @@
+<!DOCTYPE HTML>
+<html lang="en" class="navy sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Printing To Screen [OS] - The LearnixOS Book</title>
+
+
+        <!-- Custom HTML head -->
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q6WJBYSC2E"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-Q6WJBYSC2E');
+        </script>
+        
+        <!-- Microsoft Clarity -->
+        <script type="text/javascript">
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "woazwfwtq9");
+        </script>
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/whichlang-1516096e.css">
+        <link rel="stylesheet" href="theme/hlrs-34616bb2.css">
+        <link rel="stylesheet" href="theme/gh-issue-1d418845.css">
+        <link rel="stylesheet" href="theme/tags-3d530a36.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "navy";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-295dc51a.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-712dd4bf.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The LearnixOS Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/sagi21805/LearnixOS" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="printing-to-screen"><a class="header" href="#printing-to-screen">Printing To Screen</a></h1>
+<p><em>“The most effective debugging tool is still and careful thought, coupled with judiciously placed print statements.” - Brian Kernighan</em></p>
+<hr>
+<p>Printing is an important aspect of an operating system, especially in early development because it is our way to gain a visual output from our operating system. This will massively improve the interaction with our OS, and not only will it give us a huge advantage in debugging, but it will also grant us the ability to display a shell, which we will do in the upcoming chapters.</p>
+<h2 id="why-didnt-we-print-until-now"><a class="header" href="#why-didnt-we-print-until-now">Why didn’t we print until now?</a></h2>
+<p>If you remember the <a href="./ch01-02-booting-our-binary.html#hello-world">example code</a> in the first bootable code we wrote, we did print to screen during that code.
+This print utilized the <code>Video (int 10h)</code> interrupt on BIOS with the <code>Print Char (0xE)</code> function to print character by character the string ‘Hello, World!’</p>
+<p>This was our only way to print we were on <code>real mode</code>. And while I developed the code, I actually did use it to print single characters as errors code, So I could understand what was my program doing.</p>
+<p>On <code>protected mode</code>, we couldn’t use the BIOS anymore, so printing was much harder. Additionally, we only turned on paging, so debugging with <a href="https://qemu-project.gitlab.io/qemu/system/monitor.html">QEMU monitor</a> was much easier.</p>
+<p>While we could have written a simple printer for each stage, it was not necessary, and it would have bloated our binary, which in the first stage had only 512 bytes, and had almost no use in the second stage. But now, on the kernel init stage, it would become really handy!</p>
+<h2 id="how-to-print-without-bios"><a class="header" href="#how-to-print-without-bios">How to print without BIOS?</a></h2>
+<p>We are gonna print using the Video Graphics Array or VGA for short. This protocol as the name suggests, puts an array in memory which will represent our screen. When we want to print, we simply write the content to the array, and it will automatically refresh on certain interval display to newly provided content.</p>
+<h2 id="the-vga-protocol"><a class="header" href="#the-vga-protocol">The VGA Protocol</a></h2>
+<p>VGA has primarily two modes, the first one is called <code>graphic mode</code>, which is used to write raw pixels to the screen. The second mode is called <code>text mode</code> and it is used to write text to the screen. In this chapter we are going to focus on the <code>text mode</code> because we mostly want to provide messages and text on the screen.</p>
+<p><em>Maybe on later chapters we will implement UI, so we will a more graphic mode, but then we actually might not use VGA</em></p>
+<h3 id="printing-with-text-mode"><a class="header" href="#printing-with-text-mode">Printing with Text Mode</a></h3>
+<p>To print with text mode, we need to write to the screen buffer a special character that is 2 bytes long. This special character encodes the actual ASCII character that we are going to print, the background color of the text, and the foreground color of the text.</p>
+<blockquote>
+<p>The screen buffer of the <code>graphic mode</code> starts at address 0xA0000 and the screen buffer of the <code>text mode</code> starts at address 0xB8000.</p>
+</blockquote>
+<p>The first byte encodes the ASCII character, and it is not special. The second byte will encode our color, the first 4 bits will be the foreground color, and the next 4 bits will be the background color.</p>
+<p>There are multiple color palettes that VGA uses, the one our mode uses, is the 4 bit color palette and it includes the following colors.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/common/src/enums/vga.rs#L2 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">u8</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-comment">/// All the colors coded per the VGA documentation</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">enum</span> <span class="hlrs-type">Color</span> <span class="brace">{</span>
+    <span class="hlrs-enum">Black</span> <span class="operator">=</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+    <span class="hlrs-enum">Blue</span> <span class="operator">=</span> <span class="hlrs-litnum">1</span><span class="comma">,</span>
+    <span class="hlrs-enum">Green</span> <span class="operator">=</span> <span class="hlrs-litnum">2</span><span class="comma">,</span>
+    <span class="hlrs-enum">Cyan</span> <span class="operator">=</span> <span class="hlrs-litnum">3</span><span class="comma">,</span>
+    <span class="hlrs-enum">Red</span> <span class="operator">=</span> <span class="hlrs-litnum">4</span><span class="comma">,</span>
+    <span class="hlrs-enum">Magenta</span> <span class="operator">=</span> <span class="hlrs-litnum">5</span><span class="comma">,</span>
+    <span class="hlrs-enum">Brown</span> <span class="operator">=</span> <span class="hlrs-litnum">6</span><span class="comma">,</span>
+    <span class="hlrs-enum">LightGray</span> <span class="operator">=</span> <span class="hlrs-litnum">7</span><span class="comma">,</span>
+    <span class="hlrs-enum">DarkGray</span> <span class="operator">=</span> <span class="hlrs-litnum">8</span><span class="comma">,</span>
+    <span class="hlrs-enum">LightBlue</span> <span class="operator">=</span> <span class="hlrs-litnum">9</span><span class="comma">,</span>
+    <span class="hlrs-enum">LightGreen</span> <span class="operator">=</span> <span class="hlrs-litnum">10</span><span class="comma">,</span>
+    <span class="hlrs-enum">LightCyan</span> <span class="operator">=</span> <span class="hlrs-litnum">11</span><span class="comma">,</span>
+    <span class="hlrs-enum">LightRed</span> <span class="operator">=</span> <span class="hlrs-litnum">12</span><span class="comma">,</span>
+    <span class="hlrs-enum">Pink</span> <span class="operator">=</span> <span class="hlrs-litnum">13</span><span class="comma">,</span>
+    <span class="hlrs-enum">Yellow</span> <span class="operator">=</span> <span class="hlrs-litnum">14</span><span class="comma">,</span>
+    <span class="hlrs-enum">White</span> <span class="operator">=</span> <span class="hlrs-litnum">15</span><span class="comma">,</span>
+<span class="brace">}</span></code></pre>
+
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/drivers/vga-display/src/color_code.rs#L4 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span><span class="hlrs-attribute">Clone</span><span class="comma">,</span> <span class="hlrs-attribute">Copy</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">ColorCode</span><span class="parenthesis">(</span><span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-type">ColorCode</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Set the VGA char Background and Foreground</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// # Parameters</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// - `foreground`: The color of the character itself</span>
+    <span class="hlrs-comment">/// - `background`: The background color of the character</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="hlrs-variable">foreground</span><span class="colon">:</span> <span class="hlrs-type">Color</span><span class="comma">,</span> <span class="hlrs-variable">background</span><span class="colon">:</span> <span class="hlrs-type">Color</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="hlrs-variable">background</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="bitwise">&lt;&lt;</span> <span class="hlrs-litnum">4</span> <span class="bitwise">|</span> <span class="parenthesis">(</span><span class="hlrs-variable">foreground</span> <span class="hlrs-keyword">as</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+<span class="brace">}</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-keyword">const</span> <span class="hlrs-type">Default</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">ColorCode</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-type">ColorCode</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="inlay-hint">foreground:</span> <span class="hlrs-type">Color</span><span class="operator">::</span><span class="hlrs-enum">White</span><span class="comma">,</span> <span class="inlay-hint">background:</span> <span class="hlrs-type">Color</span><span class="operator">::</span><span class="hlrs-enum">Black</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+<span class="brace">}</span></code></pre>
+
+<p>Then the encoding of each <code>Screen Character</code> will look like this.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/drivers/vga-display/src/screen_char.rs#L4 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">repr</span><span class="parenthesis">(</span><span class="none">C</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">derive</span><span class="parenthesis">(</span><span class="hlrs-attribute">Clone</span><span class="comma">,</span> <span class="hlrs-attribute">Copy</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">ScreenChar</span> <span class="brace">{</span>
+    <span class="hlrs-variable">char</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="comma">,</span>
+    <span class="hlrs-variable">color_code</span><span class="colon">:</span> <span class="hlrs-type">ColorCode</span><span class="comma">,</span>
+<span class="brace">}</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-type">ScreenChar</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Create a new instance with the given char and</span>
+    <span class="hlrs-comment">///</span> <span class="hlrs-type">[`ColorCode`]</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">const</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="hlrs-variable">char</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="comma">,</span> <span class="hlrs-variable">color</span><span class="colon">:</span> <span class="hlrs-type">ColorCode</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+            <span class="hlrs-variable">char</span><span class="comma">,</span>
+            <span class="hlrs-variable">color_code</span><span class="colon">:</span> <span class="hlrs-variable">color</span><span class="comma">,</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span>
+
+<span class="hlrs-keyword">impl</span> <span class="hlrs-keyword">const</span> <span class="hlrs-type">Default</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">ScreenChar</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Create a default Screen char with Space as char</span>
+    <span class="hlrs-comment">/// value, and with the default</span> <span class="hlrs-type">[`ColorCode`]</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+            <span class="hlrs-variable">char</span><span class="colon">:</span> <span class="hlrs-litstr">b' '</span><span class="comma">,</span>
+            <span class="hlrs-variable">color_code</span><span class="colon">:</span> <span class="hlrs-type">ColorCode</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span></code></pre>
+
+<p>At this point, we are ready to write to the screen whatever we want, we just need to write a <code>ScreenChar</code> to the screen. But, this is not exactly what we want, because it is hard to print strings this way.</p>
+<h2 id="creating-a-custom-writer"><a class="header" href="#creating-a-custom-writer">Creating a Custom Writer</a></h2>
+<p>As always, rust has amazing features, and one of them is built in formatting on the core library.</p>
+<blockquote>
+<p>For those who are unfamiliar with the subject, formatting is turning a variable or a struct into a printable string.</p>
+<p>For example, if we have a variable <code>x</code> which holds the number <code>100</code>, how do we know how to print it? because it is not a string, formatting helps us with this ‘type change’.</p>
+<p>You might be familiar with the <a href="https://en.wikipedia.org/wiki/Printf"><code>printf</code></a> function is C (Print Formatted), Rust offers us the <a href="https://doc.rust-lang.org/core/fmt/trait.Display.html"><code>fmt::Display</code></a> and <a href="https://doc.rust-lang.org/core/fmt/trait.Debug.html"><code>fmt::Debug</code></a> traits to handle formatting</p>
+</blockquote>
+<p>But what does it mean for us? It means that if we implement our custom writer (which just needs to print regular ASCII strings), we freely get the ability to print variables in the code, and complex structs, since they can be easily derived by the Debug trait.</p>
+<p>To create our custom writer we just need to implement the <a href="https://doc.rust-lang.org/core/fmt/trait.Write.html"><code>fmt::Writer</code></a> trait on a custom struct. Our simple writer, will just include place we currently are on the screen, the color the print has, and, and a reference to the screen buffer.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/drivers/vga-display/src/writer.rs#L10 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-comment">/// Writer implementation for the VGA driver.</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">struct</span> <span class="hlrs-type">Writer</span><span class="angle">&lt;</span><span class="hlrs-keyword">const</span> <span class="hlrs-variable">W</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="comma">,</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">H</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="angle">&gt;</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-variable">cursor_position</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-variable">color</span><span class="colon">:</span> <span class="hlrs-type">ColorCode</span><span class="comma">,</span>
+    <span class="hlrs-keyword">pub</span> <span class="hlrs-variable">screen</span><span class="colon">:</span> <span class="punctuation">&amp;</span><span class="hlrs-lifetime">'static</span> <span class="hlrs-keyword">mut</span> <span class="bracket">[</span><span class="hlrs-type">ScreenChar</span><span class="bracket">]</span><span class="comma">,</span>
+<span class="brace">}</span>
+
+<span class="hlrs-keyword">impl</span><span class="angle">&lt;</span><span class="hlrs-keyword">const</span> <span class="hlrs-variable">W</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="comma">,</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">H</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="angle">&gt;</span> <span class="hlrs-keyword">const</span> <span class="hlrs-type">Default</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">Writer</span><span class="angle">&lt;</span><span class="hlrs-variable">W</span><span class="comma">,</span> <span class="hlrs-variable">H</span><span class="angle">&gt;</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">Self</span> <span class="brace">{</span>
+            <span class="hlrs-variable">cursor_position</span><span class="colon">:</span> <span class="hlrs-litnum">0</span><span class="comma">,</span>
+            <span class="hlrs-variable">color</span><span class="colon">:</span> <span class="hlrs-type">ColorCode</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="comma">,</span>
+            <span class="hlrs-variable">screen</span><span class="colon">:</span> <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+                <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">slice</span><span class="operator">::</span><span class="hlrs-function">from_raw_parts_mut</span><span class="parenthesis">(</span>
+                    <span class="inlay-hint">data:</span> <span class="hlrs-variable">VGA_BUFFER_PTR</span> <span class="hlrs-keyword">as</span> <span class="hlrs-keyword">*</span><span class="hlrs-keyword">mut</span> <span class="hlrs-type">ScreenChar</span><span class="comma">,</span>
+                    <span class="inlay-hint">len:</span> <span class="hlrs-variable">W</span> <span class="arithmetic">*</span> <span class="hlrs-variable">H</span> <span class="arithmetic">+</span> <span class="hlrs-litnum">1</span><span class="comma">,</span>
+                <span class="parenthesis">)</span>
+            <span class="brace">}</span><span class="comma">,</span>
+        <span class="brace">}</span>
+    <span class="brace">}</span>
+<span class="brace">}</span></code></pre>
+
+<p>Then, we need to handle the following functionalities:</p>
+<ol>
+<li>
+<p>If a character is in ASCII range, write it to the buffer at cursor position, and advance the cursor.</p>
+</li>
+<li>
+<p>If the <code>\n</code> character was entered, don’t print anything, but put the cursor at the start of the next line.</p>
+</li>
+<li>
+<p>If <code>Backspace</code> or <code>Delete</code> character were entered, move the cursor back one position, and fill that position with the default character.</p>
+</li>
+<li>
+<p>If we are at the end of the screen, we need to scroll down a line, which means to copy the entire buffer one line to the left<sup class="footnote-reference" id="fr-1-1"><a href="#footnote-1">1</a></sup>.</p>
+</li>
+</ol>
+<ol start="5">
+<li>Function to clear the screen entirely</li>
+</ol>
+<p>Now that we have all the functionality in mind, we can go right into the implementation!</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/drivers/vga-display/src/writer.rs#L36 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">impl</span><span class="angle">&lt;</span><span class="hlrs-keyword">const</span> <span class="hlrs-variable">W</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="comma">,</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">H</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="angle">&gt;</span> <span class="hlrs-type">Writer</span><span class="angle">&lt;</span><span class="hlrs-variable">W</span><span class="comma">,</span> <span class="hlrs-variable">H</span><span class="angle">&gt;</span> <span class="brace">{</span>
+    <span class="hlrs-comment">/// Writes the given `char` to the screen with the color</span>
+    <span class="hlrs-comment">/// stored in self</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// # Parameters</span>
+    <span class="hlrs-comment">///</span>
+    <span class="hlrs-comment">/// - `char`: The char that will be printed to the screen</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">write_char</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">char</span><span class="colon">:</span> <span class="hlrs-type">u8</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-comment">// ANCHOR: handle_char</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">c</span><span class="inlay-hint">: AsciiChar</span> <span class="operator">=</span>
+            <span class="hlrs-type">Char</span><span class="operator">::</span><span class="hlrs-function">from_u8</span><span class="parenthesis">(</span><span class="hlrs-variable">char</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">expect</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Entered invalid ascii character"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-keyword">match</span> <span class="hlrs-variable">c</span> <span class="brace">{</span>
+            <span class="hlrs-type">Char</span><span class="operator">::</span><span class="hlrs-enum">LineFeed</span> <span class="operator">=&gt;</span> <span class="brace">{</span>
+                <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">new_line</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="brace">}</span>
+            <span class="hlrs-type">Char</span><span class="operator">::</span><span class="hlrs-enum">Backspace</span> <span class="punctuation">|</span> <span class="hlrs-type">Char</span><span class="operator">::</span><span class="hlrs-enum">Delete</span> <span class="operator">=&gt;</span> <span class="brace">{</span>
+                <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">backspace</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+            <span class="brace">}</span>
+            <span class="punctuation">_</span> <span class="operator">=&gt;</span> <span class="brace">{</span>
+                <span class="hlrs-keyword">if</span> <span class="negation">!</span><span class="hlrs-variable">c</span><span class="operator">.</span><span class="hlrs-function">is_control</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">{</span>
+                    <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">screen</span><span class="bracket">[</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span><span class="bracket">]</span> <span class="operator">=</span>
+                        <span class="hlrs-type">ScreenChar</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="hlrs-variable">char</span><span class="comma">,</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">color</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+                    <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span> <span class="arithmetic">+=</span> <span class="hlrs-litnum">1</span><span class="semicolon">;</span>
+                <span class="brace">}</span>
+            <span class="brace">}</span>
+        <span class="brace">}</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span> <span class="comparison">&gt;</span> <span class="hlrs-variable">W</span> <span class="arithmetic">*</span> <span class="hlrs-variable">H</span> <span class="brace">{</span>
+            <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">scroll_down</span><span class="parenthesis">(</span><span class="inlay-hint">lines:</span> <span class="hlrs-litnum">1</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+        <span class="hlrs-comment">// ANCHOR_END: handle_char</span>
+
+        <span class="hlrs-comment">// ANCHOR: change_position</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">change_cursor_position_on_screen</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-comment">// ANCHOR_END: change_position</span>
+    <span class="brace">}</span> <span class="inlay-hint">fn write_char</span>
+    <span class="hlrs-comment">/// Scroll `lines` down.</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">scroll_down</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">lines</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">let</span> <span class="hlrs-variable">lines_index</span><span class="inlay-hint">: usize</span> <span class="operator">=</span> <span class="hlrs-variable">W</span> <span class="arithmetic">*</span> <span class="parenthesis">(</span><span class="hlrs-variable">H</span> <span class="arithmetic">-</span> <span class="hlrs-variable">lines</span><span class="parenthesis">)</span> <span class="arithmetic">+</span> <span class="hlrs-litnum">1</span><span class="semicolon">;</span>
+
+        <span class="hlrs-comment">// Copy the buffer to the left</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">screen</span><span class="operator">.</span><span class="hlrs-function">copy_within</span><span class="parenthesis">(</span><span class="inlay-hint">src:</span> <span class="hlrs-variable">lines</span> <span class="arithmetic">*</span> <span class="hlrs-variable">W</span><span class="operator">..</span><span class="comma">,</span> <span class="inlay-hint">dest:</span> <span class="hlrs-litnum">0</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+
+        <span class="hlrs-comment">// Fill remaining place with empty characters</span>
+        <span class="hlrs-keyword">for</span> <span class="hlrs-variable">x</span><span class="inlay-hint">: &amp;mut ScreenChar</span> <span class="hlrs-keyword">in</span> <span class="operator">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">screen</span><span class="bracket">[</span><span class="hlrs-variable">lines_index</span><span class="operator">..</span><span class="bracket">]</span> <span class="brace">{</span>
+            <span class="operator">*</span><span class="hlrs-variable">x</span> <span class="operator">=</span> <span class="hlrs-type">ScreenChar</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span>
+        <span class="brace">}</span>
+
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span> <span class="arithmetic">-=</span> <span class="hlrs-variable">lines</span> <span class="arithmetic">*</span> <span class="hlrs-variable">W</span><span class="semicolon">;</span>
+    <span class="brace">}</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">new_line</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span> <span class="arithmetic">+=</span> <span class="hlrs-variable">W</span> <span class="arithmetic">-</span> <span class="parenthesis">(</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span> <span class="arithmetic">%</span> <span class="hlrs-variable">W</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">backspace</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span> <span class="arithmetic">-=</span> <span class="hlrs-litnum">1</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">screen</span><span class="bracket">[</span><span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span><span class="bracket">]</span> <span class="operator">=</span> <span class="hlrs-type">ScreenChar</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="brace">}</span>
+    <span class="hlrs-comment">/// Clears the screen by setting all of the buffer bytes</span>
+    <span class="hlrs-comment">/// to zero</span>
+    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">clear</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="parenthesis">)</span> <span class="brace">{</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">screen</span><span class="operator">.</span><span class="hlrs-function">fill</span><span class="parenthesis">(</span><span class="hlrs-type">ScreenChar</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-variable">cursor_position</span> <span class="operator">=</span> <span class="hlrs-litnum">0</span><span class="semicolon">;</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl Writer&lt;W, H&gt;</span></code></pre>
+
+<blockquote>
+<p>For now, the <code>change_cursor_position_on_screen</code> function is not relevant, and it uses I/O instruction to change the cursor position. This will be covered in future chapters.</p>
+</blockquote>
+<p>With this, we are ready to implement the <code>fmt::Writer</code> trait on our struct. Because it only requires us to implement the <code>write_str</code> function, which is easy to implement because we have our <code>write_char</code> function.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/drivers/vga-display/src/writer.rs#L123 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">impl</span><span class="angle">&lt;</span><span class="hlrs-keyword">const</span> <span class="hlrs-variable">W</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="comma">,</span> <span class="hlrs-keyword">const</span> <span class="hlrs-variable">H</span><span class="colon">:</span> <span class="hlrs-type">usize</span><span class="angle">&gt;</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">fmt</span><span class="operator">::</span><span class="hlrs-type">Write</span> <span class="hlrs-keyword">for</span> <span class="hlrs-type">Writer</span><span class="angle">&lt;</span><span class="hlrs-variable">W</span><span class="comma">,</span> <span class="hlrs-variable">H</span><span class="angle">&gt;</span> <span class="brace">{</span>
+<span class="boring">    <span class="hlrs-comment">/// Print the given string to the string with the color</span>
+</span><span class="boring">    <span class="hlrs-comment">/// in self</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// # Parameters</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// - `str`: The string that will be printed to the screen with the</span>
+</span><span class="boring">    <span class="hlrs-comment">///   color in self</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// # Safety</span>
+</span><span class="boring">    <span class="hlrs-comment">/// THIS FUNCTION IS NOT THREAD SAFE AND NOT MARKED</span>
+</span><span class="boring">    <span class="hlrs-comment">/// UNSAFE BECAUSE OF TRAIT IMPLEMENTATION!</span>
+</span><span class="boring">    <span class="hlrs-comment">/// THE FUNCTION WILL ADD LOCK AND WILL BE SAFE IN THE</span>
+</span><span class="boring">    <span class="hlrs-comment">/// FUTURE</span>
+</span><span class="boring">    <span class="hlrs-comment">///</span>
+</span><span class="boring">    <span class="hlrs-comment">/// TODO: use lock in the future</span>
+</span>    <span class="hlrs-keyword">fn</span> <span class="hlrs-function">write_str</span><span class="parenthesis">(</span><span class="punctuation">&amp;</span><span class="hlrs-keyword">mut</span> <span class="hlrs-selftoken">self</span><span class="comma">,</span> <span class="hlrs-variable">str</span><span class="colon">:</span> <span class="punctuation">&amp;</span><span class="hlrs-type">str</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">core</span><span class="operator">::</span><span class="hlrs-type">fmt</span><span class="operator">::</span><span class="hlrs-type">Result</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">for</span> <span class="hlrs-variable">char</span><span class="inlay-hint">: u8</span> <span class="hlrs-keyword">in</span> <span class="hlrs-variable">str</span><span class="operator">.</span><span class="hlrs-function">bytes</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="brace">{</span>
+            <span class="hlrs-selftoken">self</span><span class="operator">.</span><span class="hlrs-function">write_char</span><span class="parenthesis">(</span><span class="hlrs-variable">char</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+        <span class="hlrs-enum">Ok</span><span class="parenthesis">(</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span>
+    <span class="brace">}</span>
+<span class="brace">}</span> <span class="inlay-hint">impl Write for Writer&lt;W, H&gt;</span></code></pre>
+
+<p>The only thing that is missing is to initialize the writer, and write a function that will also print with a custom color, this function is relatively straight forward, and it will just change the color, print the message, and restore the color back to default.</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;crates/drivers/vga-display/src/lib.rs#L18 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="hlrs-keyword">static</span> <span class="hlrs-keyword">mut</span> <span class="hlrs-variable">WRITER</span><span class="colon">:</span> <span class="hlrs-type">LateInit</span><span class="angle">&lt;</span><span class="hlrs-type">Writer</span><span class="angle">&lt;</span><span class="inlay-hint">W:</span><span class="hlrs-litnum">80</span><span class="comma">,</span> <span class="inlay-hint">H:</span> <span class="hlrs-litnum">25</span><span class="angle">&gt;</span><span class="angle">&gt;</span> <span class="operator">=</span>
+    <span class="hlrs-type">LateInit</span><span class="operator">::</span><span class="hlrs-function">new</span><span class="parenthesis">(</span><span class="inlay-hint">val:</span> <span class="hlrs-type">Writer</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">vga_print</span><span class="parenthesis">(</span><span class="hlrs-variable">args</span><span class="colon">:</span> <span class="hlrs-type">fmt</span><span class="operator">::</span><span class="hlrs-type">Arguments</span><span class="angle">&lt;</span><span class="inlay-hint">'a:</span><span class="hlrs-lifetime">'_</span><span class="angle">&gt;</span><span class="comma">,</span> <span class="hlrs-variable">color</span><span class="colon">:</span> <span class="hlrs-type">Option</span><span class="angle">&lt;</span><span class="hlrs-type">ColorCode</span><span class="angle">&gt;</span><span class="parenthesis">)</span> <span class="brace">{</span>
+    <span class="hlrs-keyword">unsafe</span> <span class="brace">{</span>
+        <span class="hlrs-keyword">if</span> <span class="hlrs-keyword">let</span> <span class="hlrs-enum">Some</span><span class="parenthesis">(</span><span class="hlrs-variable">c</span><span class="inlay-hint">: ColorCode</span><span class="parenthesis">)</span> <span class="operator">=</span> <span class="hlrs-variable">color</span> <span class="brace">{</span>
+            <span class="hlrs-variable">WRITER</span><span class="operator">.</span><span class="hlrs-variable">color</span> <span class="operator">=</span> <span class="hlrs-variable">c</span><span class="semicolon">;</span>
+        <span class="brace">}</span>
+
+        <span class="hlrs-variable">WRITER</span><span class="operator">.</span><span class="hlrs-function">write_fmt</span><span class="parenthesis">(</span><span class="hlrs-variable">args</span><span class="parenthesis">)</span><span class="operator">.</span><span class="hlrs-function">unwrap</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+
+        <span class="hlrs-variable">WRITER</span><span class="operator">.</span><span class="hlrs-variable">color</span> <span class="operator">=</span> <span class="hlrs-type">ColorCode</span><span class="operator">::</span><span class="hlrs-function">default</span><span class="parenthesis">(</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="brace">}</span>
+<span class="brace">}</span></code></pre>
+
+<p>An example usage, could be an OK message of what we already initialized!</p>
+<pre class=""><code class="language-rust  fp=&lt;repo&gt;snippets/src/book/ch03_00/print_example.rs#L1 icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg"><span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">unsafe</span><span class="parenthesis">(</span><span class="hlrs-attribute">no_mangle</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-keyword">unsafe</span><span class="parenthesis">(</span><span class="hlrs-attribute">link_section</span> <span class="operator">=</span> <span class="hlrs-litstr">".start"</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="attribute_bracket">#</span><span class="attribute_bracket">[</span><span class="hlrs-attribute">allow</span><span class="parenthesis">(</span><span class="none">clippy</span><span class="colon">:</span><span class="colon">:</span><span class="none">missing_safety_doc</span><span class="parenthesis">)</span><span class="attribute_bracket">]</span>
+<span class="hlrs-keyword">pub</span> <span class="hlrs-keyword">unsafe</span> <span class="hlrs-keyword">extern</span> <span class="hlrs-litstr">"C"</span> <span class="hlrs-keyword">fn</span> <span class="hlrs-function">_start</span><span class="parenthesis">(</span><span class="parenthesis">)</span> <span class="operator">-&gt;</span> <span class="hlrs-type">!</span> <span class="brace">{</span>
+    <span class="hlrs-macro">okprintln</span><span class="macro_bang">!</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Entered Protected Mode"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="hlrs-macro">okprintln</span><span class="macro_bang">!</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Enabled Paging"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="hlrs-macro">okprintln</span><span class="macro_bang">!</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Entered Long Mode"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+    <span class="hlrs-macro">eprintln</span><span class="macro_bang">!</span><span class="parenthesis">(</span><span class="hlrs-litstr">"Custom Failure!"</span><span class="parenthesis">)</span><span class="semicolon">;</span>
+<span class="brace">}</span></code></pre>
+
+<pre><figure><img src="assets/vga_print.png" alt=""><figcaption></figcaption></figure></pre>
+
+<h2 id="exercise"><a class="header" href="#exercise">Exercise</a></h2>
+<ol>
+<li>
+<p>The standard library has a <code>print!</code> and <code>println!</code> macros, we are really close for one, implement it!</p>
+</li>
+<li>
+<p>Implement the <code>okprintln!</code> and <code>eprintln!</code> that we used above.</p>
+</li>
+</ol>
+<p>Answers can be found at <a href="https://github.com/sagi21805/LearnixOS/blob/master/crates/drivers/vga-display/src/lib.rs#37">here</a></p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-1">
+<p>Our buffer represents a 2D grid of <code>ScreenChar</code> elements, but it is actually just one big 1D buffer. So copying the entire buffer one line up is equivalent to shifting all the characters one line to the left. <a href="#fr-1-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch02-04-booting-the-kernel.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch04-00-memory-management.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch02-04-booting-the-kernel.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch04-00-memory-management.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-10cebb93.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="theme/whichlang-ec4501dc.js"></script>
+        <script src="theme/filepath-links-477dc0d6.js"></script>
+        <script src="theme/giscuss-b9267189.js"></script>
+        <script src="theme/tags-157d81b3.js"></script>
+        <script src="theme/highlight-10cebb93.js"></script>
+
+
+
+    </div>
+    </body>
+</html>
