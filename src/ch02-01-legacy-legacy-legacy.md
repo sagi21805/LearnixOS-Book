@@ -122,7 +122,7 @@ With that information, we can understand that the disk uses a 3D coordinate syst
 <figure style="width: 60%; text-align: center;">
     <img src="assets/Cylinder_Head_Sector.svg"
        style="background-color: aliceblue; width: 80%; height: auto;">
-    </img>
+    
   <figcaption><strong>Figure 2-0:</strong> Cylinder Head Sector Diagram</figcaption>
 
 </figure>
@@ -198,7 +198,7 @@ $$
 After learning about LBA, the only logical thing to think, is how to read data from the disk using LBA instead of CHS.
 This is where the `extended read` functions comes in; it expects a structure called the `disk address packet` which looks like this:
 
-```rust,fp=<repo>bootloader/first_stage/src/disk.rs#L4
+```rust
 #![struct!("bootloader/first_stage/src/disk.rs", DiskAddressPacket)]
 ```
 
@@ -214,19 +214,19 @@ This is quite straight forward, we will create a `new` function that will initia
 
 First, for organization, we will create some helpful enums:
 
-```rust,fp=<repo>crates/common/src/enums/bios_interrupts.rs
+```rust
 #![enum!("crates/common/src/enums/bios_interrupts.rs", BiosInterrupts)]
 #![enum!("crates/common/src/enums/bios_interrupts.rs", DiskInterrupt)]
 ```
 
 Then, we can create an initializer function for our `disk packet`:
 
-```rust,fp=<repo>bootloader/first_stage/src/disk.rs#L44
+```rust
 #![impl_method!("bootloader/first_stage/src/disk.rs", DiskAddressPacket::new)]
 ```
 And then, finally the function that will call the interrupt with our packet, and will read the disk content into memory.
 
-```rust,fp=<repo>bootloader/first_stage/src/disk.rs#L71
+```rust
 #![impl_method!("bootloader/first_stage/src/disk.rs", DiskAddressPacket::load)]
 ```
 
@@ -249,7 +249,7 @@ Then, we can get the disk number from the stack, and load our packet.
 And create a constant for the disk number memory address
 Then, in the first stage function
 
-```rust,fp=<repo>bootloader/first_stage/src/main.rs#L29
+```rust
 #![const!("crates/common/src/constants/addresses.rs", DISK_NUMBER_OFFSET)]
 
 #![function!("bootloader/first_stage/src/main.rs", load_dap)]

@@ -52,8 +52,8 @@ If you guessed something similar to this, you are mostly correct!
 
 Our entry will look like this:
 <figure style="margin: 0; text-align: center">
-  <img src="assets/gdt_struct.svg"></img>
-  <figcaption><strong>Figure 2-1:</strong> Global Descriptor Table entry structure</figcaption>
+  <img src="assets/gdt_struct.svg">
+  <figcaption><strong>Figure 2-1:</strong> global descriptor table entry structure</figcaption>
 </figure>
 
 
@@ -76,7 +76,7 @@ For this reason, Rust provides us with an amazing macro system.
 
 If you read through some previous version of this book, you may have seen the explanation of the [flag!](https://github.com/sagi21805/LearnixOS/blob/c6560ef225262a3cfea58d5a5eae716ddb082ff3/learnix-macros/src/lib.rs#L74) proc-macro, which was used like this:
 
-<pre><code><span class="hlrs-keyword">impl</span> <span class="hlrs-type">AccessByte</span> {
+<pre><code class="language-rust icon=@https://www.rust-lang.org/static/images/rust-logo-blk.svg hljs"><span class="hlrs-keyword">impl</span> <span class="hlrs-type">AccessByte</span> {
     <span class="hlrs-macro">flag</span><span class="hlrs-macro">!</span>(<span class="hlrs-function">readable</span>, <span class="hlrs-litnum">1</span>);
 }
 </code></pre>
@@ -91,7 +91,7 @@ _More problems that I was having, but not a direct outcome of the initial design
 
 The current design of the macro looks like this:
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L6
+```rust
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", AccessByte)]
 ```
 
@@ -115,16 +115,16 @@ To see what this macro generated, we can use the amazing [`cargo-expand`](https:
 <summary>For example, the expansion of the call above.</summary>
 
 ```rust
-#![source_file!("snippets/src/book/flag_macro_expand.rs")]
+#![source_file!("snippets/src/book/ch02_02/flag_macro_expand.rs", 1:999)]
 ```
 </details>
 </blockquote>
 
-If this macro seems really cool and complicated, that's great! because it will be fully explained and implemented in later chapters.
+If this macro seems really cool and complicated, that's great! because it will be fully explained and implemented in [later chapters](./ch02-03-implementing-the-bitfields-proc-macro.md).
 
 _We will also define an enum that will include the protection level and the system segment flags so that they have clear names._
 
-```rust,fp=<repo>crates/common/src/enums/general.rs
+```rust
 #![enum!("crates/common/src/enums/general.rs", ProtectionLevel)]
 #![enum!("crates/common/src/enums/global_descriptor_table.rs", SegmentDescriptorType)]
 ```
@@ -132,7 +132,7 @@ _We will also define an enum that will include the protection level and the syst
 
 Now, just before creating a `new` function for our entry, we don't want to specify the base in three parts and the limit in two parts every time. Instead, we want the `new` function to do that for us.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L39
+```rust
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableEntry32::new)]
 ```
@@ -145,7 +145,7 @@ Each table must have at least three entries: an initial `null` entry that is fil
 
 Together it will all look like this:
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L244
+```rust
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::default)]
 ```
@@ -157,7 +157,7 @@ So, the only thing left to do is to load the Global Descriptor Table. This can b
 
 We will create a `load` function that will create this register structure and load it to the CPU.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/global_descriptor_table.rs#L312
+```rust
 #![struct!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableRegister)]
 #![impl_method!("crates/arch/x86/src/structures/global_descriptor_table.rs", GlobalDescriptorTableProtected::load)]
 ```
@@ -168,11 +168,11 @@ But just before that, when we jump to the next stage, we need to specify the off
 
 _Notice that this also contains segments of another GDT that we will used in the following chapters._
 
-```rust,fp=<repo>crates/common/src/enums/global_descriptor_table.rs#L8
+```rust
 #![enum!("crates/common/src/enums/global_descriptor_table.rs", Sections)]
 ```
 
-```rust,fp=<repo>bootloader/first_stage/src/main.rs#L93
+```rust
 #![static!("bootloader/first_stage/src/main.rs", GLOBAL_DESCRIPTOR_TABLE)]
 #![function!("bootloader/first_stage/src/main.rs", enter_protected_mode)]
 ```

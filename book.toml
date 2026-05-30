@@ -14,19 +14,21 @@ inlay-hint-config = "inlay_config.json"
 after = ["mdbook-rust-analyzer-highlight"]
 command = "cargo run --release --manifest-path mdbook-gh-issue-preview/Cargo.toml"
 
-[preprocessor.webinclude]
-before = ["mdbook-rust-analyzer-highlight"]
 
 [output.html]
 git-repository-url = "https://github.com/sagi21805/LearnixOS"
 default-theme = "navy"
 preferred-dark-theme = "navy"
-preferred-light-theme = "navy"
 additional-css = ["theme/whichlang.css", "theme/hlrs.css", "theme/gh-issue.css", "theme/tags.css"]
 additional-js = [
     "theme/whichlang.js",
     "theme/filepath-links.js",
     "theme/giscuss.js",
-    "theme/tags.js"
+    "theme/tags.js",
+    "theme/highlight.js"
 ]
 mathjax-support = true
+
+[output.html.playground]
+runnable = true
+editable = true

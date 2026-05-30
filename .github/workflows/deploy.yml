@@ -24,27 +24,75 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Install mdBook and mdbook-linkcheck (cached by action)
+      - name: Cache Rust toolchain & registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.rustup
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: rust-toolchain-${{ runner.os }}-v1
+
+      - name: Cache compiled binaries
+        id: cache-bins
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: mdbook-bins-${{ runner.os }}-mdbook-0.5.3-v1
+
+      - name: Cache preprocessor build targets
+        uses: actions/cache@v4
+        with:
+          path: |
+            mdbook-rust-analyzer-highlight/target
+            mdbook-gh-issue-preview/target
+          key: cargo-preprocessors-${{ runner.os }}-${{ hashFiles('mdbook-rust-analyzer-highlight/Cargo.lock', 'mdbook-gh-issue-preview/Cargo.lock') }}
+          restore-keys: |
+            cargo-preprocessors-${{ runner.os }}-
+
+      - name: Install mdBook and plugins
+        if: steps.cache-bins.outputs.cache-hit != 'true'
         uses: taiki-e/install-action@v2
         with:
-          tool: mdbook@0.4.52,mdbook-linkcheck,mdbook-utils,mdbook-webinclude
+          tool: mdbook@0.5.3,mdbook-utils
 
       - name: Create sitemap
         run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml
 
       - name: Build the book
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mdbook build
 
+      - name: Deploy preview
+        if: github.ref_name != 'master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.PREVIEW_DEPLOY_TOKEN }}
+          external_repository: sagi21805/LearnixOS-Book-previews
+          publish_branch: gh-pages
+          publish_dir: ./book
+          # no destination_dir → deploys to root, overwrites previous preview
+
+      - name: Print preview URL
+        if: github.ref_name != 'master'
+        run: |
+          echo "=========================================="
+          echo " Preview URL:"
+          echo " https://sagi21805.github.io/LearnixOS-Book-previews"
+          echo "=========================================="
+
       - name: Setup Pages
+        if: github.ref_name == 'master'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: github.ref_name == 'master'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'book'
+          path: "book"
 
       - name: Deploy to GitHub Pages
+        if: github.ref_name == 'master'
         id: deployment
         uses: actions/deploy-pages@v4

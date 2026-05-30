@@ -21,7 +21,7 @@ So why do we need another system for managing memory?
 Let's draw a scenario, we will have three processes, A and B, and we will look at our memory, for convenience, we will manage memory at multiplications of 0x100.
 
 <figure style="margin: 0; text-align: center">
-  <img src="assets/fragmentation_example.svg"></img>
+  <img src="assets/fragmentation_example.svg">
   <figcaption><strong>Figure 2-1: </strong>simple memory layout with segmentation</figcaption>
 </figure>
 
@@ -61,7 +61,7 @@ In the figure bellow we can see this mapping.
 _for simplification, I changed the block size to 0x100 instead of 0x1000 (4096 bytes) but the principles are still the same._
 
 <figure style="margin: 0; text-align: center">
-  <img src="assets/paging_example.svg"></img>
+  <img src="assets/paging_example.svg">
   <figcaption><strong>Figure 2-2: </strong>simple process memory layout using paging</figcaption>
 </figure>
 
@@ -83,16 +83,16 @@ The page table, just like the global descriptor table, is an array of 512 page t
 Each entry contains a `physical address` aligned to 0x1000, that is pointing to a memory regions, and also flags represents configuration and permissions for the memory page mapped by the entry.
 
 On a typical entry, there are 8 flags that are used with an optional 12 flags in total, in our operating system we will configure some of the optional flags, but not all of them.
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table.rs#L15
+```rust
 #![struct!("crates/arch/x86/src/structures/paging/page_table.rs", PageTable)]
 #![impl_method!("crates/arch/x86/src/structures/paging/page_table.rs", PageTable::empty)]
 ```
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/entry_flags.rs
+```rust
 #![struct!("crates/arch/x86/src/structures/paging/entry_flags.rs", PageEntryFlags)]
 ```
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L16
+```rust
 #![struct!("crates/arch/x86/src/structures/paging/page_table_entry.rs", PageTableEntry)]
 ```
 
@@ -112,10 +112,12 @@ To translate an address, a special hardware on the CPU, which is called the MMU 
 
 To understand how the MMU works, lets look at an example translation, with the following address:
 
+<pre>
 <figure style="margin: 0 auto; text-align: center">
-<img src="assets/address.svg"></img>
-<figcaption><strong>Figure 2-3: </strong>Walking the page tables</figcaption>
+    <img src="assets/address.svg">
+    <figcaption><strong>Figure 2-3: </strong>Walking the page tables</figcaption>
 </figure>
+</pre>
 
 The first thing the the MMU is doing, is to check if this page was already translated and cached. If it was, it returns the cached value.
 
@@ -128,27 +130,33 @@ If the page was not cached, the MMU splits our address into multiple parts.
 - **Bits 40-47:** 4th table index
 - **Bits 48-63:** Sign extension
 
+<pre>
 <figure style="margin: 0; text-align: center">
-  <img src="assets/split_address.svg"></img>
+  <img src="assets/split_address.svg">
   <figcaption><strong>Figure 2-4: </strong>Split Address</figcaption>
 </figure>
+</pre>
 
 Each index will help us obtain the location of the next table, until we reach the final physical page. Then we can use the offset to obtain the specific byte in that page.
 
 After that, the MMU reads the CR3 Register from the CPU to find the address of the 4th page table.
 
+<pre>
 <figure style="margin: 0; text-align: center">
-  <img src="assets/cr3-pml4.svg"></img>
+  <img src="assets/cr3-pml4.svg">
   <figcaption><strong>Figure 2-5: </strong>CR3 Register and the 4th Page Table</figcaption>
 </figure>
+</pre>
 
 
 Then, we walk the tables, using the indices from our address to obtain the location of the next table, until we reach the final physical page.
 
+<pre>
 <figure style="margin: 0; text-align: center">
-  <img src="assets/table-walking.svg"></img>
+  <img src="assets/table-walking.svg">
   <figcaption><strong>Figure 2-6: </strong>Walking the page tables</figcaption>
 </figure>
+</pre>
 
 After we found our physical page, we use the offset within our page, to locate the specific byte that the address points to resulting in the final physical address.
 
@@ -162,14 +170,14 @@ These will just be a wrapper struct of usize and will implement certain function
 
 To implement all the simple and basic functionality, we will use a trait, so we won't have much boilerplate. We will also use the great [`derive_more`](https://crates.io/crates/derive_more) crate, which will provide us basic derives for operator like deref, and mathematical operations.
 
-```rust,fp=<repo>crates/common/src/address_types.rs#L87
+```rust
 #![struct!("crates/common/src/address_types.rs", PhysicalAddress)]
 #![struct!("crates/common/src/address_types.rs", VirtualAddress)]
 ```
 
 Then, we can define all the functionality that we want for our address types, and implement the trait on them.
 
-```rust,fp=<repo>crates/common/src/address_types.rs#L12
+```rust
 #![trait!("crates/common/src/address_types.rs", Address)]
 #![trait_impl!("crates/common/src/address_types.rs", Address for PhysicalAddress)]
 #![trait_impl!("crates/common/src/address_types.rs", Address for VirtualAddress)]
@@ -177,12 +185,12 @@ Then, we can define all the functionality that we want for our address types, an
 
 With these utility structs, we can now start implementing our paging logic. To avoid repetition, we will create some functions which will help us define some default flags, and also to apply custom flags onto our entry. For now, a default flags for an entry, will contain the present flags, which is must for the entry to be counted mapped, and also the writable flags, which will make our memory also writable so we could store data in it.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/entry_flags.rs#L36
+```rust
 #![impl_method!("crates/arch/x86/src/structures/paging/entry_flags.rs", PageEntryFlags::table_flags, regular_page_flags)]
 ```
 
 After that, we can create functions to map an address to an entry, this function should obtain the physical address that should be mapped, and also set the flags for the entry.
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L32
+```rust
 #![const!("crates/common/src/constants/values.rs", REGULAR_PAGE_SIZE)]
 #![const!("crates/common/src/constants/values.rs", REGULAR_PAGE_ALIGNMENT)]
 
@@ -198,11 +206,11 @@ For this exact reason, Rust has the `Result<T, E>` and `Option<T>` enum types wh
 
 Our custom error should currently include two cases, the first one is that there is no mapping, and the second that the mapping is not a table.
 
-```rust,fp=<repo>crates/common/src/error/paging.rs#L13
+```rust
 #![enum!("crates/common/src/error/paging.rs",  EntryError)]
 ```
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table_entry.rs#L80
+```rust
 #![impl_method!("crates/arch/x86/src/structures/paging/page_table_entry.rs", PageTableEntry::mapped, mapped_table)]
 ```
 
@@ -210,7 +218,7 @@ The sharp eyed people may notice that we used a function that we didn't define b
 
 The last functions that we need to implement, are functions that can create our PageTable on an address. So far we created a function that could create an empty on a variable or a static value, but when we will need to create a lot of tables, or we will need to dynamically create tables this function will not help us. For this reason, we will create a function that will receive a virtual address, and construct on it our page table.
 
-```rust,fp=<repo>crates/arch/x86/src/structures/paging/page_table.rs#L41
+```rust
 #![impl_method!("crates/arch/x86/src/structures/paging/page_table.rs", PageTable::empty_from_ptr)]
 ```
 

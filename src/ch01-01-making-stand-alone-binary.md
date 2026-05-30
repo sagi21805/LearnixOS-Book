@@ -6,7 +6,7 @@ _"Machines take me by surprise with great frequency." - Alan Turing_
 
 The first step in making our operating system is making a program that can be compiled, and executed, without any dependency.
 This is not a straightforward task, because every program that we use in our daily life uses at least one, very important dependency: `The Standard Library`.
-Sometimes, this library is provided by the operating system itself, for example, libc for the Linux operating system, or the WinAPI for the Windows operating system, and most of the time it is wrapped around by our programming languages.
+Sometimes, this library is provided by the operating system itself, for example, libc for the Linux kernel, or the WinAPI for the Windows operating system, and most of the time it is wrapped around by our programming languages.
 Its name may vary per language, but here are some popular names:
 
 ```
@@ -51,8 +51,8 @@ If you have done everything correct, your project should look like this:
 
 And the main file, should look something like this:
 
-```rust,fp=main.rs
-#![function!("snippets/src/book/init.rs", main)]
+```rust,playground
+#![function!("snippets/src/book/ch01_01/init.rs", main)]
 ```
 
 
@@ -121,8 +121,8 @@ def failing_function(x: str):
 ```
 
 Instead, Rust provides us with the `panic!` macro, which will call the `Panic Handler`. This function is very important and it will be called every time the `panic!` macro is invoked, for example:
-```rust,fp=main.rs
-#![function!("snippets/src/book/panic.rs", main)]
+```rust,playground
+#![function!("snippets/src/book/ch01_01/panic.rs", main)]
 ```
 Normally, the Standard Library provides us with an implementation of the Panic Handler, which will typically print the line number and file in which the error occurred. However, because we are now not using the Standard Library, we need to define the implementation of the function ourselves.
 This function can be any function, as long as it includes the attribute `#[panic_handler]`. This attribute is added so the compiler will know which function to use when invoking the `panic!` macro, to enforce that only one function of this type exists, and to enforce the correct input argument signature and return type.
@@ -144,8 +144,8 @@ This means that it wants our function to receive a reference to a structure call
 But what is this struct? and what is this weird type?
 
 The `PanicInfo` struct includes basic information about our panic such as the location, and message. Its definition can be found in the Core library:
-```rust,fp=<rust-doc>core/panic/panic_info.rs
-#![struct!("snippets/src/book/panic.rs", PanicInfo)]
+```rust
+#![struct!("<rustc>/lib/rustlib/src/rust/library/core/src/panic/panic_info.rs", PanicInfo)]
 ```
 
 The `!` type is a very special type in Rust, called the `never` type, as the type name may suggest, it says that a function should **never** return, which means our program will not continue after the function is called.
@@ -153,10 +153,10 @@ In a normal operating system, this is not a problem; just print the panic messag
 
 So at the end, this is the minimal definition of our handler, which results in the following code
 
-```rust,fp=main.rs
-#![function!("snippets/src/book/no_std.rs", main)]
+```rust
+#![function!("snippets/src/book/ch01_01/no_std.rs", main)]
 
-#![function!("snippets/src/book/no_std.rs", panic_handler)]
+#![function!("snippets/src/book/ch01_01/no_std.rs", panic_handler)]
 ```
 
 This code unfortunately still doesn't compile, because we didn't handle the last error.
@@ -249,15 +249,18 @@ This will set our entry point to main, and our output into a raw binary, which m
 [^5]: Operating systems have their own binary header so they can understand how to treat a binary. Some common ones are [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) and [PE](https://en.wikipedia.org/wiki/Portable_Executable)
 
 Then, to make our linker to use this script, we mainly have two options; one is to add some arguments to our build command, and the other one is to create a [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html). In this book, we use the following build script:
-```rust,fp=build.rs
-#![source_file!("snippets/src/book/build.rs")]
+```rust
+#![source_file!("snippets/src/book/ch01_01/build.rs", 1:99)]
 ```
 
 But, after we do all this and again, run `cargo build`, we get the same error. At first, this doesn't seem logical, because we defined a main function. But, although it is true that we defined one, we didn't consider Rust's default [mangling](https://doc.rust-lang.org/rustc/symbol-mangling/index.html).
 This is a very clever idea done by Rust, and without it, things like the following wouldn't be possible:
 
 ```rust
-#![source_file!("snippets/src/book/impl_ex.rs")]
+#![struct!("snippets/src/book/ch01_01/general.rs", A)]
+#![impl!("snippets/src/book/ch01_01/general.rs", A)]
+#![struct!("snippets/src/book/ch01_01/general.rs", B)]
+#![impl!("snippets/src/book/ch01_01/general.rs", A)]
 ```
 Although the functions are defined on different structs, they have the same name. But, because of mangling, the actual name of the function would be something like
 ```
@@ -269,8 +272,8 @@ A similar thing is happening to our `main` function, which makes its name not ex
 To fix it, we can add the `#[unsafe(no_mangle)]` attribute to our main function, which will make its name just 'main'.
 
 Which makes this, our final main.rs file!
-```rust,fp=main.rs
-#![source_file!("snippets/src/book/minimal_main.rs")]
+```rust
+#![source_file!("snippets/src/book/ch01_01/minimal_main.rs", 1:99)]
 ```
 
 ## Build Target
