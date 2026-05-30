@@ -5,7 +5,7 @@ As you may recall from the previous chapter, we used a proc-macro that was calle
 > Another great resource for this subject is the great video [Comprehending Proc Macros](https://youtu.be/SMCRQj9Hbx8?si=p-JUX0rLronBG_Nz) by Logan Smith
 
 
-_If you are familer with procedural macros, `syn` and `quote`, and want to go stright to the macro implemention, click [here](#defining-our-macro)_
+_If you are familer with procedural macros, `syn` and `quote`, and want to go straight to the macro implementation, click [here](#defining-our-macro)_
 
 ## A Little Introduction to Proceadural Macros
 
@@ -134,13 +134,13 @@ It works, because it injects the `break` expression into the code at the call si
 
 At this time, I hope you understand the great power of macros, and the great [code generation](https://en.wikipedia.org/wiki/Code_generation) capabilities that they enable. But, you might think rightfully think that in the examples above, we didn't have the option to insert 'coding' logic into the macro expansion. This is where procedural macros come in.
 
-[^1]: This is actually a simplified view, compilers have intermediate representations. These representations are really usefull but out of the scope of this book. If you are like me, and this really intersts you, I will drop a great blog post which gives an example of why the intermediate representations are useful. [From Rust to Reality: The Hidden Journey of fetch_max](https://questdb.com/blog/rust-fetch-max-compiler-journey/)
+[^1]: This is actually a simplified view, compilers have intermediate representations. These representations are really useful but out of the scope of this book. If you are like me, and this really interests you, I will drop a great blog post which gives an example of why the intermediate representations are useful. [From Rust to Reality: The Hidden Journey of fetch_max](https://questdb.com/blog/rust-fetch-max-compiler-journey/)
 
 ## Macro Types
 
 Just before we dive into procedural macros, lets cover up the type of macro that we already used in the examples above.
 
-> All the syntax information about how macros are structured are taken directly from the [Offical Rust Reference](https://doc.rust-lang.org/reference/macros.html).
+> All the syntax information about how macros are structured are taken directly from the [Official Rust Reference](https://doc.rust-lang.org/reference/macros.html).
 
 ### Declarative Macros
 
@@ -154,7 +154,7 @@ Lets analyze the syntax of a declarative macro rule from the earlier examples.
 #![source_file!("snippets/src/book/ch02_03/general.rs", 51:65)]
 ```
 
-We will go a bit deeper then necessary on the common types of metavariables that are available. This is because later in this chapter we are going to talk about the `syn` library, which will parse Rusts syntax into similar structres.
+We will go a bit deeper then necessary on the common types of metavariables that are available. This is because later in this chapter we are going to talk about the `syn` library, which will parse Rusts syntax into similar structures.
 
 Each metavariable starts with a `$` followed by the name of the metavariable which is used to refer to it. Then it is followed by a colon and the type of the metavariable.
 
@@ -173,7 +173,7 @@ _For a full list of available metavariable types, see the [reference](https://do
 
 Now for the real deal. Proceadural macros gives us the ability to go beyond simple syntax extensions, and allow us to write custom Rust code that will run on compile time on the macro input to consume and produce new Rust syntax (Depending on the macro type, the returned syntax will replace the input syntax, or will be added to it).
 
-Because procedural macros are another piece of code that will run at compile time, they cannot be defined in the same crate as the code that uses them. This is becuase the Rust compiler must initialy compile the code of the macro so it will be able to run it during the compilation process. In addition, each proc macro crate, must add the following configuration to their `Cargo.toml` file, which will tell Cargo that this is a proc macro crate.
+Because procedural macros are another piece of code that will run at compile time, they cannot be defined in the same crate as the code that uses them. This is because the Rust compiler must initially compile the code of the macro so it will be able to run it during the compilation process. In addition, each proc macro crate, must add the following configuration to their `Cargo.toml` file, which will tell Cargo that this is a proc macro crate.
 
 ```toml
 [lib]
@@ -194,7 +194,7 @@ This type of macro can be called anywhere in our code, even in global scope and 
 #![function!("snippets/src/lib.rs", foo)]
 ```
 
-Then it can be called like a regular function, which will create a fuction that is called `bar` which could be used in our code.
+Then it can be called like a regular function, which will create a function that is called `bar` which could be used in our code.
 
 ```rust
 #![source_file!("snippets/src/book/ch02_03/invoke.rs", 1:99)]
@@ -252,7 +252,7 @@ Luckyly for us, the `syn` crate, written by `David Tolnay` provides a way to par
 As the name suggests, this a tree like structure, that represents the syntax of a certain programming language (in our case, Rust).
 Before diving right into the implementation of `syn` on Rust syntax, let's first understand what an AST is. 
 
-We will look at a really simple program, that is writting in Python.
+We will look at a really simple program, that is writing in Python.
 
 ```python
 current = 0
@@ -310,7 +310,7 @@ The last type that we are going to cover is `syn::Expr`, which represents an exp
 #![source_file!("<crateio>/syn-2.0.117/src/expr.rs", 37:269)]
 ```
 
-These types are very powerfull, and help us express the language is a structured way. As a quick example, let's see how `syn::ItemStruct` is represented in the AST. In this example, we have the exact same struct, that we showed its `TokenStream` representation.
+These types are very powerful, and help us express the language is a structured way. As a quick example, let's see how `syn::ItemStruct` is represented in the AST. In this example, we have the exact same struct, that we showed its `TokenStream` representation.
 
 ```
 ItemStruct {
@@ -435,15 +435,15 @@ For each flag, we would like to have multiple functions.
 
 - A getter, which return the value of the flag.
 - A setter, which sets the the value of the flag.
-- Clear function, which writen a clear value if defined directly to the flag. (Will be necesarry in the future)
+- Clear function, which written a clear value if defined directly to the flag. (Will be necessary in the future)
 
 Because we need multiple functions defined, the best Rust item suited for the job is a `struct`. Also, because a struct will wrap the entire definition, the macro will have in it's context all of the definitions of all the flags, which means we could also implement the `Debug` trait on it to print all of the flags.
 
 Some flags will need different functions, and may also have `types`. For example think about the protection level field in the previous section. While we can just leave it as a number, most of the time, it is more convenient to have an enum, that represents the valid values. Also, some flags may not need all the functionalities of get, set and clear. For that, we want to have the ability to control which functions will be generated.
 
-And for the last caveat, some flags will be written as absolute values on their setter function, and will return absolute value on thier getter. What does that mean? Take as an example flag `E` on the example above. The span of this flag is between bits 12-15. In most of our flag cases, we would want to write to this value numbers between the 0-7, because it is 3 bits wide. When we will set the don't shift attribute, we would want absolute value for this flag, which means the lowest value (besides from 0) will be `1 << 12` (The first bit of the flag) and highest value will be `1 << 14` where the jumps between each value will be `1 << 12`
+And for the last caveat, some flags will be written as absolute values on their setter function, and will return absolute value on their getter. What does that mean? Take as an example flag `E` on the example above. The span of this flag is between bits 12-15. In most of our flag cases, we would want to write to this value numbers between the 0-7, because it is 3 bits wide. When we will set the don't shift attribute, we would want absolute value for this flag, which means the lowest value (besides from 0) will be `1 << 12` (The first bit of the flag) and highest value will be `1 << 14` where the jumps between each value will be `1 << 12`
 
-This design for this macro, with insperation from [Proceadural Macro Workshop](https://github.com/dtolnay/proc-macro-workshop#attribute-macro-bitfield) will be a regular Rust struct, with helper attributes.
+This design for this macro, with inspiration from [Proceadural Macro Workshop](https://github.com/dtolnay/proc-macro-workshop#attribute-macro-bitfield) will be a regular Rust struct, with helper attributes.
 
 For example, this struct will represent the flags in the example above (with example helper attributes).
 
@@ -479,18 +479,18 @@ _This part assumes familiarity with bitwise operations like right and left shift
   <figcaption><strong>figure 3-2: </strong>simpleflags layout</figcaption>
 </figure>
 
-We will start with reading the value for the `b` flag. There are multiple combinations of bitwise operations that can achive this. The one that we will use is to first, zero out the entire content of the `u8` except from our `b` flag, and then shift it to the right to the right and read it.
+We will start with reading the value for the `b` flag. There are multiple combinations of bitwise operations that can achieve this. The one that we will use is to first, zero out the entire content of the `u8` except from our `b` flag, and then shift it to the right to the right and read it.
 
 So first, let's think about how can we zero out the entire content of the `u8` except from our `b` flag. We can do this by using the `&` operator to perform a bitwise AND operation between our `u8` value and a mask[^2] that has all bits set to 0 except from our `b` flag which will be all 1s. By hand, this mask will look like this `0b00000100`. But this ofcourse does not help us much, because we need to automatically generate this mask for each bitfield and it may also have multiple 1 bits, and not only one, like in this case. 
 
 To generate this mask, we will think of a much simpler case, how can we put a sequence of ones at the start of our mask? Before I will give the answer, let's think what a sequence of ones means. A sequence of ones is always a number, that when we will add 1 to it, will become a perfect power of 2 on the bit after the sequence. For example `0b00000111` (7) will become `0b00001000` (8) when we add 1 to it.
 
-You may have also noticed that the nubmer of bits that were set to 1 before we added 1 is equel to the power of 2 of the number after we added 1. For example `0b00000111` (7) has 3 bits set to 1, and 8 is exactly `2^3`. 
+You may have also noticed that the number of bits that were set to 1 before we added 1 is equal to the power of 2 of the number after we added 1. For example `0b00000111` (7) has 3 bits set to 1, and 8 is exactly `2^3`. 
 
 > [!TIP]
-> If I were you I wouldn't accept this fact, go try it for youself with more examples to see that it is true
+> If I were you I wouldn't accept this fact, go try it for yourself with more examples to see that it is true
 
-To generaly create a mask with the first `n` bits set, we can use our formula: `2^n - 1`. Because we are speaking only on powers of two, we will use `(1 << n) - 1` to create the mask. Which is the same thing.
+To generally create a mask with the first `n` bits set, we can use our formula: `2^n - 1`. Because we are speaking only on powers of two, we will use `(1 << n) - 1` to create the mask. Which is the same thing.
 
 [^2]: The sequence of bits that will be used along our value in a logic gate.
 
@@ -504,9 +504,9 @@ If played with this example in the demo, you may have found, that in one perticu
 
 When our `(1 << n) - 1` will result in an all 1, it means that `1 << n` was bigger then our underlying type. For example, `(1 << 8) - 1` which should generate the `0b11111111` mask, will instead generate `0`, because `1 << 8` is `256`, which is bigger then `u8` can hold. While we can use bigger types, for the maximum size type, it will not work.
 
-The alternative method that we are going to use is instead of increasing the number of 1 bits in our mask each time, and starting from 0, we are going to start with an all 1 mask, and reduce the number of 1 bits each time. This won't have the gap at an all 1 mask, becasuse it is the starting value.
+The alternative method that we are going to use is instead of increasing the number of 1 bits in our mask each time, and starting from 0, we are going to start with an all 1 mask, and reduce the number of 1 bits each time. This won't have the gap at an all 1 mask, because it is the starting value.
 
-To achive it, we are going to start with our type maximum mask, and then shift it to the right by the total number of bits in our type, minus our width. For example, if our type is `u8`, and our width is `3`, our mask will be `0b11111111 >> (8 - 3) = 0b00000111`. 
+To achieve it, we are going to start with our type maximum mask, and then shift it to the right by the total number of bits in our type, minus our width. For example, if our type is `u8`, and our width is `3`, our mask will be `0b11111111 >> (8 - 3) = 0b00000111`. 
 
 ```rust,playground
 #![function!("snippets/src/book/ch02_03/mask.rs", generate_mask_2)]
@@ -517,7 +517,7 @@ To achive it, we are going to start with our type maximum mask, and then shift i
 
 The next thing that we are going to do, is to relocate the position of the bits in our mask to the flag position in our u8.
 
-This could easly be done using the left shift operator `<<` with the offset of our flag. For example, if the starting bit of our flag is at position 2, we can shift our mask to the left by 2 bits: `mask << 2`. Which makes our final mask generation function look like this:
+This could easily be done using the left shift operator `<<` with the offset of our flag. For example, if the starting bit of our flag is at position 2, we can shift our mask to the left by 2 bits: `mask << 2`. Which makes our final mask generation function look like this:
 
 ```rust,playground
 #![function!("snippets/src/book/ch02_03/mask.rs", generate_mask_3)]
@@ -637,13 +637,13 @@ For our `FlagMeta` struct, we will want to store the width of the field, but als
 
 ### Parsing the Attribute
 
-We will start off easy, by parsing the `FlagType` attribute. Because every element in this attribute already implements the `Parse` trait, we can call it's parse function on the currect order.
+We will start off easy, by parsing the `FlagType` attribute. Because every element in this attribute already implements the `Parse` trait, we can call it's parse function in the correct order.
 
 ```rust
 #![trait_impl!("crates/macros/src/bitfields/flag_attr.rs", Parse for FlagType)]
 ```
 
-If you were wandering why are we calling the `parse` fucntion on the input instead of on the type itself. It is because the `ParseStream` implements this very convenient `parse` function that allows us to parse a single token of from the stream at a time.
+If you were wandering why are we calling the `parse` function on the input instead of on the type itself. It is because the `ParseStream` implements this very convenient `parse` function that allows us to parse a single token of from the stream at a time.
 
 ```rust
 #![impl_method!("<crateio>/syn-2.0.117/src/parse.rs", ParseBuffer::parse)]
@@ -711,15 +711,15 @@ To turn the width number of the type to the type that will represent it, we will
 #![function!("crates/macros/src/bitfields/utils.rs", type_from_size)]
 ```
 
-For each field on our struct, we are going to initialy extract all the attributes on it and divide them into document attributes and our flag attributes.
+For each field on our struct, we are going to initially extract all the attributes on it and divide them into document attributes and our flag attributes.
 
-This can be easily done, becuase Rust doesn't store our comments as a string starting with `///` but as a `#[doc(some_comment)]` attribute. This makes our comments actually a `syn::Attribute` token which we already know how to work with.
+This can be easily done, because Rust doesn't store our comments as a string starting with `///` but as a `#[doc(some_comment)]` attribute. This makes our comments actually a `syn::Attribute` token which we already know how to work with.
 
 ```rust
 #![function!("crates/macros/src/bitfields/bitfield.rs", extract_attributes)]
 ```
 
-After that, we are going to create our field from the `syn::Field` token. But, the field itself is not enough, because from it we can't known the offset of the field in the struct. We are going to give as a parameter in the `new` function that will create our `BitField` instance. We can do that because when we will create our fields one by one, we will add each time thier size to an offset, that will ofcourse start at 0.
+After that, we are going to create our field from the `syn::Field` token. But, the field itself is not enough, because from it we can't known the offset of the field in the struct. We are going to give as a parameter in the `new` function that will create our `BitField` instance. We can do that because when we will create our fields one by one, we will add each time their size to an offset, that will ofcourse start at 0.
 
 ```rust
 #![impl_method!("crates/macros/src/bitfields/bitfield.rs", BitField::new)]
@@ -741,7 +741,7 @@ Our first function will be a utility function, that will provide us some checks 
 #![impl_method!("crates/macros/src/bitfields.rs", BitFields::checks)]
 ```
 
-For each of our functions, we are going to use three main types. The first is the type of the variable that we are getting, the second, is going to be the type that represents the type of the variable we are getting, and the third is the type of the entire struct. For example, we might have a field `#[flag(flag_type = Bar)] foo: B6`. The type of our variable in this case will be `Bar`, the type that represents the field is `u8` becuse it is only 6 bits wide, and the type of the entire struct depends also on the other fields and thier sizes, but it will also follow the rules of the `type_from_size` function.
+For each of our functions, we are going to use three main types. The first is the type of the variable that we are getting, the second, is going to be the type that represents the type of the variable we are getting, and the third is the type of the entire struct. For example, we might have a field `#[flag(flag_type = Bar)] foo: B6`. The type of our variable in this case will be `Bar`, the type that represents the field is `u8` because it is only 6 bits wide, and the type of the entire struct depends also on the other fields and their sizes, but it will also follow the rules of the `type_from_size` function.
 
 To store all of these types we are going to use a struct.
 
@@ -779,9 +779,9 @@ For our `read_shift` function we need to know if to shift the value or not per t
 >
 > When writing a macro, we don't want to insert `use` statement to the codebase of the person that is using our macros, and, we can't assume (although most of the time unlikely) that he or she didn't implement functions with similar names as in our example `try_into`, that are doing an entirely different thing.
 >
-> Because of that, the safest when to to call fucntions from libaraies, and trait methods, is to use theier fully qualified name. So we use `::` before core, to refenrece the compiler's core libarary (in case they have a core.rs module) and the fully trait name to call it's functions.
+> Because of that, the safest when to to call functions from libaraies, and trait methods, is to use their fully qualified name. So we use `::` before core, to refenrece the compiler's core library (in case they have a core.rs module) and the fully trait name to call it's functions.
 
-When implementing our write and clear functions, we are going to use almost the exact same code for the writing logic. Because of that, we are going to exract this piece of code to a general `volatile_write` function.
+When implementing our write and clear functions, we are going to use almost the exact same code for the writing logic. Because of that, we are going to extract this piece of code to a general `volatile_write` function.
 
 ```rust
 #![impl_method!("crates/macros/src/bitfields.rs", BitFields::volatile_write)]

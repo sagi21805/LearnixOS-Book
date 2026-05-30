@@ -120,7 +120,7 @@ To see what this macro generated, we can use the amazing [`cargo-expand`](https:
 </details>
 </blockquote>
 
-If this macro seems really cool and complicated, that's great! because it will be fully explained and implemented in [later chpaters](./ch02-03-implementing-the-bitfields-proc-macro.md).
+If this macro seems really cool and complicated, that's great! because it will be fully explained and implemented in [later chapters](./ch02-03-implementing-the-bitfields-proc-macro.md).
 
 _We will also define an enum that will include the protection level and the system segment type, so it would be more clear_
 
