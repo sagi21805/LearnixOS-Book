@@ -16,4 +16,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check the Spelling of the Book
-        uses: crate-ci/typos@latest
+        uses: crate-ci/typos@v1.47.0
