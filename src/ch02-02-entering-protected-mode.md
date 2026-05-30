@@ -166,7 +166,7 @@ Now, to apply all of the created functionality, enable protected mode, and final
 
 But just before that, when we jump to the next stage, we need to specify the offset in the GDT of the relevant section we want to jump to, which will load the `cs` segment register with that value. In that case it is the `kernel_code` section that will allow us to run code on ring0. For an easy way to specify the section, we will create an enum.
 
-_Notice that this also contains segments of other GDT that we will use in the future._
+_Notice that this also contains segments of another GDT that we will used in the following chapters._
 
 ```rust,fp=<repo>crates/common/src/enums/global_descriptor_table.rs#L8
 #![enum!("crates/common/src/enums/global_descriptor_table.rs", Sections)]
