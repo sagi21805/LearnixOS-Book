@@ -40,14 +40,6 @@ jobs:
           path: ~/.cargo/bin
           key: mdbook-bins-${{ runner.os }}-mdbook-0.5.3-v1
 
-      - name: Cache build target
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: cargo-target-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            cargo-target-${{ runner.os }}-
-
       - name: Cache preprocessor build targets
         uses: actions/cache@v4
         with:
@@ -76,7 +68,9 @@ jobs:
         if: github.ref_name != 'master'
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          personal_token: ${{ secrets.PREVIEW_DEPLOY_TOKEN }}
+          external_repository: sagi21805/LearnixOS-Book-previews
+          publish_branch: gh-pages
           publish_dir: ./book
           destination_dir: preview/${{ github.ref_name }}
           keep_files: true
@@ -86,7 +80,7 @@ jobs:
         run: |
           echo "=========================================="
           echo " Preview URL:"
-          echo " https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/preview/${{ github.ref_name }}"
+          echo " https://sagi21805.github.io/LearnixOS-Book-previews/preview/${{ github.ref_name }}"
           echo "=========================================="
 
       - name: Setup Pages
