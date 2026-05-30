@@ -72,15 +72,14 @@ jobs:
           external_repository: sagi21805/LearnixOS-Book-previews
           publish_branch: gh-pages
           publish_dir: ./book
-          destination_dir: preview/${{ github.ref_name }}
-          keep_files: true
+          # no destination_dir → deploys to root, overwrites previous preview
 
       - name: Print preview URL
         if: github.ref_name != 'master'
         run: |
           echo "=========================================="
           echo " Preview URL:"
-          echo " https://sagi21805.github.io/LearnixOS-Book-previews/preview/${{ github.ref_name }}"
+          echo " https://sagi21805.github.io/LearnixOS-Book-previews"
           echo "=========================================="
 
       - name: Setup Pages
