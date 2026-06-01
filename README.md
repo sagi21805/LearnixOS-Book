@@ -12,9 +12,9 @@ All text, diagrams, and explanations are licensed under:
 [View full license](https://creativecommons.org/licenses/by-nc/4.0/)
 
 This means:
-- ✅ Free to read and share with attribution
-- 🚫 No commercial use
-- 🚫 No remixing or derivative works
+- [x] Free to read and share with attribution
+- [ ] No commercial use
+- [ ] No remixing or derivative works
 
 ## External Sources Referenced
 
