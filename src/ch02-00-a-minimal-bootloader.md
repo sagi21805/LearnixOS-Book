@@ -11,8 +11,8 @@ In this chapter we will implement the following features:
 
 -  Setup registers and stack
 -  Enable the A20 line
--  Read kernel from disk
--  Load the global descriptor table
+-  Read the kernel from disk
+-  Load the Global Descriptor Table
 -  Enable Paging
 
 These features are enough, at least for the start of our kernel. Later in the book, we will implement more features like obtaining a memory map, enabling text mode, locating the kernel in the file system, and more!
