@@ -8,7 +8,7 @@ It covers real OS concepts, step-by-step builds, and explanations aimed at helpi
 
 All text, diagrams, and explanations are licensed under:
 
-**Creative Commons Attribution-NonCommercial-NoDerivatives 4.0**  
+**Creative Commons Attribution-NonCommercial 4.0**  
 [View full license](https://creativecommons.org/licenses/by-nc/4.0/)
 
 This means:
