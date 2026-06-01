@@ -1,10 +1,10 @@
-# 📖 LearnixOS Book
+# LearnixOS Book
 
 This is the official book for the LearnixOS project — a learning resource that guides readers through the process of building an operating system in Rust.
 
 It covers real OS concepts, step-by-step builds, and explanations aimed at helping you deeply understand system internals.
 
-## 📜 License
+## License
 
 All text, diagrams, and explanations are licensed under:
 
@@ -16,7 +16,7 @@ This means:
 - 🚫 No commercial use
 - 🚫 No remixing or derivative works
 
-## 🧠 External Sources Referenced
+## External Sources Referenced
 
 This book references or links to:
 - [OSDev.org](https://wiki.osdev.org) – CC BY 2.5
