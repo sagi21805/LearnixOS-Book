@@ -4,6 +4,8 @@ _"With great power comes great responsibility." - Voltaire / Spider-Man_
 
 ---
 
+#![repository_card]
+
 As you may recall from previous chapters, our BIOS only loads the first sector to RAM, which leaves about just shy of 512 bytes[^1].
 After we read from disk, it will enable us to write much more code, because we will not be limited to 512 bytes.
 But just before we do that, we don't want to limit ourselves to only 16bit instructions.

@@ -4,6 +4,8 @@ _"Compatibility means deliberately repeating other people's mistakes." - David W
 
 ---
 
+#![repository_card]
+
 When writing our bootloader, and especially in the first stages, we encounter a lot of legacy that needs to be handled.
 This legacy may come in multiple shapes, like bios interrupts, magic numbers and things that need to be initialized. Most of this work will be covered in this chapter.
 

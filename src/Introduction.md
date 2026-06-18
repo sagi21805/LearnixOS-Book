@@ -4,6 +4,8 @@ _"If you can't explain it simply, you don't understand it well enough." - Albert
 
 ---
 
+#![repository_card]
+
 Imagine you need to write some code to read from a file. You write a single, elegant line of Python
 <code class="language-hlrs" style="filter: brightness(0.9); padding: 2px 3px; border-radius: 3px; display: inline-block;">
     <span class="hlrs-keyword">with</span> <span class="hlrs-function">open</span>(<span class="hlrs-litstr">"my_file.txt"</span>) <span class="hlrs-keyword">as</span> <span class="hlrs-variable">f</span>:

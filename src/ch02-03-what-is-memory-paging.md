@@ -3,6 +3,8 @@
 _"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise." - Edsger W. Dijkstra_
 
 ---
+
+#![repository_card]
 In the previous section, we talked about the global descriptor table, and how segments are used to divide memory into logical parts so it is easier to manage.
 Although this system worked in older 32bit operating systems, it will not be good for our operating system, but why is that?
 

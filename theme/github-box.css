@@ -1,0 +1,154 @@
+.github-repo-box {
+    --gh-bg: #ffffff;
+    --gh-border: #d0d7de;
+    --gh-text: #24292f;
+    --gh-link: #0969da;
+    --gh-muted: #57606a;
+    --gh-btn-bg: #f6f8fa;
+    --gh-btn-border: rgba(27, 31, 36, 0.15);
+    --gh-btn-hover: #f3f4f6;
+
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+        sans-serif;
+    border: 1px solid var(--gh-border);
+    border-top: 4px solid var(--gh-link); /* Nice top accent line */
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 800px; /* Made much wider */
+    width: 100%;
+    background-color: var(--gh-bg);
+    color: var(--gh-text);
+    margin: 2em 0;
+    box-sizing: border-box;
+    box-shadow: 0 3px 6px rgba(140, 149, 159, 0.15);
+}
+
+html.coal .github-repo-box,
+html.navy .github-repo-box,
+html.ayu .github-repo-box {
+    --gh-bg: #0d1117;
+    --gh-border: #30363d;
+    --gh-text: #c9d1d9;
+    --gh-link: #58a6ff;
+    --gh-muted: #8b949e;
+    --gh-btn-bg: #21262d;
+    --gh-btn-border: rgba(240, 246, 252, 0.1);
+    --gh-btn-hover: #30363d;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.github-repo-box .repo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.github-repo-box .repo-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gh-muted);
+    flex: 1 1 45%;
+    min-width: 250px;
+}
+
+.github-repo-box .repo-title-group a {
+    color: var(--gh-link) !important;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.github-repo-box .repo-title-group a:hover {
+    text-decoration: underline;
+}
+
+.github-repo-box .repo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+    flex: 1 1 45%;
+    min-width: 250px;
+}
+
+.github-repo-box .github-btn {
+    flex: 1 1 90px;
+    justify-content: center;
+}
+
+.github-repo-box .github-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 20px;
+    color: var(--gh-text) !important;
+    background-color: var(--gh-btn-bg);
+    border: 1px solid var(--gh-btn-border);
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.github-repo-box .github-btn:hover {
+    background-color: var(--gh-btn-hover);
+    text-decoration: none;
+}
+
+/* Body: Description */
+.github-repo-box .repo-description {
+    font-size: 15px;
+    color: var(--gh-muted);
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+/* Footer: Stats Grid */
+.github-repo-box .repo-footer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.github-repo-box .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--gh-muted) !important;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a.stat-item:hover {
+    color: var(--gh-link) !important;
+    text-decoration: none;
+}
+
+.github-repo-box .icon {
+    display: inline-block;
+    overflow: visible !important;
+    vertical-align: text-bottom;
+}
+
+.language-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--gh-muted);
+    display: inline-block;
+}
+
+.github-repo-box .btn-patreon svg {
+    fill: #ff424d;
+}

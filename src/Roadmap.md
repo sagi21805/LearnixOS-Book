@@ -1,5 +1,9 @@
 # Roadmap
 
+---
+
+#![repository_card]
+
 This document specifies the planned topics and features that will be developed in the LearnixOS and covered by this book.
 
 Each topic has a corresponding issue both in the book and in the OS repository. The status of each topic can be tracked using the links provided in the tables below.

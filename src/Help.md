@@ -1,5 +1,9 @@
 # Huge thanks for being here!
 
+---
+
+#![repository_card]
+
 Taking the time to read through this project means the world to me. I hope you learned something valuable!
 
 I work on this project in most of my free time! 
