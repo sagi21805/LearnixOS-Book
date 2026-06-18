@@ -138,7 +138,6 @@ impl Preprocessor for GithubRepositoryCard {
                     .replace_all(
                         &chapter.content,
                         |_caps: &regex::Captures| {
-                            eprintln!("Caps: {:?}", _caps);
                             format!("{}", html)
                         },
                     )
