@@ -283,13 +283,13 @@ _There are a lot of types on the `syn` crate, and we will only cover some of the
 The top level type for the AST is `syn::File`, which represents a complete Rust source file.
 
 ```rust
-#![source_file!("<crateio>/syn-2.0.117/src/file.rs", 6:86)]
+#![source_file!("<crateio>/syn-2.0.118/src/file.rs", 6:86)]
 ```
 
 Ok, we can see that `syn::File` is made out of a list of `syn::Attribute` and `syn::Item`. But this doesn't tell us much, so let's also explore them.
 
 ```rust
-#![source_file!("<crateio>/syn-2.0.117/src/attr.rs", 23:183)]
+#![source_file!("<crateio>/syn-2.0.118/src/attr.rs", 23:183)]
 ```
 
 So we can see an attribute, like `#[derive(Debug)]`, is represented by `syn::Attribute`. Currently, we will not dive deeper into `Attribute`, but we will cover more of it when we will use it in our macro implementation.
@@ -297,13 +297,13 @@ So we can see an attribute, like `#[derive(Debug)]`, is represented by `syn::Att
 Now let's see `syn::Item`.
 
 ```rust
-#![source_file!("<crateio>/syn-2.0.117/src/item.rs", 22:101)]
+#![source_file!("<crateio>/syn-2.0.118/src/item.rs", 22:101)]
 ```
 
 As you can see, we have a lot of items, and I hope that you can start and recognize some of them. As an example, let's cover `ItemConst`.
 
 ```rust
-#![source_file!("<crateio>/syn-2.0.117/src/item.rs", 103:118)]
+#![source_file!("<crateio>/syn-2.0.118/src/item.rs", 103:118)]
 ```
 
 If you have noticed closely, the order of the fields in the struct definition is the same as the order in the source code. This makes it really easy to map the AST back to the source code.
@@ -313,7 +313,7 @@ Also, as a side note, keywords like `const`, `struct` and punctuation like `:` a
 The last type that we are going to cover is `syn::Expr`, which represents an expression from the source code. Because most of Rust's syntax is represented as expressions, `syn::Expr` is a very large type.
 
 ```rust
-#![source_file!("<crateio>/syn-2.0.117/src/expr.rs", 37:269)]
+#![source_file!("<crateio>/syn-2.0.118/src/expr.rs", 37:269)]
 ```
 
 These types are very powerful and help us express language in a structured way. As a quick example, let's see how `syn::ItemStruct` is represented in the AST. In this example, we have the exact same struct that we showed its `TokenStream` representation.
@@ -380,7 +380,7 @@ The most important thing about Syn is that we can use the types that it offers t
 But how would Syn know to parse our custom syntax into the AST types it offers? This is where the `Parse` trait comes in. When Syn wants to parse our custom syntax, it will call the `parse` method from the `Parse` trait and pass in the token stream to parse.
 
 ```rust
-#![trait!("<crateio>/syn-2.0.117/src/parse.rs", Parse)]
+#![trait!("<crateio>/syn-2.0.118/src/parse.rs", Parse)]
 ```
 
 We will go deeper into this when we create our own custom `Parse` implementation. One important thing to understand is that all of syn's types implement `Parse` themselves, so most of the time, implementing `Parse` for types that are built from syn's AST types is easy.
@@ -652,7 +652,7 @@ We will start off easy by parsing the `FlagType` attribute. Because every elemen
 If you were wondering why we are calling the `parse` function on the input instead of on the type itself. It is because the `ParseStream` implements this very convenient `parse` function that allows us to parse a single token from the stream at a time.
 
 ```rust
-#![impl_method!("<crateio>/syn-2.0.117/src/parse.rs", ParseBuffer::parse)]
+#![impl_method!("<crateio>/syn-2.0.118/src/parse.rs", ParseBuffer::parse)]
 ```
 
 Next, let's parse something that takes a little more effort, our `FlagPermission`.
@@ -692,7 +692,7 @@ Although we implemented `Parse` for `FlagAttribute`, we are not going to create 
 For that, we are going to use the `Meta` part of our `syn::Attribute`.
 
 ```rust
-#![source_file!("<crateio>/syn-2.0.117/src/attr.rs", 455:486)]
+#![source_file!("<crateio>/syn-2.0.118/src/attr.rs", 455:486)]
 ```
 
 In our case, we are going to have a `Meta::List`, which contains a `TokenStream` of the attribute's contents, hence the implementation of the `Parse` trait.
