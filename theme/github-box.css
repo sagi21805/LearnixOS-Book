@@ -1,6 +1,4 @@
-/* src/custom-github.css */
 .github-repo-box {
-    /* Default Light Mode Colors */
     --gh-bg: #ffffff;
     --gh-border: #d0d7de;
     --gh-text: #24292f;
@@ -26,7 +24,6 @@
     box-shadow: 0 3px 6px rgba(140, 149, 159, 0.15);
 }
 
-/* mdBook Dark Mode Overrides */
 html.coal .github-repo-box,
 html.navy .github-repo-box,
 html.ayu .github-repo-box {
@@ -41,7 +38,6 @@ html.ayu .github-repo-box {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
-/* Header: Title and Buttons */
 .github-repo-box .repo-header {
     display: flex;
     justify-content: space-between;
@@ -58,6 +54,8 @@ html.ayu .github-repo-box {
     font-size: 18px;
     font-weight: 600;
     color: var(--gh-muted);
+    flex: 1 1 45%;
+    min-width: 250px;
 }
 
 .github-repo-box .repo-title-group a {
@@ -72,7 +70,16 @@ html.ayu .github-repo-box {
 
 .github-repo-box .repo-actions {
     display: flex;
+    flex-wrap: wrap;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 8px;
+    flex: 1 1 45%;
+    min-width: 250px;
+}
+
+.github-repo-box .github-btn {
+    flex: 1 1 90px;
+    justify-content: center;
 }
 
 .github-repo-box .github-btn {
@@ -140,4 +147,8 @@ a.stat-item:hover {
     border-radius: 50%;
     background-color: var(--gh-muted);
     display: inline-block;
+}
+
+.github-repo-box .btn-patreon svg {
+    fill: #ff424d;
 }

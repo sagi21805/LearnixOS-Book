@@ -20,7 +20,7 @@ static HTML: &str = r##"
       </a>
     </div>
     <div class="repo-actions">
-    <a class="github-btn btn-sponsor" href="#" target="_blank" rel="noopener noreferrer">
+    {patreon}<a class="github-btn btn-sponsor" href="#" target="_blank" rel="noopener noreferrer">
         <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" class="icon"><path fill="#bf3989" d="m8 14.25.345.666a.75.75 0 0 1-.69 0l-.008-.004-.018-.01a7.152 7.152 0 0 1-.31-.17 22.055 22.055 0 0 1-3.434-2.414C2.045 10.731 0 8.35 0 5.5 0 2.836 2.086 1 4.25 1 5.797 1 7.153 1.802 8 3.02 8.847 1.802 10.203 1 11.75 1 13.914 1 16 2.836 16 5.5c0 2.85-2.045 5.231-3.885 6.818a22.066 22.066 0 0 1-3.744 2.584l-.018.01-.006.003h-.002Z"></path></svg>
         Sponsor
       </a>
@@ -64,6 +64,16 @@ static HTML: &str = r##"
 </div>
 "##;
 
+static PATREON: &str = r##"
+<a class="github-btn btn-patreon" href="{patreon_url}" target="_blank" rel="noopener noreferrer">
+    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" class="icon">
+      <circle cx="9.5" cy="6.2" r="5.2" fill="#FF424D"></circle>
+      <rect x="1.3" y="0.6" width="2.4" height="14.8" fill="#052D49"></rect>
+    </svg>
+    Patreon
+</a>
+"##;
+
 impl Preprocessor for GithubRepositoryCard {
     fn name(&self) -> &str {
         "github-repository-card"
@@ -81,6 +91,7 @@ impl Preprocessor for GithubRepositoryCard {
 
         let mut username = "";
         let mut repository = "";
+        let mut patreon_url = "";
 
         if let Some(conf) = &conf_raw {
             username = conf
@@ -89,6 +100,10 @@ impl Preprocessor for GithubRepositoryCard {
                 .unwrap_or_default();
             repository = conf
                 .get("repository")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default();
+            patreon_url = conf
+                .get("patreon_url")
                 .and_then(|v| v.as_str())
                 .unwrap_or_default();
         }
@@ -100,11 +115,19 @@ impl Preprocessor for GithubRepositoryCard {
             return Ok(book);
         }
 
+        let patreon = if !patreon_url.is_empty() {
+            PATREON.replace("{patreon_url}", &patreon_url)
+        } else {
+            eprintln!("[INFO]: Patreon url was not specified.");
+            String::from("")
+        };
+
         let re = Regex::new(r"---").unwrap();
 
         let html = HTML
             .replace("{username}", username)
-            .replace("{repository}", repository);
+            .replace("{repository}", repository)
+            .replace("{patreon}", &patreon);
 
         book.for_each_mut(|item| {
             if let mdbook_preprocessor::book::BookItem::Chapter(
