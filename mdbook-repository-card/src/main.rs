@@ -122,7 +122,7 @@ impl Preprocessor for GithubRepositoryCard {
             String::from("")
         };
 
-        let re = Regex::new(r"---").unwrap();
+        let re = Regex::new(r"#!\[repository_card\]").unwrap();
 
         let html = HTML
             .replace("{username}", username)
@@ -138,7 +138,8 @@ impl Preprocessor for GithubRepositoryCard {
                     .replace_all(
                         &chapter.content,
                         |_caps: &regex::Captures| {
-                            format!("---\n\n{}\n\n", html)
+                            eprintln!("Caps: {:?}", _caps);
+                            format!("{}", html)
                         },
                     )
                     .to_string();

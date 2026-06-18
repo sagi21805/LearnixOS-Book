@@ -4,6 +4,8 @@ _"From a small spark may burst a mighty flame." - Dante Alighieri_
 
 ---
 
+#![repository_card]
+
 Writing a bootloader is not an easy task, and it can include a lot of [things](http://wiki.osdev.org/Rolling_Your_Own_Bootloader#A_list_of_things_you_might_want_to_do).
 In this chapter we will write the minimal needed bootloader to load our kernel, and obtain information that is necessary for it.
 

@@ -1,5 +1,5 @@
 [package]
-name = "mdbook-repository-card"
+name = "mdbook-repository_card"
 version = "0.1.0"
 edition = "2024"
 

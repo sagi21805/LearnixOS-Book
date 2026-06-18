@@ -4,6 +4,8 @@ _"There is no elevator to success - you have to take the stairs." - Zig Ziglar_
 
 ---
 
+#![repository_card]
+
 In the previous section, we created a standalone binary, which is not linked to any standard library. But if you looked closely, and inspected the binary, you would see that we used a build target that is called `x86_64-unknown-none`, which is a generic target that doesn't specify any operating system or vendor, but it still specifies the architecture as `x86_64`, which is the architecture of most modern computers. 
 
 ## Understanding Rust Targets

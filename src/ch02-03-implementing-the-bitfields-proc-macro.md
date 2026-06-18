@@ -4,6 +4,8 @@ _"In Lisp, you don't just write your program down toward the language, you also 
 
 ---
 
+#![repository_card]
+
 As you may recall from the previous chapter, we used a proc-macro that was called `bitfields`. In this chapter, we are going to learn about Rust's procedural macros and even implement one ourselves.
 
 > Another great resource for this subject is the great video [Comprehending Proc Macros](https://youtu.be/SMCRQj9Hbx8?si=p-JUX0rLronBG_Nz) by Logan Smith

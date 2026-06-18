@@ -4,6 +4,8 @@ _"Machines take me by surprise with great frequency." - Alan Turing_
 
 ---
 
+#![repository_card]
+
 The first step in making our operating system is making a program that can be compiled, and executed, without any dependency.
 This is not a straightforward task, because every program that we use in our daily life uses at least one, very important dependency: `The Standard Library`.
 Sometimes, this library is provided by the operating system itself, for example, libc for the Linux kernel, or the WinAPI for the Windows operating system, and most of the time it is wrapped around by our programming languages.

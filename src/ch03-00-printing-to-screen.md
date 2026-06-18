@@ -4,6 +4,8 @@ _"The most effective debugging tool is still and careful thought, coupled with j
 
 ---
 
+#![repository_card]
+
 Printing is an important aspect of an operating system, especially in early development because it is our way to gain a visual output from our operating system. This will massively improve the interaction with our OS, and not only will it give us a huge advantage in debugging, but it will also grant us the ability to display a shell, which we will do in the upcoming chapters.
 
 ## Why didn't we print until now?

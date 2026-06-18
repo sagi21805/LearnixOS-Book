@@ -4,6 +4,8 @@ _"A small thing. Yet it holds everything together." - J.R.R. Tolkien, paraphrase
 
 ---
 
+#![repository_card]
+
 In the previous section we talked about memory paging, what it is, and how to initialize page tables. So, logically the only thing that is left to do, is to toggle on paging.
 
 After that we can also toggle [`long mode`](https://en.wikipedia.org/wiki/Long_mode), which is another mode in the CPU, just like `protected mode` which will let us run 64-bit instructions. 
