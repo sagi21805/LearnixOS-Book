@@ -15,9 +15,9 @@ This legacy may come in multiple shapes, like bios interrupts, magic numbers and
 >
 > Our project structure will include the following directories:
 >
-> - kernel -> For the kernel code, and booting stages.
-> - shared -> Shared crates that are relevant for multiple cases.
-> - build  -> Build utilities, like targets, linker scripts and more.
+> - bootloader -> Bootloader code, including different crate per stage.
+> - kernel -> The main kernel code, which includes the kernel entry.
+> - crates -> Shared crates that are relevant for multiple cases. These crates are the building blocks of our kernel, and will include drivers, memory management, and more.
 >
 > The <u>Cargo.toml</u> in the root of the project will include a [`workspace`](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) definition which will include all of the crates from our project.
 >

@@ -262,7 +262,7 @@ This is a very clever idea done by Rust, and without it, things like the followi
 #![struct!("snippets/src/book/ch01_01/general.rs", A)]
 #![impl!("snippets/src/book/ch01_01/general.rs", A)]
 #![struct!("snippets/src/book/ch01_01/general.rs", B)]
-#![impl!("snippets/src/book/ch01_01/general.rs", A)]
+#![impl!("snippets/src/book/ch01_01/general.rs", B)]
 ```
 Although the functions are defined on different structs, they have the same name. But, because of mangling, the actual name of the function would be something like
 ```
