@@ -45,3 +45,7 @@ mathjax-support = true
 [output.html.playground]
 runnable = true
 editable = true
+
+[output.html.redirect]
+"/ch02-03-implementing-the-bitfields-proc-macro.html" = "/ch02-05-implementing-the-bitfields-proc-macro.html"
+"/ch03-00-printing-to-screen.html" = "/ch04-00-printing-to-screen.html"
