@@ -21,4 +21,4 @@ Some of these topics include:
 - Other OS primitives (i.e. futex, pthreads, etc)
 - Implementation of Arc
 
-If you are familier with other guides about this topics, like the famous [book](https://mara.nl/atomics/) about atomics. This guide is going to cover most of these topics, but explain the concepts from a different angle (or so I think). 
+If you are familier with other guides about this topics, like the famous [book](https://mara.nl/atomics/) about atomics. The following chapters in the book are going to cover most of these topics, but explain the concepts from a different angle (or so I think).
