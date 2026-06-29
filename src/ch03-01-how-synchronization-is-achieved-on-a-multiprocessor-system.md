@@ -38,7 +38,7 @@ In Rust, a semaphore for a certain object may look something like this.
 ```
 pub struct Object<T> {
     data: T,
-    state: State,
+    semaphore: State,
 }
 
 pub enum State {
@@ -89,6 +89,12 @@ In Rust, these operations are provided by the `core::sync::atomic` module.
 
 ### Types of Atomic Operations
 
+#### Load and Store Operations
+
+#### Fetch Modify Write Operations
+
+#### Compare and Exchange Operations
+
 ```
 // For now the memory ordering does not matter, but it will be explained in depth later.
 use core::sync::atomic::{AtomicUsize, Ordering};
@@ -122,13 +128,13 @@ Explain that it is relevant in two ways, the first is the compiler to avoid cert
 
 ## Out of Order Execution
 
-## Weak Memory Ordering
-
-## Strong Memory Ordering
-
-## Fetch and Modify Operations 
+## Strong and Weak Memory Ordering
 
 ## Fences
+
+The main usage I found is to bundle multiple acquire / release operations together. Instead of each operation being aquire / release which on some systmes it might be expensive, the operations are Relaxed, and only the fence operation before the usage on the data is Acquire / Release.
+
+On a singular insturction this will be more expansive.
 
 ## Expirment
 
