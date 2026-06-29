@@ -131,3 +131,5 @@ Explain that it is relevant in two ways, the first is the compiler to avoid cert
 ## Fences
 
 ## Expirment
+
+Add in the expirment test on arm with the expression inside an if block, and not inside an if block. Also check performance on such test.
